@@ -1,0 +1,33 @@
+extends layout.pug
+
+block vars
+    - var applyNoContentStyles = true
+
+block scripts
+    script(type="text/javascript", src="/js/playback.js")
+
+block content
+    div(style="margin-top:90px;margin-left: 50px; margin-right:50px; margin-bottom:100px")#shortlist_wrapper
+        h1= name
+        #pagelink
+            input(type="url", name="pagelink", readonly="true")
+            a.cart-button.enabled.copy(href="javascript:void(0)") Copy
+            a.cart-button.enabled.email(href="mailto:?subject=Sync-Audio%20link") Email
+            div.copied Link copied to clipboard
+        include tracks.pug
+
+        script.
+            const input = document.querySelector("#pagelink input");
+            input.value = location.href;
+            document.querySelector("#pagelink a.copy").onclick = () => {
+                input.select();
+                document.execCommand("copy")
+                input.selectionStart = input.selectionEnd;
+                input.blur();
+                const copied = document.querySelector("#pagelink .copied");
+                copied.style.display = "block";
+                $(copied).fadeOut(2000, () => {
+                    copied.style.display = "none";
+                });
+            }
+            document.querySelector("#pagelink a.email").setAttribute("href", "mailto:?subject=Sync-Audio%20link&body="+location.href);

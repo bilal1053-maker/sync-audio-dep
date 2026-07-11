@@ -1,0 +1,25 @@
+header
+	a.logo(href="/")
+		img(src="/images/logo-tailwind-old.png", alt="Sync-Audio")
+	ul.menu.left-menu
+		li.music
+		a(href="/music" class=(active === '/music' ? 'active' : '')) Music
+		li.about
+		a(href="/about" class=(active === '/about' ? 'active' : '')) About
+		if shortlists && shortlist.length > 0
+		li.shortlists
+			a(href="/shortlists") Shortlists
+	ul.menu.right-menu
+		if trolley && trolley.tracks && trolley.tracks.length > 0
+						li.trolley
+							a(href="/trolley")
+								img(src="/images/trolley.png", alt="Trolley Image", style="vertical-align: middle")
+								| #{trolley.tracks.length}
+					else
+						li.trolley
+							a(href="/trolley")
+							img(src="/images/trolley.png", alt="Trolley Image", style="vertical-align: middle")
+							|   0
+		li.login
+		a(href="/login") Login
+		

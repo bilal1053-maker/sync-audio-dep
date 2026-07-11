@@ -1,0 +1,17 @@
+node_modules
+tmp
+static/images/waveforms
+static/tracks
+restored_files
+.vscode
+Dockerfile
+.nvmrc
+config*.json
+**/*.sql
+**/*.docx
+**/*.ts
+**/*.sh
+**/*.numbers
+**/*.csv
+Commercial\ rate\ card.pdf
+db/data

@@ -1,0 +1,10 @@
+.playlist-card-container
+    if playlists && playlists.length > 0
+        for playlist in playlists
+            a(href=`/playlist_tracks/${playlist.playlist_id}`).playlist-card
+                .playlist-card-img
+                    img(src=`/images/playlists/${playlist.playlist_id}.jpg`, alt=playlist.name, loading="lazy")
+                .playlist-card-content
+                    h5= playlist.name
+    else
+        p No playlists available

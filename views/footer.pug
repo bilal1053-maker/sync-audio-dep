@@ -1,0 +1,214 @@
+footer
+	.footer
+		.flex-container
+			.social-container
+				img.logo(src="/images/logo-tailwind.png", alt="Sync-Audio Logo")
+				p.tagline Making the world a better place with music.
+				.social
+					a(href="https://facebook.com/syncaudiomusic")
+						img(src="/images/company_logos/facebook.svg")
+					a(href="https://twitter.com/syncaudio")
+						img(src="/images/company_logos/twitter.svg")
+					a(href="https://www.linkedin.com/in/sync-audio")
+						img(src="/images/company_logos/linkedin.svg")
+					a(href="https://www.instagram.com/syncaudioofficial")
+						img(src="/images/company_logos/instagram.svg")
+			.menu
+				.column
+					h3 Music
+					a(href="/music") Songs
+					a(href="/playlists") Playlists
+					a(href="/submissions") Music Submissions
+				.column
+					h3 Support
+					a(href="#", class="pricing-link") Pricing
+					a(href="/faq") FAQ
+				.column
+					h3 Company
+					a(href="/about") About
+					a(href="/contact") Contact
+				.column
+					h3 Legal
+					a(href="#", class="open-modal") Copyright
+					a(href="/privacy_policy") Privacy Policy
+					a(href="/purchase_policy") Purchase Policy
+					a(href="/site_use_disclaimer") Site Use
+	a(href="/license_tnc", class="social_container_license") License Terms
+	hr.w-full
+	div.copyright &copy; #{year} Sync-Audio. All rights reserved.
+	.modal-overlay
+		.modal-content
+			.icon-container
+				div(class="blue-circle")
+					i(style="color:rgb(29 78 216)").ba.bi-info-circle
+			h3(style="color:black; text-align:center") Site Copyright Notice
+			p(style="font-size:15px;color:gray") &copy; #{year} Sync-Audio.
+			p(style="font-size:15px") All rights to the contents of this website are the property of the owner. All unauthorised copying and transmission and reproduction in any form or format are prohibited. Use of the services provided by the website is by permission only in accordance to terms and conditions of using the site.
+	
+	div#newTrackModal.modal(style="display:none;")
+		div.modal-content
+			span.close &times;
+			div.modal-header
+				h2(style="line-height:normal") 
+				p(style="line-height:normal;")
+			div.modal-body
+	
+	script.
+		document.addEventListener('DOMContentLoaded', () => {
+		const openModalButton = document.querySelector('.open-modal');
+		const modalOverlay = document.querySelector('.modal-overlay');
+
+		openModalButton.addEventListener('click', (event) => {
+			event.preventDefault();
+			console.log('clicked===modal===>',modalOverlay )
+			modalOverlay.style.display = 'block';
+		});
+
+		window.addEventListener('click', (event) => {
+			if (event.target === modalOverlay) {
+			modalOverlay.style.display = 'none';
+			}
+		});
+		});
+	script.
+		$(document).ready(function(){
+			$(document).on("click", "a.pricing-link", function(event) {
+				event.preventDefault(); 
+
+				$("#newTrackModal .modal-header h2").text("Song Categoty").css({"margin-top":"40px", "color":"black", "margin-bottom":"30px"});
+				$("#newTrackModal .modal-body").empty();
+
+				var $personalBox = $("<div>").addClass("box personal1")
+					.append($("<h3>").text("Personal").css({"font-size":"17px", "color":"black"}))
+					.append($("<p>").text("Home / Students, Vlogger").css({ "margin-top":"-12px","font-size":"14px"}));
+
+				var $businessBox = $("<div>").addClass("box business1")
+					.append($("<h3>").text("Business").css({"font-size":"17px", "color":"black"}))
+					.append($("<p>").text("Promotional 1, 2, 3, Wedding, Indie Film, Indie Trailer, Podcast").css({ "margin-top":"-12px","font-size":"14px"}));
+
+				var $commercialBox = $("<a>").addClass("box commercial1")
+					.attr("href", `/trolley/add/undefined/commercial`)
+					.append($("<h3>").text("Commercial").css("font-size","17px"))
+					.append($("<p>").text("Film, TV, Ads, Game etc.").css( { "margin-top":"-12px","font-size":"14px"}));
+
+				$("#newTrackModal .modal-body").css({"max-height": '300px'}).append($personalBox, $businessBox, $commercialBox);
+
+				$("#newTrackModal").show();
+			});
+
+			$(document).on("click", "#newTrackModal .modal-body a.box.commercial1", function(event) {
+				var href = $(this).attr("href");
+				window.location.href = href; 
+			});
+
+			$(document).on("click", "div.box.personal1, div.box.business1", function(event) {
+				event.preventDefault();
+				var $box = $(this);
+				var boxType = $box.hasClass("personal1") ? "Personal" : "Business";
+				var boxTitle = $box.find("h3").text();
+				var boxDescription = $box.find("p").text();
+				var trackId = $box.data("track-id");
+				
+
+				$("#newTrackModal .modal-header h2").text("Whats your project type?").css("color","black");
+				$("#newTrackModal .modal-header p").text("");
+				var licences = !{JSON.stringify(licences)};
+				licences = Object.keys(licences).map(key => {
+				return { id: key, ...licences[key] };
+				});
+				$("#newTrackModal .modal-body").empty();
+				licences.forEach(function(licence) {
+					if (boxType === "Personal" && (licence.id !== 5 && licence.id !== 9)) {
+						return; 
+					}
+					if (boxType === "Business" && (licence.id === 5 || licence.id === 9 || licence.id === 10)) {
+						return; 
+					}
+					var $licenseBox = $("<div>").addClass("box new")
+												//- .data("track-id",trackId)
+												.data("licence-id", licence.id)
+												.data("licence-price",licence.track_price)
+												.data("licence-description", licence.description)
+												.append($("<p>").text(licence.name).css({"font-size":"16px","color":"black","padding-top":"10px","font-weight":"20px"}))
+												.append($("<a>").attr("href", `/trolley/add/${trackId}/licence/${licence.id}`))
+					$("#newTrackModal .modal-body").append($licenseBox);
+				});
+				newTrackModal.show();
+			});
+
+			$(document).on("click", "#newTrackModal .modal-body .box.new", function(event) {
+				event.preventDefault();
+				var $licenseBox = $(this);
+				var licenceId = $licenseBox.data("licence-id");
+				var trackId = $licenseBox.data("track-id");
+				var licence_price = $licenseBox.data("licence-price");
+				var licence_description = $licenseBox.data("licence-description");
+
+							// Variable to hold the cut price
+			var cutPrice = null;
+
+			// Determine the cut price based on the id
+			switch (licenceId) {
+				case 5:
+					cutPrice = "£59";
+					break;
+				case 9:
+					cutPrice = "£18";
+					break;
+				case 6:
+					cutPrice = "£49";
+					break;
+				case 16:
+					cutPrice = "£259";
+					break;
+				// Add more cases as needed
+				default:
+					cutPrice = null; // No cut price for other IDs
+			}
+
+				$("#newTrackModal .modal-body").empty();
+
+				$("#newTrackModal .modal-header h2").text("Purchase Options").css("color","black");
+
+				var $selectedLicenseBox = $("<div>").addClass("selected-license")
+				.append(
+					$("<div>").addClass("license-info")
+					.append(
+						$("<div>")
+						.append($("<h3>").text("Single Song").css({"font-size": "20px","line-height": "normal", "color":"black"}))
+						.append($("<p>").text("One Time Use").css({"font-size": "12px", "color": "#666","font-style": "italic","margin-top":"-5px"}))
+					)
+					.append(
+						$("<div>").addClass("price-info")
+						.append($("<div>").text("Starting at").css({"font-size": "13px", "color": "#666","margin-top":"10px", "margin-bottom":"0px","font-style": "italic"}))
+						.append(cutPrice ? $("<span>").text(cutPrice).css({"font-size": "20px", "text-decoration": "line-through", "color": "gray", "margin-right": "8px", "position": "relative", "top": "-1px"}) : null)
+						.append($("<span>").addClass("price").text(`£${licence_price.toFixed(2)}`).css({"font-size": "27px", "color": "#000"}))
+					)
+				)
+				.append(
+						$("<div>")
+						.append($("<p>").text(`${licence_description}`))
+				);
+
+				$("#newTrackModal .modal-body").append($selectedLicenseBox);
+				newTrackModal.show();
+			});
+		});
+		$(document).ready(function() {
+			const $newTrackModal = $('#newTrackModal');
+
+			$('.pricing-link').on('click', function(event) {
+				event.preventDefault();
+				$newTrackModal.show();
+			});
+
+			$('.close').on('click', function() {
+				$newTrackModal.hide();
+			});
+
+			$(window).on('click', function(event) {
+				if ($(event.target).is($newTrackModal)) {
+				$newTrackModal.hide();
+				}
+			})
+		});

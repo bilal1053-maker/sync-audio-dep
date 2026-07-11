@@ -1,0 +1,8 @@
+extends layout.pug
+
+block scripts
+    meta(http-equiv="Refresh", content="0; url='"+redirect_url+"'")
+
+block content
+    p
+        a(href=redirect_url) Paypal login

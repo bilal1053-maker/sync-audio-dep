@@ -1,0 +1,103 @@
+#player.noselect
+    audio(type="audio/mpeg")
+    .player
+        #btn_play.button.play
+            a(style="display: inline-block; padding: 10px; border-radius: 15px; text-align: center; background-color: rgb(219, 234, 254);").play(href="javascript:void(0)")
+                img(src="/images/icon-play@2x.png", alt="Play Icon", style="width: 20px; height: 20px; display: block; margin: 0 auto;")
+
+        span.played#played_left 00:00
+        div(style="position: absolute; width:60%; cursor: pointer; left: 23%; right:17%; max-width:500px bottom: 0; height: auto; overflow: hidden; border-radius: 4px; top:0px;").waveform#custom_waveform
+                    img.noselect(src="/images/waveforms/7e5d72ac400ab70c7712bef88d29b5528d9bb5ab-gray.png", alt="", style="filter: brightness(2) contrast(0.8); height: 60px; width: 100%;")#bottom_bg_img
+                    div(style="position: absolute; top: 0px;")#bottom-player.played
+                        img.noselect(src="/images/waveforms/bottom-gray.png", alt="", style="filter: invert(54%) sepia(30%) saturate(200%) hue-rotate(180deg) brightness(150%) opacity(0.95); height: 60px;clip-path: inset(0 100% 0 0);transition: clip-path 0.1s linear;width: 100%;")#bottom_front_img
+        #dynamic_info.info
+            span.artist
+            span.time
+                span.remaining
+
+
+//- #player.noselect
+//-     audio(type="audio/mpeg")
+//-     .player
+//-         .button.play
+//-             a.play(href="javascript:void(0)")
+//-                 img(src="/images/icon-pause.png", style="width: 25px; height: 25px;" alt="Play/Pause", srcset="/images/icon-pause@2x.png 2x, /images/icon-pause@3x.png 3x")
+//-         .transport
+//-             .played
+//-         .info
+//-             span.title
+//-             span.artist
+//-             span.time
+//-                 span.played 00:00
+//-                 | /
+//-                 span.remaining
+//-         .button.rwd
+//-             a.rwd(href="javascript:void(0)")
+//-                 img(src="/images/icon-rwd.png", alt="Rewind" ,srcset="/images/icon-rwd@2x.png 2x, /images/icon-rwd@3x.png 3x")
+//-         .button.fwd
+//-             a.fwd(href="javascript:void(0)")
+//-                 img(src="/images/icon-fwd.png", alt="Fast Forward" ,srcset="/images/icon-fwd@2x.png 2x, /images/icon-fwd@3x.png 3x")
+//-         .button.stop
+//-             a.stop(href="javascript:void(0)")
+//-                 img(src="/images/icon-stop.png", alt="Stop" ,srcset="/images/icon-stop@2x.png 2x, /images/icon-stop@3x.png 3x")
+script.
+    $(function(){
+        $(document.body).append('<div id="trackinfo"><div>Duration: <span class="duration"></span></div><div>Genre: <span class="genre"></span></div><div>Tempo: <span class="tempo"></span></div><div>Mood: <span class="mood"></span></div><div>Style: <span class="style"></span></div></div>');
+        var trackInfoDiv = $('#trackinfo');
+        $(document.body).on("mousedown", function(event){
+            var x = event.pageX;
+            var y = event.pageY;
+            var trackOffset = trackInfoDiv.offset();
+            var trackRect = {
+                "left": trackOffset.left,
+                "top": trackOffset.top,
+                "right": trackOffset.left + trackInfoDiv.outerWidth(),
+                "bottom": trackOffset.top + trackInfoDiv.outerHeight()
+            };
+            if (x < trackRect.left || x > trackRect.right || y < trackRect.top || y > trackRect.bottom) {
+                trackInfoDiv.hide();
+            }
+        });
+        $("a.info").on("click", function(event){
+            var trackInfo = $(this).parents("div.track").data();
+            var durationMinutes = Math.floor(trackInfo.duration / 60);
+            var durationSeconds = Math.round(trackInfo.duration % 60);
+            var duration = (durationMinutes+"").padStart(2, "0")+":"+(durationSeconds+"").padStart(2, "0");
+            var img = $(this).find("img");
+            trackInfoDiv.find("span.duration").text(duration);
+            if (trackInfo.genre) {
+                trackInfoDiv.find("span.genre").parent().show();
+                trackInfoDiv.find("span.genre").text(trackInfo.genre);
+            } else {
+                trackInfoDiv.find("span.genre").parent().hide();
+            }
+            if (trackInfo.tempo) {
+                trackInfoDiv.find("span.tempo").parent().show();
+                trackInfoDiv.find("span.tempo").text(trackInfo.tempo+" BPM");
+            } else {
+                trackInfoDiv.find("span.tempo").parent().hide();
+            }
+            if (trackInfo.mood) {
+                trackInfoDiv.find("span.mood").parent().show();
+                trackInfoDiv.find("span.mood").text(trackInfo.mood);
+            } else {
+                trackInfoDiv.find("span.mood").parent().hide();
+            }
+            if (trackInfo.style) {
+                trackInfoDiv.find("span.style").parent().show();
+                trackInfoDiv.find("span.style").text(trackInfo.style);
+            } else {
+                trackInfoDiv.find("span.style").parent().hide();
+            }
+            trackInfoDiv.show();
+            trackInfoDiv.css({"top":($(this).offset().top-trackInfoDiv.outerHeight()/2)+"px","left":($(this).offset().left+8+img.width())+"px"});
+        });
+        $("a.delete").on("click", function(event) {
+            if (confirm("Delete track? This cannot be undone.")) {
+                return true;
+            } else {
+                event.preventDefault();
+                return false;
+            }
+        });
+    });

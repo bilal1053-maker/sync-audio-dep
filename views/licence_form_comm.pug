@@ -1,0 +1,420 @@
+extends layout.pug
+
+block vars
+    - var applyNoContentStyles = true
+
+block scripts
+    script(type="text/javascript", src="/js/playback.js")
+    script(type="text/javascript", src="/js/trolley.js")
+    style(type="text/css").
+        div.track a.remove {
+            display: block;
+        }
+        div.track a.license {
+            display: none;
+        }
+
+    script.
+        $(document).ready(function() {
+            $("#categoryFormModal").hide();
+            $("#contactModal").hide();
+
+            function disableSubmitButton() {
+                $("#form input[type='submit']").prop('disabled', true).css({
+                    "background-color": "rgba(0, 164, 228, 0.3)", // Light blue color when disabled
+                    "cursor": "not-allowed"
+                });
+            }
+
+            function enableSubmitButton() {
+                $("#form input[type='submit']").prop('disabled', false).css({
+                    "background-color": "rgba(0, 150, 228)", // Original color when enabled
+                    "cursor": "pointer"
+                });
+            }
+
+            function validateForm() {
+                var isValid = true;
+
+                // Reset error messages
+                $(".error-message").hide();
+
+                // Validate required fields
+                $("#form input[type='text'], #form input[type='email'], #form textarea").each(function() {
+                    var id = $(this).attr('id');
+
+                    // Skip validation for the Company field
+                    if (id === 'company') {
+                        return;
+                    }
+                    if ($(this).val().trim() === '') {
+                        isValid = false;
+                        if ($(this).data('touched')) {
+                            $("#" + id + "Error").text("This field is required.").show();
+                        }
+                    } else {
+                        $("#" + id + "Error").hide();
+                    }
+                });
+
+                // Validate Company field separately
+                var companyField = $("#form input#company");
+                if (companyField.data('touched') && companyField.val().trim() === '') {
+                    $("#" + companyField.attr('id') + "Error").hide(); // Ensure no error is shown for Company field if empty
+                }
+
+                // Validate first name
+                var firstName = $("#form input[name='firstName']").val();
+                if (firstName && firstName.trim().length < 2) {
+                    isValid = false;
+                    if ($("#firstName").data('touched')) {
+                        $("#firstNameError").text("First name must be at least 2 characters.").show();
+                    }
+                }
+
+                // Validate last name
+                var lastName = $("#form input[name='lastName']").val();
+                if (lastName && lastName.trim().length < 2) {
+                    isValid = false;
+                    if ($("#lastName").data('touched')) {
+                        $("#lastNameError").text("Last name must be at least 2 characters.").show();
+                    }
+                }
+
+                // Validate email
+                var email = $("#form input[name='email']").val();
+                var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (email && !emailPattern.test(email)) {
+                    isValid = false;
+                    if ($("#email").data('touched')) {
+                        $("#emailError").text("Please enter a valid email address.").show();
+                    }
+                }
+
+                // Validate website
+                var website = $("#form input[name='website']").val();
+                var websitePattern = /^(http[s]?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}$/;
+                if (website && !websitePattern.test(website)) {
+                    isValid = false;
+                    if ($("#website").data('touched')) {
+                        $("#websiteError").text("Please enter a valid website URL.").show();
+                    }
+                }
+
+                // Enable or disable submit button based on validity
+                if (isValid) {
+                    enableSubmitButton();
+                } else {
+                    disableSubmitButton();
+                }
+            }
+
+
+           function initialCheck() {
+                var allFilled = true;
+
+                // Check all text, email, and website fields except the company field
+                $("#form input[type='text'], #form input[type='email'], #form input[name='website']").each(function() {
+                    if ($(this).attr('id') !== 'company' && $(this).val().trim() === '') {
+                        allFilled = false;
+                    }
+                });
+
+                if (allFilled) {
+                    validateForm(); // Validate form fields
+                } else {
+                    disableSubmitButton(); // Disable the button if not all required fields are filled
+                }
+            }
+
+            // Event handlers for form validation and submit button state
+            $("#form input").on("focus blur input", function() {
+                $(this).data('touched', true); // Mark field as interacted
+                validateForm(); // Validate form on focus, blur, and input
+            });
+
+            $("#form textarea").on("focus blur input", function() {
+                $(this).data('touched', true); // Mark field as interacted
+                validateForm(); // Validate form on focus, blur, and input
+            });
+
+            $("#form").on("submit", function(event) {
+                validateForm(); // Validate form on submit
+                if ($("#form input[type='submit']").prop('disabled')) {
+                    event.preventDefault(); // Prevent form submission if invalid
+                }
+            });
+
+            function getCookieValue(name) {
+                const cookies = document.cookie.split("; "); // Split cookies by "; "
+                
+                for (let cookie of cookies) {
+                    let [key, value] = cookie.split("="); // Split each cookie into key and value
+                    if (key === name) {
+                        return decodeURIComponent(value); // Decode and return value
+                    }
+                }
+                return null; // Return null if cookie not found
+            }
+
+            // Populate display fields and hidden inputs when modal opens
+            function populateUserInfo() {
+                const firstName = getCookieValue("first_name") || "";
+                const lastName = getCookieValue("last_name") || "";
+                const company = getCookieValue("company") || "";
+                const email = getCookieValue("email") || "";
+
+                $("#displayFirstName").text(firstName);
+                $("#displayLastName").text(lastName);
+                $("#displayCompany").text(company);
+                $("#displayEmail").text(email);
+
+                // Set values for existing hidden fields
+                $("#email").val(email);
+                $("#company").val(company);
+                $("#firstName").val(firstName);
+                $("#lastName").val(lastName);
+            }
+
+            $("input[name='licenceCategory']").on("click", function() {
+                $("#categoryFormModal").hide();
+                $("#contactModal").hide();
+                var selectedCategory = $(this).val();
+                var categoryName = $(this).attr('data-category');
+                if (selectedCategory == "other" || categoryName) {
+                    $("#selected_cat").text(selectedCategory == "other" ? "Other" :categoryName);
+                    $("#selectedCat").val(selectedCategory == "other" ? "Other" :categoryName);
+                    //- populateUserInfo(); // Populate user info from cookies
+                    $("#contactModal").show();
+                } else {
+
+                    //- Old code
+                    //- $("#categoryFormModal").show();
+                    //- $("#form input[name='licenceCategory']").val(selectedCategory);
+                    //- initialCheck(); // Revalidate form when modal opens
+     
+                    const trackId = $("*[data-track]").attr("data-track");
+        var form = $('<form>', {
+            id: 'dynamicForm',
+            action: "/trolley/add/" + trackId + "/commercial",
+            method: "POST"
+        });
+        form.append($('<input>', {
+            type: 'hidden',
+            name: 'licenceCategory',
+            value: selectedCategory
+        }));
+        form.append($('<input>', {
+            type: 'hidden',
+            name: 'firstName',
+            value: getCookieValue("first_name")
+        }));
+        form.append($('<input>', {
+            type: 'hidden',
+            name: 'lastName',
+            value: getCookieValue("last_name")
+        }));
+        form.append($('<input>', {
+            type: 'hidden',
+            name: 'email',
+            value: getCookieValue("email")
+        }));
+         form.append($('<input>', {
+            type: 'hidden',
+            name: 'categoryName',
+            value: categoryName
+        }));
+        form.append($('<input>', {
+            type: 'hidden',
+            name: 'company',
+            value: getCookieValue("company")
+        }));
+        $("body").append(form);
+        form.submit();
+
+        
+                }
+            });
+
+            $(".modal .close").on("click", function() {
+                $(".modal").hide();
+                initialCheck(); // Revalidate form when modal closes
+            });
+
+            $(window).on("click", function(event) {
+                if ($(event.target).hasClass("modal")) {
+                    $(".modal").hide();
+                    initialCheck(); // Revalidate form when modal closes
+                }
+            });
+
+            // Initially check all fields and disable/enable the submit button
+            initialCheck();
+        });
+
+block content
+    div(style="margin-bottom:100px; margin-top:70px; margin-left:400px; margin-right:400px")#form_comm
+        if licenceCategories
+            .entry
+                p(style="font-size:18px; color:rgb(71, 85, 105)")
+                    label(for="licenceCategory") Project type
+                div(style="margin-top:30px").categories
+                    for category in licenceCategories
+                        div
+                            div(style="margin-top:15px")
+                                if licenceCategory && licenceCategory == category.id
+                                    input(type="radio", name="licenceCategory", value=category.id, checked="checked")
+                                else
+                                    input(type="radio", name="licenceCategory", data-category= category.name, value=category.id)
+                                | 
+                                span(style="font-size:15px; font-weight:600;margin-left:10px; color:rgb(60, 70, 90);")= category.name
+                            div(style="margin-left:35px; color:gray; font-size:14px")= category.description
+                    div
+                        div
+                            input(type="radio", name="licenceCategory", value="other")
+                            | 
+                            span(style="font-size:15px; font-weight:bold; margin-left:10px;color:rgb(71, 85, 105)") Other
+                        div(style="margin-left:35px; color:gray; font-size:14px") Can't find what you are looking for? We can tailor a licence to your needs.
+
+    .modal#categoryFormModal
+        .modal-content1
+            .close x
+            .form-container
+                //- form#form(action="/trolley/add/"+trackId+"/commercial", method="post")
+                //-     .entry
+                //-         div(style="font-size:14px")
+                //-             label(for="firstName") First name
+                //-         div(style="font-size:15px")
+                //-             input#firstName(style="font-size:14px", type="text", name="firstName", placeholder="First name", value=firstName)
+                //-             span.error-message#firstNameError(style="color: red; display: none;font-size:14px") Please enter your first name.
+                //-     .entry
+                //-         div(style="font-size:14px")
+                //-             label(for="lastName") Last name
+                //-         div(style="font-size:14px")
+                //-             input#lastName(style="font-size:14px", type="text", name="lastName", placeholder="Last name", value=lastName)
+                //-             span.error-message#lastNameError(style="color: red; display: none;font-size:14px") Please enter your last name.
+                //-     .entry
+                //-         div(style="font-size:14px")
+                //-             label(for="company") Company (Optional)
+                //-         div
+                //-             input#company(style="font-size:14px", type="text", name="company", placeholder="Company Name", value=company)
+                //-     .entry
+                //-         div(style="font-size:14px")
+                //-             label(for="email") Email
+                //-         div
+                //-             input#email(style="font-size:14px", type="email", name="email", placeholder="name@company.com", value=email)
+                //-             span.error-message#emailError(style="color: red; display: none;font-size:14px") Please enter a valid email address.
+                //-     //- .entry
+                //-     //-     div(style="font-size:14px")
+                //-     //-         label(for="website") Website
+                //-     //-     div
+                //-     //-         input#website(style="font-size:14px", type="text", name="website", placeholder="www.mywebsite.com", value=website)
+                //-     //-         span.error-message#websiteError(style="color: red; display: none;font-size:14px") Please enter a valid website URL.
+                //-     //- .entry
+                //-     //-     div(style="font-size:14px")
+                //-     //-         label(for="projectTitle") Project title
+                //-     //-     div
+                //-     //-         input#projectTitle(style="font-size:14px", type="text", name="projectTitle", placeholder="e.g. Big Bus", value=projectTitle)
+                //-     //-         span.error-message#projectTitleError(style="color: red; display: none;font-size:14px") Please enter the project title.
+                //-     input(type="hidden", name="licenceCategory", value="")
+                //-     .entry(style="display:flex; align-items:center; justify-content:center;")
+                //-         div
+                //-             input#submit(type="submit", value="Submit", disabled="disabled")
+
+                //- form#form(action="/trolley/add/"+trackId+"/commercial", method="post")
+                    
+                //-     p Please fill in details below for your personalized quote
+                //-     .entry
+                //-         div
+                //-             input#email(style="font-size:14px", type="email", name="email", placeholder="Buisness Email", value=email)
+                //-             div.error-message#emailError(style="color: red; display: none;font-size:14px") Please enter a valid email address.
+                //-     .entry
+                //-         div
+                //-             input#company(style="font-size:14px", type="text", name="company", placeholder="Company Name", value=company)
+                //-     .entry
+                //-         div(style="font-size:14px")
+                //-             label(for="coverage_details") Add Details of coverage required
+                //-         div(style="font-size:14px")
+                //-             textarea#coverage_details(style="font-size:14px", rows="6", name="coverage_details", placeholder="Coverage Details")= coverage_details
+                //-             div.error-message#coverage_detailsError(style="color: red; display: none; font-size:14px") Please enter coverage details.                            
+                //-     input(type="hidden", name="licenceCategory", value="")
+                //-     .entry(style="display:flex; align-items:center; justify-content:flex-start;")
+                //-         div
+                //-             input#submit(type="submit", value="Request Quote", disabled="disabled")
+
+
+    .modal#contactModal(style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);")
+        .modal-content1(style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 503px; border-radius: 8px;", data-track=trackId).form-container
+            span.close(style="cursor: pointer; font-size: 20px;") × 
+            //- p(style="margin-top: 10px; font-size: 16px; text-align:center")
+            //-     | Please
+            //-     | 
+            //-     a(href="mailto:info@sync-audio.com" style="color: #007BFF; text-decoration: none; font-size: 16px;") contact Sync-Audio
+            div
+                div(style="display: flex; justify-content: center;font-size: 24px; font-weight: bold;") Contact Us
+                div.trolleyTracks(style=track.id ? "padding:0px 30px" : "display: none;")
+                    div(id=trackId, data-genre=track.genre, data-mood=track.mood, data-checksum=track.checksum, data-style=track.style, data-duration=track.duration, data-tempo=track.tempo, class=track.featured==1 ? "track featured noselect" : "track noselect", style="margin-top: 0px;height: 70px;")
+                        div(style="position: relative;").left-container
+                                ul(style="margin-top: 5px;")
+                                    li(style="padding-bottom:45px")
+                                        a(style="display: inline-block; padding: 10px; border-radius: 15px; text-align: center; background-color: rgb(219, 234, 254);").play
+                                            img(src="/images/icon-play@2x.png", alt="Play Icon", style="width: 20px; height: 20px; display: block; margin: 0 auto;")
+                                    li(style="padding-top:4px; font-size:16px; max-width:300px;").title= track.title
+                                        .artist
+                                            a(style="font-size:13px; font-weight:5px").artist(href="javascript:void(0)")= track.artist
+                                    li
+                                        div(style="position: absolute; left: 0%; right:0%; max-width:500px bottom: 0; height: 50px; overflow: hidden; border-radius: 4px; top:40px;").waveform
+                                            img.noselect(src="/images/waveforms/"+track.checksum+"-gray.png", alt="")
+                                            div.played
+                                                img.noselect(src="/images/waveforms/"+track.checksum+"-blue.png", alt="")
+                include player_noselect.pug
+                form#form(action="/trolley/add/"+trackId+"/commercial", method="post", className="contact-form-wrapper", style="max-width: calc(100% - 60px)")
+                                
+                        p(style="color: gray;").one-time-use One-time Use Coverage
+                        div(style="background-color:rgb(247, 250, 252); padding-left: 16px; border-radius: 4px; display: flex; gap: 20px;")
+                            p(style="font-weight: bold;font-size: 14px;") Commercial
+                            p(style="font-size: 14px;")#selected_cat Other
+                        p(id="fill-info") Please fill in details below For your personalized request quote.
+                        //- Display saved user info from cookies
+                        //- div(style="padding: 10px; background-color: #f8f9fa; margin: 10px 0; border-radius: 4px;")
+                        //-     p(style="margin: 5px 0; font-size: 14px; color: #333;")
+                        //-         strong First Name: 
+                        //-         span#displayFirstName
+                        //-     p(style="margin: 5px 0; font-size: 14px; color: #333;")
+                        //-         strong Last Name: 
+                        //-         span#displayLastName
+                        //-     p(style="margin: 5px 0; font-size: 14px; color: #333;")
+                        //-         strong Company: 
+                        //-         span#displayCompany
+                        //-     p(style="margin: 5px 0; font-size: 14px; color: #333;")
+                        //-         strong Email: 
+                        //-         span#displayEmail
+                        .entry
+                            div(style="font-size:14px")
+                            div
+                                input#firstName(style="font-size:14px", type="text", name="firstName", placeholder="First Name", value=firstName)
+                                div.error-message#firstNameError(style="color: red; display: none;font-size:14px") Please enter your first name.
+                        .entry
+                            div(style="font-size:14px")
+                            div
+                                input#lastName(style="font-size:14px", type="text", name="lastName", placeholder="Last Name", value=lastName)
+                                div.error-message#lastNameError(style="color: red; display: none;font-size:14px") Please enter your last name.
+                        .entry
+                            div
+                                input#email(style="font-size:14px", type="email", name="email", placeholder="Buisness Email", value=email)
+                                div.error-message#emailError(style="color: red; display: none;font-size:14px") Please enter a valid email address.
+                        .entry
+                            div
+                                input#company(style="font-size:14px", type="text", name="company", placeholder="Company Name", value=company)
+                        .entry
+                            div(style="font-size:14px")
+                                label(for="coverage_details") Add Details
+                            div(style="font-size:14px")
+                                textarea#coverage_details(style="font-size:14px", rows="6", name="coverage_details")= coverage_details
+                                div.error-message#coverage_detailsError(style="color: red; display: none; font-size:14px") Please enter coverage details.                            
+                        input(type="hidden", name="licenceCategory", value="other")
+                        input(type="hidden", name="selectedCat", value="other", id="selectedCat")
+                        input(type="hidden", name="trackArtist", value=track.artist, id="trackArtistField")
+                        .entry(style="display:flex; align-items:center; justify-content:flex-start;")
+                            div
+                                input#submit(type="submit", value="Request Quote", disabled="disabled")

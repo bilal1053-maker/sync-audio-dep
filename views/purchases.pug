@@ -1,0 +1,104 @@
+mixin track(commercial, track, licenceName, licenceDescription, licenceUse, licenceTerritory, licenceUrl)
+	tr.track
+		td.title= track.title
+		td.artist= track.artist
+		td.download.wav
+			a.download.wav(href="/account/download/"+(commercial ? "com_"+track.licence_id : track.licence_type_id)+"/"+track.transaction_id+"/"+track.id+".wav.zip") WAV
+		td.download.mp3
+			a.download.mp3(href="/account/download/"+(commercial ? "com_"+track.licence_id : track.licence_type_id)+"/"+track.transaction_id+"/"+track.id+".mp3.zip") MP3
+	tr.trackinfo
+		td(colspan="4")
+			details
+				summary Track and licence info
+				div.tracklicenceinfo
+					div
+						div
+							strong Duration:
+							| 
+							| #{track.duration}
+						div
+							strong Publisher:
+							| 
+							| Sync-Audio
+						if track.writer
+							div
+								strong Writer/composer:
+								| 
+								| #{track.writer}
+						if track.master_recording_owner
+							div
+								strong Master recording owner:
+								| 
+								| #{track.master_recording_owner}
+					div
+						h3 Licence: #{licenceName}
+						div= licenceDescription
+						if licenceUse
+							div
+								strong Use:
+								| 
+								| #{licenceUse}
+						if licenceTerritory
+							div 
+								strong Territory:
+								|
+								| #{licenceTerritory}
+						if track.first_name && track.last_name
+							div
+								strong Licence holder:
+								| 
+								| #{track.first_name} #{track.last_name}
+							if track.company
+								div
+									strong Company:
+									| 
+									| #{track.company}
+							if track.email
+								div
+									strong Email:
+									| 
+									| #{track.email}
+							if track.website
+								div
+									strong Website:
+									| 
+									| #{track.website}
+							if track.project_title
+								div
+									strong Project title:
+									| 
+									| #{track.project_title}
+						a.print(href=licenceUrl) Download licence PDF
+
+if comPurchases && comPurchases.length > 0
+	h1 Commercial Licence Purchases
+	table.purchases
+		thead
+			tr
+				td.title Title
+				td.artist Artist
+				td(colspan="2") Download
+		tbody
+			for track in comPurchases
+				+track(true, track, track.comm_licence_name, track.comm_licence_description, track.comm_licence_use, track.comm_licence_territory, "/account/download/com_"+track.licence_id+"/"+track.transaction_id+"/"+track.id+".pdf")
+if purchases && purchases.length > 0
+	h1 Purchases
+	table.purchases
+		thead
+			tr
+				td.title Title
+				td.artist Artist
+				td(colspan="2") Download
+		tbody
+			for track in purchases
+				+track(false, track, track.licence_name, track.licence_description, null, null, "/account/download/"+track.licence_type_id+"/"+track.transaction_id+"/"+track.id+".pdf")
+if !isAdminUser
+	script.
+		$(function(){
+			$("a.download").on("click", function(){
+				var row = $(this).closest("tr");
+				var artist = row.children("td.artist").text();
+				var title = row.children("td.title").text();
+				alert("Where possible please credit \""+title+" by "+artist+"\" and \"Published by Sync-Audio\".");
+			});
+		});

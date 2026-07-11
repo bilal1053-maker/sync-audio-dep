@@ -1,0 +1,50 @@
+extends layout.pug
+
+block scripts
+	script(type="text/javascript", src="/js/search.js")
+
+append content
+	h1 Submitted tracks
+	if artists
+		table
+			thead
+				tr
+					td Account
+					td Accepted tracks
+					td Rejected tracks
+					td Pending tracks
+			tbody
+				for item in artists
+					tr
+						td= item.email
+						td
+							if item.accepted > 0
+								a(href="/admin/artist/"+item.email+"/accepted")= item.accepted
+							else
+								| –
+						td
+							if item.rejected > 0
+								a(href="/admin/artist/"+item.email+"/rejected")= item.rejected
+							else
+								| –
+						td
+							if item.pending > 0
+								a(href="/admin/artist/"+item.email+"/pending")= item.pending
+							else
+								| –
+		
+		div.pagination
+				a(id="prev-page", href="#", class=current_page > 1 ? '' : 'disabled') Previous
+				each pageNum in [...(current_page < 4 || total_pages - current_page < 4) ? [1, 2, 3, 4] : total_pages - current_page > 5 ? [current_page - 2,current_page - 1,current_page , current_page + 1] : total_pages - current_page == 4 ? [current_page - 3,current_page - 2,current_page - 1] : [current_page - 3,current_page - 2,current_page - 1, current_page ]]
+					if pageNum <= total_pages
+						a(id=pageNum, href="/admin/artists?page=#{pageNum}" class=pageNum == current_page ? 'active' : '') #{pageNum}
+
+				if total_pages > 9 && (total_pages - current_page > 6 || total_pages - current_page < 4)
+					a(class="no-border") ...
+
+				each pageNum in (total_pages > 4 ? [total_pages - 4, total_pages - 3, total_pages - 2, total_pages - 1, total_pages] : [])
+					if pageNum > 4 && pageNum <= total_pages
+						a(id=pageNum, href="#" class=pageNum == current_page ? 'active' : '') #{pageNum}
+
+
+				a(id="next-page", href="#", class=current_page == total_pages ? 'disabled' : '') Next

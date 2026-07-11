@@ -1,0 +1,51 @@
+extends layout.pug
+
+block scripts
+	script.
+		function updateImageVisibility() {
+			var visible = !$(":file").val();
+			$(".formField.image").toggle(visible);
+		}
+		$(function(){
+			$(":file").on("change", updateImageVisibility);
+		});
+		$(window).bind("pageshow", updateImageVisibility);
+
+mixin input(name,title)
+	div
+		div
+			label(for=name)= title
+		div
+			input(type="text", name=name)
+
+append content
+	h1 Artist
+	form(action="/admin/artist", method="post", enctype="multipart/form-data")
+		.formField
+			div
+				label(for="artist") Name
+			div
+				select(name="artist")
+					for name in artists
+						if artist && artist.artist == name
+							option(value=name, selected)= name
+						else
+							option(value=name)= name
+		.formField
+			div
+				label(for="job") Title
+			div
+				textarea(name="job", cols="30", rows="1")= artist ? artist.job : ""
+		.formField
+			div
+				label(for="text") Text
+			div
+				textarea(name="text", cols="30", rows="10")= artist ? artist.text : ""
+		if artist
+			.formField.image
+				img(src=artist.image_url || "/images/artists/"+artist.id+".jpg", accept="image/jpeg,image/png", style="max-width: 100px;")
+			input(type="hidden", name="id", value=artist.id)
+		.formField
+			input(type="file", name="image")
+		.formField
+			input(type="submit", value="Save")

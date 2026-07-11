@@ -1,0 +1,42 @@
+extends layout.pug
+
+block scripts
+	script(src="/js/audio_upload.js")
+	if uploadPermitted
+		script(src="/js/genres.js")
+		script(src="/js/moods.js")
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js")
+	script.
+		$(function(){
+			var submitButton = $("a.button.submit");
+			var tncCheckbox = $("input[name='tnc']");
+			tncCheckbox.on("change", function(){
+				submitButton.toggleClass("disabled", !$(this).prop("checked"));
+			});
+			submitButton.on("click", function(){
+				if (!tncCheckbox.prop("checked")) {
+					alert("You must accept the terms and conditions before submitting your tracks.");
+				} else {
+					$("form.upload").submit();
+				}
+			});
+		});
+
+block content
+	p Logged in as #{paypalUserInfo.email}
+	p
+		a.button.small("href"="/account/logout") Logout
+	if (isAdminUser)
+		p
+			a(href="/admin") Admin page
+	if (purchases && purchases.length > 0) || (comPurchases && comPurchases.length > 0)
+		include purchases.pug
+	if submissions && submissions.length > 0 && !isAdminUser
+		include uploads.pug
+	if submissionsClosed && submissions
+		div(style="text-align:center; padding:40px; background-color:#fff8f8; border:1px solid #f5c6cb; border-radius:8px; margin:30px 0")
+			h2(style="color:#c0392b") Submissions Temporarily Closed
+			p(style="font-size:16px; color:#555; margin-top:10px") Due to high volume, we are not accepting any new submissions until further notice.
+			p(style="font-size:14px; color:#888") Thank you for your interest in Sync-Audio. Please check back soon.
+	else if uploadPermitted
+		include upload.pug

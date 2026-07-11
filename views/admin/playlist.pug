@@ -1,0 +1,267 @@
+extends layout.pug
+
+append content
+    h1 Playlists
+    style.
+        a.copy-title,
+        a.copy-category {
+            margin-left: 8px;
+            color: inherit;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        a.copy-title:hover,
+        a.copy-category:hover {
+            color: rgb(10, 168, 168);
+        }
+        h3.playlist-heading {
+            display: flex;
+            align-items: center;
+        }
+    for playlist in playlists
+        h3.playlist-heading
+            span= playlist.name
+            a.copy-category(href="javascript:void(0)", title="Copy all tracks in this category", data-playlist-id=playlist.id, aria-label="Copy all tracks in this category")
+                i.bi.bi-clipboard
+        ul(id=`playlist-${playlist.id}`, data-playlist-id=playlist.id)
+            for track in playlist.tracks
+                li(data-track-title=track.title, data-track-artist=track.artist)
+                    a(href=`/admin/tracks/${track.id}`)= track.title + " by " + track.artist
+                    a.copy-title(href="javascript:void(0)", title="Copy title", data-track-title=track.title, aria-label="Copy title")
+                        i.bi.bi-clipboard
+                    |
+                    | |
+                    |
+                    a.remove(data-track-id=track.id) Remove
+
+    if tracks.length > 0
+        h1 All
+        ul
+            for track in tracks
+                li
+                    a(href=`/admin/tracks/${track.id}`)= track.title + " by " + track.artist
+                    a.copy-title(href="javascript:void(0)", title="Copy title", data-track-title=track.title, aria-label="Copy title")
+                        i.bi.bi-clipboard
+                    |
+                    | |
+                    |
+                    a.add(data-track-id=track.id, data-track-title=track.title, data-track-artist=track.artist) Add
+
+    #playlist-options(style='display: none; position: absolute; background: white; border: 1px solid #ccc; z-index: 1000;')
+        h3 Select a Playlist
+        ul
+
+block scripts
+    script.
+            $(function() {
+                const playlistOptionsDiv = $('#playlist-options').css({"border-radius":"10px"});
+
+                async function showPlaylistOptions(trackId, trackDetails, event) {
+                    event.stopPropagation();
+                    playlistOptionsDiv.empty();
+                    playlistOptionsDiv.append("<h3>Select a Playlist</h3>").css({"text-align":"center"});
+
+                    const list = $('<ul></ul>').css({
+                        "list-style": "none",
+                        "padding": "10px",
+                        "margin": "10px 20px",
+                        "margin-top":"-10px"
+                    });
+
+                    var playlists = !{JSON.stringify(playlists)};
+                    playlists.forEach(playlist => {
+                        const listItem = $('<li></li>').css({
+                            "margin": "5px 0",
+                            "padding": "5px 10px",
+                            "background-color": "white",
+                            "border": "1px solid #ddd",
+                            "border-radius": "5px",
+                            "box-shadow": "0px 4px 8px rgba(0, 0, 0, 0.2)",
+                            "cursor": "pointer",
+                            "text-align": "center",
+                            "transition": "transform 0.2s ease, box-shadow 0.2s ease",
+                            "max-width":"500px"
+                        }).on('click', function() {
+                            $(this).addClass('clicked'); 
+                            $.post('/admin/playlist/add', {
+                                track_id: trackId,
+                                playlist_id: playlist.id
+                            }).done(function(response) {
+                                //- console.log(trackId, playlist.id, trackDetails)
+                                alert('This track added to playlist successfully');
+                                updateUI(trackId, playlist.id, trackDetails);
+                                playlistOptionsDiv.hide();
+                            }).fail(function(error) {
+                                console.error('Error adding track to playlist:', error);
+                                const errorCode = (error.responseJSON && error.responseJSON.code) || (error.responseText && JSON.parse(error.responseText).code);
+
+                                if (errorCode === 'ER_DUP_ENTRY') {
+                                    alert('This track is already in the playlist.');
+                                } else {
+                                    alert('This track is already in playlist');
+                                }
+                            });
+                        });
+
+                        const link = $('<a href="javascript:void(0)"></a>')
+                            .text(playlist.name)
+                            .css({
+                                "text-decoration": "none",
+                                "color": "inherit",
+                                "display": "block"
+                            });
+
+                        listItem.append(link);
+                        list.append(listItem);
+                    });
+
+                    playlistOptionsDiv.append(list);
+
+                    playlistOptionsDiv.css({
+                        "background-color": "white",
+                        "color": "black",
+                        "display": "block",
+                        "border": "1px solid #ccc",
+                        "z-index": 1000,
+                        "position": "absolute" // Ensure it's positioned absolutely
+                    });
+
+                    const divWidth = playlistOptionsDiv.outerWidth();
+                    const divHeight = playlistOptionsDiv.outerHeight();
+                    const x = event.pageX;
+                    const y = event.pageY;
+
+                    // Calculate new position to center the div around the mouse click
+                    const left = x - (divWidth / 2) -130;
+                    const top = y - (divHeight / 2)+102;
+
+                    playlistOptionsDiv.css({
+                        "top": top + "px",
+                        "left": left + "px"
+                    });
+
+                    // Add CSS for the click effect
+                    $('<style>').text(`
+                        .clicked {
+                            transform: translateY(4px);
+                            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+                        }
+                    `).appendTo('head');
+                }
+
+                $(document).on('mousedown', function(event) {
+                    const x = event.pageX;
+                    const y = event.pageY;
+                    const trackOffset = playlistOptionsDiv.offset();
+                    const trackRect = {
+                        "left": trackOffset.left,
+                        "top": trackOffset.top,
+                        "right": trackOffset.left + playlistOptionsDiv.outerWidth(),
+                        "bottom": trackOffset.top + playlistOptionsDiv.outerHeight()
+                    };
+                    if (x < trackRect.left || x > trackRect.right || y < trackRect.top || y > trackRect.bottom) {
+                        playlistOptionsDiv.hide();
+                    }
+                });
+
+                $('a.add').on('click', function(event) {
+                    event.preventDefault();
+                    const trackId = $(this).data('track-id');
+                    const trackDetails = {
+                        title: $(this).data('track-title'),
+                        artist: $(this).data('track-artist')
+                    };
+                    showPlaylistOptions(trackId, trackDetails, event);
+                });
+
+            function updateUI(trackId, playlistId, trackDetails) {
+                    //- console.log('Updating UI for track:', trackId, 'in playlist:', playlistId, 'with details:', trackDetails);
+
+                    const playlist = $(`#playlist-${playlistId}`);
+                    //- console.log('Playlist element:', playlist);
+
+                    if (playlist.length === 0) {
+                        console.error('Playlist not found for ID:', playlistId);
+                        return;
+                    }
+
+                    const trackItem = $(`<li data-track-title="${trackDetails.title}" data-track-artist="${trackDetails.artist}">
+                        <a href="/admin/tracks/${trackId}">${trackDetails.title} by ${trackDetails.artist}</a>
+                        <a class="copy-title" href="javascript:void(0)" title="Copy title" data-track-title="${trackDetails.title}" aria-label="Copy title">
+                            <i class="bi bi-clipboard"></i>
+                        </a>
+                        |
+                        <a class="remove" style="color:black;font-size:16px" href="javascript:void(0)" data-track-id="${trackId}">Remove</a>
+                    </li>`);
+
+                    playlist.append(trackItem);
+                }
+
+            async function copyText(text, button) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch (error) {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                }
+
+                const icon = button.find('i');
+                icon.removeClass('bi-clipboard').addClass('bi-clipboard-check');
+                setTimeout(function() {
+                    icon.removeClass('bi-clipboard-check').addClass('bi-clipboard');
+                }, 1500);
+            }
+
+            async function copyTrackTitle(title, button) {
+                return copyText(title, button);
+            }
+
+            $(document).on('click', 'a.copy-title', function(event) {
+                event.preventDefault();
+                copyTrackTitle($(this).data('track-title'), $(this));
+            });
+
+            function getTrackLabel(title, artist) {
+                return `${title} by ${artist}`;
+            }
+
+            $(document).on('click', 'a.copy-category', function(event) {
+                event.preventDefault();
+                const playlistId = $(this).data('playlist-id');
+                const tracks = $(`#playlist-${playlistId} > li`).map(function() {
+                    const title = $(this).data('track-title');
+                    const artist = $(this).data('track-artist');
+                    return getTrackLabel(title, artist);
+                }).get();
+
+                if (tracks.length === 0) {
+                    alert('No tracks in this category to copy.');
+                    return;
+                }
+
+                copyText(tracks.join('\n'), $(this));
+            });
+
+            $(document).on('click', 'a.remove', function(event) {
+                event.preventDefault();
+
+                const trackId = $(this).data('track-id');
+                const playlistId = $(this).closest('ul').data('playlist-id');
+
+                $.post('/admin/playlist/remove', {
+                    track_id: trackId,
+                    playlist_id: playlistId
+                }).done(function(response) {
+                    alert(response.message);
+                    // Remove the track item from the UI
+                    $(`ul[data-playlist-id="${playlistId}"] li:has(a[href*="${trackId}"])`).remove();
+                }).fail(function(error) {
+                    console.error('Error removing track from playlist:', error);
+                    alert('Failed to remove track from playlist.');
+                });
+            });
+        });

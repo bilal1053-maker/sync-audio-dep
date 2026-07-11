@@ -1,0 +1,100 @@
+extends layout.pug
+
+block vars
+    - var applyNoContentStyles = true
+block top
+    #intro_video
+        div
+            video(playsinline="", autoplay="", muted="", loop="", poster="/images/intro_video.jpg")
+                //- source(src="/video/intro_video.mp4")
+            //- .overlay
+            //-     div(style="background-color:transparent").center-container
+            //-         h1(style="font-size:60px;letter-spacing:-1.5px; background-color: transparent;")#text_1 Music Licensing for
+            //-         h1(style="font-size:58px;margin-top:-35px;letter-spacing:-1.5px;font-family: 'Inter';")#text_2 New Media, Video And Film
+            //-         p(style="color:white; font-size:20px;")#text_3 Representing real unsigned independent artists, musicians, composers, poets and bands
+            //-     div(style="background-color:transparent").center-container
+            //-         a(style="font-size:16px;font-family: 'Inter';").button-main(href="/music") Browse Music
+
+        .head-text-wrapper
+            p.head_text Music Licensing for New Media,
+            p.head_text2 Video and Film
+                span.head_text3 ‘Great Music, Better Stories’
+            .right-text-wrapper
+                p.head_text4 Representing
+                    span(style="padding: 0px 6px;").highlighted-title real
+                    span unsigned independent artists,
+                p.head_text5 musicians, composers, poets and bands
+                div.head-btn-wrapper
+                    a(style="font-size:24px;font-family: 'Inter';").button-main.head-button(href="/music") Browse Music
+                    p.try-free It's free
+        
+        .head-text-wrapper.right-imgs-wrapper
+            //- img.right-sec-img1(src="images/playlists/1.jpg", alt="Img 1", loading="lazy")
+            //- img.right-sec-img2(src="images/playlists/3.jpg", alt="Img 2", loading="lazy")
+            //- img.right-sec-img3(src="images/playlists/8.jpg", alt="Img 3", loading="lazy")
+            .right-sec-img1
+            .right-sec-img2
+            .right-sec-img3
+    
+    //- div(style="position:relative;border: 1px solid red;")
+        //- video(autoplay, controls, loop, muted, style="width: 100%")
+        //-         //- source(src="/video/intro_video.mp4", type="video/mp4")
+        //-         source(src="https://player.vimeo.com/video/1133892583")
+
+    .outer-container(style="") 
+        .video-wrapper(style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;")
+            iframe(
+                src="https://player.vimeo.com/video/1133892583?loop=1&autoplay=1&muted=1&controls=0&title=0&byline=0&portrait=0&transparent=0",
+                style="position:absolute; top:0; left:0; width:100%; height:100%;",
+                frameborder="0",
+                allow="autoplay; fullscreen; picture-in-picture",
+                allowfullscreen
+            )
+            button#muteToggle.mute-toggle(style="display:none;") 🔇
+            a(href="/about", class="learn_more_text") Learn more...
+    #features
+        h6(style="text-align: center; font-size: 16px; font-weight:30px; margin-top:55px; color: rgb(0,150,228) ; margin-bottom:15px", class="music-reach") Music reach like never before
+        //- rgb(37 99 235)
+        h1 Everything you need to deploy your music
+        ul#deploy_music
+            li
+                h4(style="margin-bottom:20px")
+                    i.bi.bi-music-note Tell your story
+                p Tell your story with real artists. Discover fresh original songs from independent creators for your story today!
+            li
+                h4(style="margin-bottom:20px")  
+                    i.bi.bi-globe-europe-africa  Music Licensing 
+                p Music licensing for videos films and new media. We have pricing options for your working projects
+            li
+                h4(style="margin-bottom:20px") 
+                    i.bi.bi-stars Multiple Platforms
+                p Licensing music for multiple platforms. From YouTube, filmmakers to traditional broadcasting use, our music on any platform forever – everywhere
+block content
+    div(style="display: flex; justify-content: space-between; align-items: center; margin-left:100px; margin-top:100px")#play_wrapper
+        h1 Hear the Difference
+        a(href="/playlists" style="text-decoration: none; color: gray; margin-right:100px; font-size:16px; margin-top:-2px")#view_list View all playlists
+    include playlist.pug
+    include featured_artists.pug
+        div(style="background-color: rgb(243 244 246);")
+            h3(style="text-align: center; color:black; margin-bottom:50px; padding-top:70px; margin-top:100px")#trusted_by Trusted by several companies using our music
+            div.clients
+                div
+                    img.company-img(src="/images/company_logos/bbc-logo.png", alt="Client 1", loading="lazy")
+                div
+                    img.company-img(src="/images/company_logos/apple-logo.png", alt="Client 2", loading="lazy")
+                div
+                    img.company-img(src="/images/company_logos/mobo-logo.png", alt="Client 3", loading="lazy")
+                div
+                    img.company-img(src="/images/company_logos/mtv-logo.png", alt="Client 4", loading="lazy")
+                div
+                    img.company-img(src="/images/company_logos/cancer-gray-logo.png", alt="Client 5", loading="lazy")
+                div
+                    img.company-img(src="/images/company_logos_old/client6@2x.png", alt="Client 6", loading="lazy")
+                div
+                    img.company-img(src="/images/company_logos_old/client7@2x.png", alt="Client 7", loading="lazy")
+                div
+                    img.company-img(src="/images/company_logos/apple.png", alt="Client 9", loading="lazy", class="company-h-120")
+                div
+                    img.company-img(src="/images/company_logos/itv.jpeg", alt="Client 10", loading="lazy")
+                div
+                    img.company-img(src="/images/company_logos_old/client8@2x.png", alt="Client 8", loading="lazy", style="width: 170px;")

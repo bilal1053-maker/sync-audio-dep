@@ -1,0 +1,273 @@
+extends layout.pug
+
+block vars
+	- var applyNoContentStyles = true
+
+block scripts
+	script(type="text/javascript", src="/js/search.js")
+	script(type="text/javascript", src="/js/playback.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js")
+	script.
+		document.addEventListener('DOMContentLoaded', function() {
+		var filterTitles = document.querySelectorAll('.filterTitle');
+
+		filterTitles.forEach(function(filterTitle) {
+			filterTitle.addEventListener('click', function() {
+				var dropdown = this.nextElementSibling;
+				dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+			});
+		});
+
+		document.addEventListener('click', function(event) {
+			filterTitles.forEach(function(filterTitle) {
+				var dropdown = filterTitle.nextElementSibling;
+				if (!filterTitle?.contains(event.target) && !dropdown?.contains(event.target)) {
+					dropdown?.style?.display = 'none';
+				}
+			});
+		});
+		});
+	script.
+		document.addEventListener('DOMContentLoaded', () => {
+		const openModalButton = document.querySelector('.open-modal2');
+		const modalOverlay = document.querySelector('.modal-overlay2');
+		const closeModalBtn = document.querySelector('#closeModal2');
+		const body = document.querySelector('body');
+
+		openModalButton.addEventListener('click', (event) => {
+			event.preventDefault();
+			modalOverlay.style.display = 'block';
+			body.style.overflow = 'hidden'
+		});
+
+		window.addEventListener('click', (event) => {
+			if (event.target === modalOverlay) {
+			modalOverlay.style.display = 'none';
+			body.style.overflow = 'auto'
+			}
+		});
+
+		closeModalBtn.addEventListener('click', (event) => {
+			modalOverlay.style.display = 'none';
+			body.style.overflow = 'auto'
+		});
+		});
+
+block content
+	.music-hero
+		div.flex-container
+			div(style="display: flex;flex-direction: column; justify-content: center; align-items: center; height: 90vh; text-align: center; margin-left:100px;").music-hero-top
+				h1(style="font-size: 52px; line-height: 60px; font-weight: bold; letter-spacing: -0.025em;")#unlock_music Unlock the soundtrack for your creativity
+				p(style="font-size: 16px; line-height: 32px; color: #4B5563;") Discover endless possibilities with our premium audio licenses. Elevate your projects with ease, whether you're a creator, filmmaker, or business owner. Explore, license, and unlock the power of sound today
+			div(style= "margin-top:90px").music_imgs_1
+				div.img-container
+					img.responsive-img(loading="lazy" ,style="width: 256px; height:256px; max-width: 600px; border-radius: 12px; background-color: white; object-fit: cover; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+						src="https://images.unsplash.com/photo-1487180144351-b8472da7d491?q=80&w=3872&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+						alt="",
+					)
+				div(style= "margin-top:25px").img-container.bottom_half_img.mt-0.radius-12-tablet
+					img.responsive-img(loading="lazy" ,style="width: 256px; height:170px; max-width: 600px; border-top-left-radius: 12px; border-top-right-radius: 12px; background-color: white; object-fit: cover; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" 
+					src="https://images.unsplash.com/photo-1459233313842-cd392ee2c388?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+					alt="")
+
+			div(style= "margin-top:5px").music_imgs_1
+				div.img-container
+					img.responsive-img(loading="lazy" ,style="width: 256px; height:256px;max-width: 600px;border-radius: 12px;background-color: white;object-fit: cover;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+						src="https://images.unsplash.com/photo-1519677584237-752f8853252e?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+						alt="",
+					)
+				div(style= "margin-top:25px").img-container.mt-0.radius-12-tablet
+					img.responsive-img(loading="lazy" ,style="width: 256px; height:256px; max-width: 600px;border-top-left-radius: 12px; border-top-right-radius: 12px;background-color: white;object-fit: cover;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" 
+					src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+					alt="")
+			div(style= "margin-top:90px").music_imgs_2
+				div.img-container.radius-t-b-r-12-table
+					img.responsive-img(loading="lazy" ,style="width: 100px; height:256px; max-width: 600px;border-top-left-radius: 12px;border-bottom-left-radius: 12px;background-color: white;object-fit: cover;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+						src="images/side1.png",
+						alt="",
+					)
+				div(style= "margin-top:25px").img-container.bottom_half_img.mt-0.radius-12-tablet.radius-t-r-12-table
+					img.responsive-img(loading="lazy" ,style="width: 100px; height:170px;border-top-left-radius: 12px;background-color: white;object-fit: cover;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+						src="images/side2.png",
+						alt="",
+					)
+
+		.music-search
+			h2(style="line-height:14px") Find the perfect song
+			p(style="color:gray; font-size:14px") Our thoughtfully curated library of music..
+
+			// Flex container to hold search and filter sections
+			//- div(style="display: flex; justify-content: space-between; align-items: center; margin-left:-100px; margin-right:-100px;").search
+			div(style="display: flex; justify-content: space-between; flex-direction: column; margin-left:-100px; margin-right:-100px;").searchbar-section-container.search
+				// Search bar section
+				div(style="flex: 0 0 61.5%; margin-left: 100px; margin-right: 10px;").search-bar-section
+					div.input
+						i.bi.bi-search(style="font-size: 24px; line-height: 50px; margin-right: 10px; margin-left:10px")
+						input(type="text" placeholder="Enter artist or track title" class="custom-input")
+				
+				div.filter-icon-wrapper
+					<i class="bi bi-filter-square-fill open-modal2" style="font-size: 25px;"></i>
+					span Filters
+
+				// Filter tabs section
+				//- div(style="flex: 0 0 30%; margin-right: 100px;")
+				div(style="flex: 0 0 30%; display: flex; justify-content: center").applied_filters_container
+					div(style="width: fit-content; color:gray").filterTabs 
+						ul
+							li.open-modal2 Filters :
+							if genres && genres.length > 0
+								li
+									a.filterTitle(href="javascript:void(0)", name="genres")
+										| Genre
+										i.bi.bi-chevron-down(style="font-size: 12px; margin-left: 5px;") 
+										ul.dropdown-content.genres
+											div.filters
+												if genres && genres.length > 0
+													ul.genres
+														for genre in genres
+															li
+																input.genre(type="checkbox", value=genre)
+																| 
+																= genre
+							if moods && moods.length > 0
+								li
+									a.filterTitle(href="javascript:void(0)", name="moods")
+										| Mood
+										i.bi.bi-chevron-down(style="font-size: 12px; margin-left: 5px;")
+										ul.dropdown-content.moods
+											div.filters
+												if moods && moods.length > 0
+													ul.moods
+														for mood in moods
+															li
+																input.mood(type="checkbox", value=mood)
+																|
+																= mood
+							if styles && styles.length > 0
+								li
+									a.filterTitle(href="javascript:void(0)", name="styles")
+										| Style
+										i.bi.bi-chevron-down(style="font-size: 12px; margin-left: 5px;") 
+										ul.dropdown-content.styles
+											div.filters
+												if styles && styles.length > 0
+													ul.styles
+														for style in styles
+															li
+																input.style(type="checkbox", value=style)
+																|
+																= style
+							if tempos && tempos.length > 0
+								li
+									a.filterTitle(href="javascript:void(0)", name="tempos")
+										| Tempo
+										i.bi.bi-chevron-down(style="font-size: 12px; margin-left: 5px;") 
+										ul.dropdown-content.tempos
+											div.filters
+												if tempos && tempos.length > 0
+													ul.tempos
+														for tempo in tempos
+															li
+																input.tempo(type="checkbox", value=tempo)
+																|
+																= tempo
+			//- .appliedFilters
+			//- div(style=" margin-top:-5px;;margin-left:-100px; margin-right:-100px; padding-left:110px; display:flex; align-items:center;")
+			//- 	p(style="color:gray; margin-right: 10px;") Filters:
+			div(style=" margin-top:-5px;;margin-left:-100px; margin-right:-100px; padding-left:110px; display:flex; align-items:center;").applied_filter_wrapper
+				p(style="color:gray; margin-right: 10px;")
+				.appliedFilters
+
+			include tracks.pug
+
+
+			div.pagination#custom_pagination
+				a(id="prev-page", href="#", class=current_page > 1 ? '' : 'disabled') Previous
+				each pageNum in [...(current_page < 4 || total_pages - current_page < 4) ? [1, 2, 3, 4] : total_pages - current_page > 5 ? [current_page - 2,current_page - 1,current_page , current_page + 1] : total_pages - current_page == 4 ? [current_page - 3,current_page - 2,current_page - 1] : [current_page - 3,current_page - 2,current_page - 1, current_page ]]
+					if pageNum <= total_pages
+						a(id=pageNum, href="/music?page=#{pageNum}" class=pageNum == current_page ? 'active' : '') #{pageNum}
+
+				if total_pages > 9 && (total_pages - current_page > 6 || total_pages - current_page < 4)
+					a(class="no-border") ...
+
+				each pageNum in [total_pages - 4, total_pages - 3, total_pages - 2, total_pages - 1, total_pages]
+					if pageNum > 4 && pageNum <= total_pages
+						a(id=pageNum, href="#" class=pageNum == current_page ? 'active' : '') #{pageNum}
+
+
+				a(id="next-page", href="#", class=current_page == total_pages ? 'disabled' : '') Next
+
+	.modal-overlay2
+		.modal-content2
+			.icon-container2
+				div.modal-content-wrapper
+					.close-icon-container
+						<i class="bi bi-x-circle-fill" style="font-size:30px;cursor: pointer;" id="closeModal2"></i>
+					.filter-modal-title Filters
+			div(style="width: fit-content; color:gray").filterTabs 
+				ul(style="list-style-type: none;", class="flex-col")
+					//- li.open-modal2 Filters :
+					if genres && genres.length > 0
+						li
+							a.filterTitle(href="javascript:void(0)", name="genres")
+								| Genre
+								//- i.bi.bi-chevron-down(style="font-size: 12px; margin-left: 5px;") 
+								ul.dropdown-content.genres
+									div.filters
+										if genres && genres.length > 0
+											ul.genres
+												for genre in genres
+													li
+														input.genre(type="checkbox", value=genre)
+														| 
+														= genre
+					if moods && moods.length > 0
+						li
+							a.filterTitle(href="javascript:void(0)", name="moods")
+								| Mood
+								//- i.bi.bi-chevron-down(style="font-size: 12px; margin-left: 5px;")
+								ul.dropdown-content.moods
+									div.filters
+										if moods && moods.length > 0
+											ul.moods
+												for mood in moods
+													li
+														input.mood(type="checkbox", value=mood)
+														|
+														= mood
+					if styles && styles.length > 0
+						li
+							a.filterTitle(href="javascript:void(0)", name="styles")
+								| Style
+								//- i.bi.bi-chevron-down(style="font-size: 12px; margin-left: 5px;") 
+								ul.dropdown-content.styles
+									div.filters
+										if styles && styles.length > 0
+											ul.styles
+												for style in styles
+													li
+														input.style(type="checkbox", value=style)
+														|
+														= style
+					if tempos && tempos.length > 0
+						li
+							a.filterTitle(href="javascript:void(0)", name="tempos")
+								| Tempo
+								//- i.bi.bi-chevron-down(style="font-size: 12px; margin-left: 5px;") 
+								ul.dropdown-content.tempos
+									div.filters
+										if tempos && tempos.length > 0
+											ul.tempos
+												for tempo in tempos
+													li
+														input.tempo(type="checkbox", value=tempo)
+														|
+														= tempo
+
+		div#newTrackModal.modal(style="display:none;")
+			div.modal-content
+				span.close &times;
+				div.modal-header
+					h2(style="line-height:normal") 
+					p(style="line-height:normal;")
+				div.modal-body

@@ -1,0 +1,47 @@
+extends layout.pug
+
+mixin track(track)
+	li(data-id=track.id)
+		=track.title+" by "+track.artist
+		|
+		| |
+		|
+		a.remove(href='javascript:void(0)') Remove
+		a.add(href='javascript:void(0)') Add
+
+block scripts
+	include ../jquery_ui.pug
+	script.
+		$(function() {
+			function update() {
+				var data = {"featured_tracks":[]};
+				$("#featured li").each(function(index, element){
+					data.featured_tracks.push({"id":$(element).data("id"),"priority":index+1});
+				});
+				$.post(location.href, data, function() {
+
+				}, 'json');
+			}
+			$("#featured, #available" ).sortable({
+				"connectWith": ".trackList",
+				"update": update
+			}).disableSelection();
+			$("a.remove").on("click", function() {
+				$(this).parent().appendTo("#available");
+				update();
+			});
+			$("a.add").on("click", function() {
+				$(this).parent().appendTo("#featured");
+				update();
+			});
+		});
+
+append content
+	h1 Featured tracks
+	ul#featured.trackList
+		for track in featured
+			+track(track)
+	h1 Available tracks
+	ul#available.trackList
+		for track in other
+			+track(track)

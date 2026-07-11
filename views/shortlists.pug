@@ -1,0 +1,26 @@
+extends layout.pug
+
+block vars
+    - var applyNoContentStyles = true
+
+block scripts
+    script(type="text/javascript", src="/js/playback.js")
+
+block content
+    div(style="margin:100px").mx-50
+        h1 Shortlists
+        if shortlists && shortlists.length > 0
+            .card-container
+                for shortlist in shortlists
+                    .shortlist-card
+                        a(href="/shortlist/" + shortlist.encoded)
+                            .shortlist-card-content
+                                h5.shortlist-card-title
+                                    | #{shortlist.name}
+                                    span.shortlist-card-tracks
+                                        | (#{shortlist.tracks.length > 1 ? shortlist.tracks.length + " tracks" : "1 track"})
+
+        else
+            p Your shortlists are empty. Add some tracks.
+            p
+                a.cart-button.enabled(href="/music") Tracks

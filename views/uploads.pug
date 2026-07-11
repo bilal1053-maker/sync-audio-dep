@@ -1,0 +1,22 @@
+if submissions.length > 0
+	h1 Your Submissions
+	table.submissions
+		thead
+			tr
+				td Title
+				td Artist
+				td Status
+				td Stems
+		tbody
+			for track in submissions
+				tr
+					td= track.title
+					td= track.artist
+					if track.accepted
+						td Accepted
+					else if track.reviewed
+						td Rejected
+					else
+						td Awaiting review
+					td
+						a(href="/account/stems/"+track.id, style="font-size:13px; color:rgb(10,168,168)") Upload Stems

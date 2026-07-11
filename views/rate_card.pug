@@ -1,0 +1,312 @@
+extends layout.pug
+
+block vars
+    - var applyNoContentStyles = true
+
+block content
+    div(style="padding:100px; padding-left:80px; padding-top:70px")
+        .pricing-container
+            h4(style="color:rgb(29 78 216); line-height:10px;") Pricing
+            h1(style="font-size:40px; padding-bottom:10px") The right price for you, whoever you are
+            p(style="color:gray; font-size:17px") The most extensive selection of carefully curated music at your fingertips at prices affordable now more than ever.
+
+            .switch-container
+                .switch
+                    button(type="button", class="switch-button" id="personal-btn") Personal
+                    button(type="button", class="switch-button" id="business-btn") Business
+                    button(type="button", class="switch-button" id="commercial-btn") Commercial
+                .slider
+                    .slider-inner
+
+            div(style="margin-top:50px")
+                .personal-content
+                    .container
+                        .pricing-card
+                            h4(style="color:rgb(29 78 216); line-height:10px; ") Home / Students
+                            h1(style="font-size:40px;") £18 
+                                span(style="font-size:17px; color:gray") / track
+                            p(style="font-size:17px; padding:15px 0;margin-top:30px") The perfect plan for personal use
+                            ul(style="list-style-type: none; padding-left: 0; margin-left: 0;")
+                                li(style="color:gray; font-size:15px")
+                                    .tick-icon-container
+                                        i(style="font-size:15px").bi.bi-check 
+                                    span(style="padding:10px;") For home/education videos, slideshows
+                                li(style="padding-top:20px; color:gray;font-size:15px")
+                                    .tick-icon-container
+                                        i(style="font-size:15px").bi.bi-check 
+                                    span(style="padding:10px;") Can be shared on social networks
+                                li(style="padding-top:20px; color:gray;font-size:15px")
+                                    .tick-icon-container
+                                        i(style="font-size:15px").bi.bi-check 
+                                    span(style="padding:10px;") Suitable for student assignments/projects
+                                li(style="padding-top:40px; color:gray;font-size:15px")
+                                    .info-icon-container
+                                        i(style="font-size:17px").bi.bi-info-circle
+                                    span(style="padding:10px;") For single (1) use only
+                                li(style="padding-top:20px; color:gray;font-size:15px")
+                                    .info-icon-container
+                                        i(style="font-size:17px").bi.bi-info-circle
+                                    span(style="padding:10px;") Perpetual license
+                                li(style="padding-top:40px; color:gray;font-size:15px") 
+                                    .cross-icon-container
+                                        p(style="font-size:10px") x
+                                    span(style="padding:10px;") Not for branding, service, company, or organization
+                        .pricing-card
+                            h4(style="color:rgb(29 78 216); line-height:10px;") Vlogger / Blogger
+                            h1(style="font-size:40px;") £29.99
+                                span(style="font-size:17px; color:gray") / track
+                            p(style="font-size:17px; padding:15px 0;margin-top:30px") A plan that scales with your rapidly growing business.
+                            ul(style="list-style-type: none; padding-left: 0; margin-left: 0;")
+                                li(style="color:gray; font-size:15px")
+                                    .tick-icon-container
+                                        i(style="font-size:15px").bi.bi-check
+                                    span(style="padding:10px;") Vlogger / Blogger log
+                                li(style="padding-top:20px; color:gray;font-size:15px")
+                                    .tick-icon-container
+                                        i(style="font-size:15px").bi.bi-check
+                                    span(style="padding:10px;") Hosted online, self-financed
+                                li(style="padding-top:20px; color:gray;font-size:15px")
+                                    .tick-icon-container
+                                        i(style="font-size:15px").bi.bi-check
+                                    span(style="padding:10px;") Up to 300K page views monetization
+                                li(style="padding-top:40px; color:gray;font-size:15px")
+                                    .info-icon-container
+                                        i(style="font-size:17px").bi.bi-info-circle
+                                    span(style="padding:10px;") Youtube, Facebook, etc.
+                                li(style="padding-top:20px; color:gray;font-size:15px")
+                                    .info-icon-container
+                                        i(style="font-size:17px").bi.bi-info-circle
+                                    span(style="padding:10px;") For single (1) use only
+                                li(style="padding-top:40px; color:gray;font-size:15px")
+                                    .cross-icon-container
+                                        p(style="font-size:10px") x
+                                    span(style="padding:10px;") Not for paid advertising
+                                li(style="padding-top:20px; color:gray;font-size:15px")
+                                    .cross-icon-container
+                                        p(style="font-size:10px") x
+                                    span(style="padding:10px;") Not for promotions of product, service, brand
+
+                .business-content.hidden
+                    .business-content
+                        .container
+                            .pricing-card
+                                h4(style="color:rgb(29 78 216); line-height:10px;") Podcast
+                                h1(style="font-size:40px;") £209
+                                    span(style="font-size:17px; color:gray") / track
+                                p(style="font-size:17px; padding:15px 0;margin-top:30px") The essentials to provide your best work for clients.
+                                ul(style="list-style-type: none; padding-left: 0; margin-left: 0;")
+                                    li(style="color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Personal use
+                                    li(style="padding-top:20px; color:gray;font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Internal business / group / company use
+                                    li(style="padding-top:20px; color:gray;font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") For single (1) podcast (series use), audio only
+                                    li(style="padding-top:40px; color:gray;font-size:15px")
+                                        .info-icon-container
+                                            i(style="font-size:17px").bi.bi-info-circle
+                                        span(style="padding:10px;") Perpetual license
+                                    li(style="padding-top:40px; color:gray;font-size:15px")
+                                        .cross-icon-container
+                                            p(style="font-size:10px") x
+                                        span(style="padding:10px;") Not for use within sponsored, branded podcasts
+                                    li(style="padding-top:20px; color:gray;font-size:15px")
+                                        .cross-icon-container
+                                            p(style="font-size:10px") x
+                                        span(style="padding:10px;") Does not include paid subscription or downloads
+                            .pricing-card
+                                h4(style="color:rgb(29 78 216); line-height:10px;") Wedding
+                                h1(style="font-size:40px;") £35
+                                    span(style="font-size:17px; color:gray") / track
+                                p(style="font-size:17px; padding:15px 0;margin-top:30px") The perfect plan for the once in a lifetime event of your life
+                                ul(style="list-style-type: none; padding-left: 0; margin-left: 0;")
+                                    li(style="color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") For wedding videos, slideshows, internal use, and online streaming
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Includes 15 resalable copies and 400 giveaways
+                                    li(style="padding-top:40px; color:gray; font-size:15px")
+                                        .info-icon-container
+                                            i(style="font-size:17px").bi.bi-info-circle
+                                        span(style="padding:10px;") For single (1) use only
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .info-icon-container
+                                            i(style="font-size:17px").bi.bi-info-circle
+                                        span(style="padding:10px;") Perpetual license
+                        .container
+                            .pricing-card#card1
+                                h4(style="color:rgb(29 78 216); line-height:10px;") Indie Cinema
+                                h1#price1(style="font-size:40px;") £160
+                                    span(style="font-size:17px; color:gray") / track
+                                p(style="font-size:17px; padding:15px 0;margin-top:30px") The essentials to provide your best work for clients.
+                                p Usage Type
+                                .button-container
+                                    button#film-button.active(type="button", onclick="updatePrice('film', 'price1')") Film
+                                    button#trailer-button(type="button", onclick="updatePrice('trailer', 'price1')") Trailer
+                                ul(style="list-style-type: none; padding-left: 0; margin-left: 0;")
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Film
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Trailer
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Budget up to £500k
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Web streaming sites, tradeshows and festival entry
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") YouTube, Facebook etc.
+                                    li(style="padding-top:40px; color:gray; font-size:15px")
+                                        .info-icon-container
+                                            i(style="font-size:17px").bi.bi-info-circle
+                                        span(style="padding:10px;") For single (1) use only
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .info-icon-container
+                                            i(style="font-size:17px").bi.bi-info-circle
+                                        span(style="padding:10px;") Perpetual license
+                                    li(style="padding-top:40px; color:gray; font-size:15px")
+                                        .cross-icon-container
+                                            p(style="font-size:10px") x
+                                        span(style="padding:10px;") Does not include broadcasting rights or paid advertising
+
+                            .pricing-card#card2
+                                h4(style="color:rgb(29 78 216); line-height:10px;") Promotional Content
+                                h1#price2(style="font-size:40px;") £259.99
+                                    span(style="font-size:17px; color:gray") / track
+                                p(style="font-size:17px; padding:15px 0;margin-top:30px") Dedicated for multi national companies or big corporations.
+                                p Usage Type
+                                .button-container
+                                    button#usage-1-50-button.active(type="button", onclick="updatePrice2('1-50', 'price2')") 1-50
+                                    button#usage-51-250-button(type="button", onclick="updatePrice2('51-250', 'price2')") 51-250
+                                    button#usage-250-plus-button(type="button", onclick="updatePrice2('250+', 'price2')") 250+
+                                ul(style="list-style-type: none; padding-left: 0; margin-left: 0; padding-top:15px")
+                                    li(style="color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Project promoting product, brand, service, event, promotion, organization, or company
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Web stream or internally
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .tick-icon-container
+                                            i(style="font-size:15px").bi.bi-check
+                                        span(style="padding:10px;") Facebook, YouTube, Vimeo, TikTok, Instagram, etc.
+                                    li(style="padding-top:40px; color:gray; font-size:15px")
+                                        .info-icon-container
+                                            i(style="font-size:17px").bi.bi-info-circle
+                                        span(style="padding:10px;") For single (1) use only
+                                    li(style="padding-top:20px; color:gray; font-size:15px")
+                                        .info-icon-container
+                                            i(style="font-size:17px").bi.bi-info-circle
+                                        span(style="padding:10px;") Perpetual license
+                                    li(style="padding-top:40px; color:gray; font-size:15px")
+                                        .cross-icon-container
+                                            p(style="font-size:10px") x
+                                        span(style="padding:10px;") No broadcasting rights
+                                            
+                .commercial-content.hidden
+                    h2 Commercial
+                    p Content and pricing details for Commercial plan.
+
+    block scripts
+        script.
+            document.addEventListener('DOMContentLoaded', () => {
+                const personalBtn = document.getElementById('personal-btn');
+                const businessBtn = document.getElementById('business-btn');
+                const commercialBtn = document.getElementById('commercial-btn');
+                
+                const personalContent = document.querySelector('.personal-content');
+                const businessContent = document.querySelector('.business-content');
+                const commercialContent = document.querySelector('.commercial-content');
+                
+                const sliderInner = document.querySelector('.slider-inner');
+                
+                const updateContentAndSlider = (btn, content, offset) => {
+                    personalContent.classList.add('hidden');
+                    businessContent.classList.add('hidden');
+                    commercialContent.classList.add('hidden');
+                    
+                    personalBtn.classList.remove('active');
+                    businessBtn.classList.remove('active');
+                    commercialBtn.classList.remove('active');
+                    
+                    btn.classList.add('active');
+                    content.classList.remove('hidden');
+                    
+                    sliderInner.style.transform = `translateX(${offset}px)`;
+                };
+
+                personalBtn.addEventListener('click', () => {
+                    updateContentAndSlider(personalBtn, personalContent, 0);
+                });
+
+                businessBtn.addEventListener('click', () => {
+                    updateContentAndSlider(businessBtn, businessContent, personalBtn.offsetWidth);
+                });
+
+                commercialBtn.addEventListener('click', () => {
+                    updateContentAndSlider(commercialBtn, commercialContent, personalBtn.offsetWidth + businessBtn.offsetWidth);
+                });
+
+                // Initialize with Personal option
+                updateContentAndSlider(personalBtn, personalContent, 0);
+
+            });
+
+        script.
+                function updatePrice(type, priceId) {
+                var priceElement = document.getElementById(priceId);
+                var filmButton = document.getElementById('film-button');
+                var trailerButton = document.getElementById('trailer-button');
+
+                if (type === 'film') {
+                    priceElement.innerHTML = '£160<span style="font-size:17px; color:gray"> / track</span>';
+                    filmButton.classList.add('active');
+                    trailerButton.classList.remove('active');
+                } else if (type === 'trailer') {
+                    priceElement.innerHTML = '£260<span style="font-size:17px; color:gray"> / track</span>';
+                    trailerButton.classList.add('active');
+                    filmButton.classList.remove('active');
+                }
+            }
+        script.
+                function updatePrice2(type, priceId) {
+                    var priceElement = document.getElementById(priceId);
+                    var usage1to50Button = document.getElementById('usage-1-50-button');
+                    var usage51to250Button = document.getElementById('usage-51-250-button');
+                    var usage250plusButton = document.getElementById('usage-250-plus-button');
+
+                    if (type === '1-50') {
+                        priceElement.innerHTML = '£259.99<span style="font-size:17px; color:gray"> / track</span>';
+                        usage1to50Button.classList.add('active');
+                        usage51to250Button.classList.remove('active');
+                        usage250plusButton.classList.remove('active');
+                    } else if (type === '51-250') {
+                        priceElement.innerHTML = '£359.99<span style="font-size:17px; color:gray"> / track</span>';
+                        usage51to250Button.classList.add('active');
+                        usage1to50Button.classList.remove('active');
+                        usage250plusButton.classList.remove('active');
+                    } else if (type === '250+') {
+                        priceElement.innerHTML = '£500<span style="font-size:17px; color:gray"> / track</span>';
+                        usage250plusButton.classList.add('active');
+                        usage1to50Button.classList.remove('active');
+                        usage51to250Button.classList.remove('active');
+                    }
+                }

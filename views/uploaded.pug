@@ -1,0 +1,8 @@
+extends layout.pug
+
+block content
+	h1 Track uploaded
+	if !isAdminUser
+		a.button(href="/account") OK
+	else
+		a.button(href="/admin/tracks") OK

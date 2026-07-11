@@ -1,0 +1,25 @@
+extends layout
+
+block vars
+    - var applyNoContentStyles = true
+
+block scripts
+    script(type="text/javascript", src="/js/playback.js")
+
+block content
+    div(style="margin-right:100px; margin-left:100px; margin-bottom:100px").playlist_wrapper
+        div(style="background-color:rgb(237, 242, 245); padding-top:60px;padding-bottom:20px; margin-left:-100px; margin-right:-100px; padding-left:100px; margin-bottom:40px").artist.playlist_image_wrapper
+            div.big-image
+                img(src="/images/playlists/"+playlist[0].playlist_id+".jpg")
+            div(style="margin-top:80px; margin-left:10px").text.playlist_text
+                h1= playlist[0].name
+                p(style="padding-left:2px") 
+                    p(style="font-size: 16px; color: gray;") Discover what sounds move you
+                    p(style="font-size: 16px;")  Curated by: 
+                        span(style="font-size: 16px; color: gray;") Sync-Audio 
+        if tracks.length === 0
+            // If no tracks, display the message centered
+            div(style="text-align: center; font-size: 15px; color: #999999; padding-top: 20px;") No tracks available in this playlist
+        else
+            .playlist-track-wrapper
+                include tracks.pug

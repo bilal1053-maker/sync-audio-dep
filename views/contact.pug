@@ -1,0 +1,36 @@
+extends layout.pug
+
+block vars
+	- var applyNoContentStyles = true
+
+block content
+	div(style="padding:100px; padding-left:80px; padding-top:10px; padding-bottom:50px")#contact_wrapper
+		.contact-container
+			.contact-info
+				h2(style="font-size:28px") Get in touch
+				p(style="color:rgb(75, 85, 99)") Connect, Collaborate, Create: Get in Touch Today!
+
+			.contact-details1
+				h4(style="rgb(17, 24, 39)") Collaborate
+				p
+					//- a(style="color:rgb(0, 150, 228);font-size:14px;font-weight:bold")(href="mailto:info@sync-audio.com") info@sync-audio.com
+					a(style="color:rgb(0, 150, 228);font-size:14px;font-weight:bold")(href="mailto:info@sync-audio.com") info@sync-audio.com
+
+			.contact-details2
+				h4(style="rgb(17, 24, 39)") Support Team
+				p 
+					a(style="color:rgb(0, 150, 228);font-size:14px;font-weight:bold")(href="mailto:supportteam@sync-audio.com") supportteam@sync-audio.com
+
+		div(style="border-top: 1px solid rgb(243, 244, 246);margin-top:10px; margin-bottom:20px; margin-left:20px").contact_border
+
+		.contact-container 
+			.contact-info
+				h2(style="font-size:28px") Locations
+				p(style="color:rgb(75, 85, 99)") Discover, Explore, and Find Your Way: Navigate to Your Next Location!
+
+			div(style="").location-details
+				h4(style="font-size:16px") London
+				p 124 City Road, London
+				p EC1V 2NX, UK
+
+			

@@ -1,0 +1,14 @@
+extends layout.pug
+
+block content
+    h1= licence.name
+    p= licence.description
+    form(action="",method="POST")
+        p
+            input(type="checkbox", name="agree")
+            | 
+            |I agree with the
+            | 
+            a(href="/trolley/licence_tnc/"+licence.id, target="_blank") licence terms and conditions
+        p
+            input(type="submit", value="Add track to cart")

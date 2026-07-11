@@ -1,0 +1,37 @@
+extends layout.pug
+
+block scripts
+	script(src="/js/audio_upload.js")
+
+append content
+	h1= (status.charAt(0).toUpperCase() + status.substr(1))+ " Tracks"
+	h1= (status.charAt(0).toUpperCase() + status.substr(1))+" tracks submitted by "+artist
+	if tracks
+		form(action="", method="post")
+			table.purchases
+				thead
+					tr
+						td.nobr Title
+						td.nobr Date Added
+						td.nobr Commercial Only
+						td.nobr Artist Image
+						td.nobr(colspan="2") Download
+				tbody
+					for track in tracks
+						tr
+							td
+								a(href="/admin/tracks/"+track.id)= track.title
+							td.nobr= track.date_added
+							td
+								input(type="checkbox", name="commercial_only[]", value=track.id, checked=track.commercial_licence_only==1)
+							td
+								if track.imageUrl || track.artist_id
+									img(src=track.imageUrl || "/images/artists/"+track.artist_id+".jpg", width="50")
+							td.download.wav
+								a.download.wav(href="/tracks/"+track.checksum+".wav",download) WAV
+							td.download.mp3
+								a.download.mp3(href="/tracks/"+track.checksum+".mp3",download) MP3
+							//- if !track.artist_id
+								//- td
+									//- button(id="artistName_"+track.artist, type="button") Add Artist
+			input(type="submit", value="Save")

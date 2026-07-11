@@ -1,0 +1,317 @@
+extends layout.pug
+
+block vars
+    - var applyNoContentStyles = true
+    - var showCartOptions = typeof trackId !== 'undefined' && trackId !== null && trackId !== 'undefined'
+
+block scripts
+    script(type="text/javascript", src="/js/playback.js")
+    script(type="text/javascript", src="/js/trolley.js")
+    style(type="text/css").
+        div.track a.remove {
+            display: block;
+        }
+        div.track a.license {
+            display: none;
+        }
+
+    script(type="text/javascript").
+        $(document).ready(function(){
+            var isContactUsClicked = false;
+            var currTarget = null;
+            function updateButtonState() {
+                var isRadioSelected = $("input[name='licenceId']:checked").length > 0;
+                var isCheckboxChecked = $("input[name='agree']").is(":checked");
+
+                if (isCheckboxChecked) {
+                    //- $(".disabled_contact_btn").removeClass("disabled-contact-btn");
+                    if(isContactUsClicked && currTarget){
+                        displayContactModal();
+                    }
+                    //- const href = $("#tnclink").attr("href");
+                    //- if (href && isRadioSelected) {
+                    //-     window.open(href, '_blank');
+                    //- }
+                    //- window.open("/trolley/com_licence_tnc/7", '_blank');
+                } else {
+                    //- $(".disabled_contact_btn").addClass("disabled-contact-btn");
+                }
+
+                if (isRadioSelected && isCheckboxChecked) {
+                    $("input[type='submit']").removeAttr("disabled").removeClass("disabled-btn").addClass("enabled-btn");
+                } else {
+                    $("input[type='submit']").attr("disabled", "disabled").removeClass("enabled-btn").addClass("disabled-btn");
+                }
+
+                if (isRadioSelected) {
+                    $(".disabled_tnc").removeClass("disabled_tnc");
+                    $("#tnclink").attr("href", "/trolley/com_licence_tnc/" + $("input[name='licenceId']:checked").val());
+                }
+            }
+
+            function disableSubmitButton() {
+                $("#form input[type='submit']").prop('disabled', true).css({
+                    "background-color": "rgba(0, 164, 228, 0.3)", // Light blue color when disabled
+                    "cursor": "not-allowed"
+                });
+            }
+
+            function enableSubmitButton() {
+                $("#form input[type='submit']").prop('disabled', false).css({
+                    "background-color": "rgba(0, 150, 228)", // Original color when enabled
+                    "cursor": "pointer"
+                });
+            }
+
+            function validateForm() {
+                var isValid = true;
+
+                // Reset error messages
+                $(".error-message").hide();
+
+                // Validate required fields
+                $("#form input[type='text'], #form input[type='email'], #form textarea").each(function() {
+                    var id = $(this).attr('id');
+
+                    // Skip validation for the Company field
+                    if (id === 'company') {
+                        return;
+                    }
+                    if ($(this).val().trim() === '') {
+                        isValid = false;
+                        if ($(this).data('touched')) {
+                            $("#" + id + "Error").text("This field is required.").show();
+                        }
+                    } else {
+                        $("#" + id + "Error").hide();
+                    }
+                });
+
+                // Validate Company field separately
+                var companyField = $("#form input#company");
+                if (companyField.data('touched') && companyField.val().trim() === '') {
+                    $("#" + companyField.attr('id') + "Error").hide(); // Ensure no error is shown for Company field if empty
+                }
+
+                // Validate email
+                var email = $("#form input[name='email']").val();
+                var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (email && !emailPattern.test(email)) {
+                    isValid = false;
+                    if ($("#email").data('touched')) {
+                        $("#emailError").text("Please enter a valid email address.").show();
+                    }
+                }
+
+                // Validate website
+                var website = $("#form input[name='website']").val();
+                var websitePattern = /^(http[s]?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}$/;
+                if (website && !websitePattern.test(website)) {
+                    isValid = false;
+                    if ($("#website").data('touched')) {
+                        $("#websiteError").text("Please enter a valid website URL.").show();
+                    }
+                }
+
+                // Enable or disable submit button based on validity
+                if (isValid) {
+                    enableSubmitButton();
+                } else {
+                    disableSubmitButton();
+                }
+            }
+
+
+           function initialCheck() {
+                var allFilled = true;
+
+                // Check all text, email, and website fields except the company field
+                $("#form input[type='text'], #form input[type='email'], #form input[name='website']").each(function() {
+                    if ($(this).attr('id') !== 'company' && $(this).val().trim() === '') {
+                        allFilled = false;
+                    }
+                });
+
+                if (allFilled) {
+                    validateForm(); // Validate form fields
+                } else {
+                    disableSubmitButton(); // Disable the button if not all required fields are filled
+                }
+            }
+
+                        // Event handlers for form validation and submit button state
+            $("#form input").on("focus blur input", function() {
+                $(this).data('touched', true); // Mark field as interacted
+                validateForm(); // Validate form on focus, blur, and input
+            });
+
+            $("#form textarea").on("focus blur input", function() {
+                $(this).data('touched', true); // Mark field as interacted
+                validateForm(); // Validate form on focus, blur, and input
+            });
+
+            $("#form").on("submit", function(event) {
+                validateForm(); // Validate form on submit
+                if ($("#form input[type='submit']").prop('disabled')) {
+                    event.preventDefault(); // Prevent form submission if invalid
+                }
+            });
+
+            $(window).on("click", function(event) {
+                if ($(event.target).hasClass("modal")) {
+                    $(".modal").hide();
+                    initialCheck(); // Revalidate form when modal closes
+                }
+            });
+
+            // Initially check all fields and disable/enable the submit button
+            initialCheck();
+
+            function displayContactModal() {
+                $("#contactModal").show();
+                const use = currTarget.getAttribute("data-use");
+                const territory = currTarget.getAttribute("data-territory");
+                $("#contactModal").show();
+                $("#use").html("<b>Use</b> :- " + use);
+                $("#territory").html("<b>Territory</b> :- " + territory);
+                $("#useField").val(use);
+                $("#territoryField").val(territory);
+            }
+
+            function showContactModal(event){
+                isContactUsClicked = true;
+                const licenceId = $("#defaultLicenceId").val();
+                if(licenceId){
+                    $(".disabled_tnc").removeClass("disabled_tnc");
+                }
+                currTarget = event.currentTarget;
+                //- displayContactModal();
+            }
+            function handleTncClick () {
+                if(isContactUsClicked && currTarget){
+                    //- displayContactModal();
+                }
+            }
+            $("input[name='licenceId'], input[name='agree']").on("change", updateButtonState);
+            //- $(".contact_us_link").on("click", showContactModal);
+            $(".contact_us_link").on("mouseenter", showContactModal);
+            $("#tnclink").on("click", handleTncClick);
+            //- $(".disabled-contact-btn").on("click", function () {
+            $(".disabled-contact-btn").on("mouseenter", function () {
+                // Remove the class from all buttons
+                $(".disabled-contact-btn").removeClass("contact-btn-enabled");
+                $(this).addClass("contact-btn-enabled");
+            });
+        });
+
+block content
+    div(style="margin:150px; margin-top:50px", class="commercial-wrapper")
+        input(type="hidden", value=defaultLicenceId, id="defaultLicenceId")
+        p(style="font-size:20px") Purchase Options
+        h3(style="line-height:10px;margin-top:0px;font-size:16px")= licences[0].name
+        if licences[0].description
+            p(style="color:gray;font-size:14px")= licences[0].description
+        form(action="/trolley/add/"+trackId+"/commercial", method="post")
+            for val, key in form
+                input(type="hidden", name=key, value=val)
+            
+            table.licence
+                thead
+                    tr
+                        td
+                        td(style="padding: 1px 10px;padding-left:10px")
+                            h3 Use
+                        td(style="padding: 1px 10px; text-align:center") 
+                            h3 Territory
+                        td(style="padding: 1px 10px;text-align:center") 
+                            h3 Price
+                tbody
+                    for licence in licences
+                        tr(style="height: 10px;")
+                            if licence.price
+                                td
+                                    if showCartOptions
+                                        input(type="radio", name="licenceId", value=licence.id)
+                                td(style="padding: 5px 10px; padding-top:-20px; padding-left:10px; color:rgb(71, 85, 105); font-size:15px;")= licence.use
+                                td(style="padding: 5px 10px; text-align:center;font-size:15px;").territory= licence.territory
+                                td(style="padding: 5px 10px; text-align:center; font-size:15px;color:rgb(71, 85, 105)",class="price-col").nowrap
+                                    p(style="font-size:16px; font-weight:bold")  £#{licence.price}
+                            else
+                                td
+                                td(style="padding: 10px 50px; padding-left:10px;color:rgb(71, 85, 105); font-size:15px; line-height:20px", class="license_use")= licence.use
+                                td(style="padding: 10px 50px;text-align:center;font-size:15px;").territory= licence.territory
+                                td(style="padding: 10px 50px;text-align:center", class="price-col").nowrap
+                                    //- a(href="mailto:info@sync-audio.com"+"?subject="+licences[0].name style="color:rgb(10, 168, 168); font-size:15px; font-weight:bold") Contact us
+                                    span(style="color:rgb(10, 168, 168); font-size:15px; font-weight:bold; cursor: pointer", class="disabled-contact-btn", data-use=licence.use, data-territory=licence.territory).contact_us_link.disabled_contact_btn Contact us
+            if showCartOptions
+                p(style="font-size:16px; color:gray; margin-top:20px")
+                    input(type="checkbox", name="agree", value="1", enabled)
+                    | 
+                    | I agree with the 
+                    | 
+                    //- a#tnclink(href="javascript:void(0)", target="_blank", style="color:rgb(10, 168, 168); font-size:17px") licence terms and conditions
+                    a#tnclink(href="/trolley/com_licence_tnc/"+defaultLicenceId, target="_blank", style="color:rgb(10, 168, 168); font-size:17px").disabled_tnc licence terms and conditions
+                p
+                    .cart-container
+                        input(type="submit", value="Add to Cart", class="disabled-btn", disabled)
+            else
+                div(style="margin-top:10px")
+                    a.cart-button.enabled(href="/music", style="white; font-size:17px;") Browse Music
+
+    .modal#contactModal(style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);")
+        .modal-content1(style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 503px; border-radius: 8px;", data-track=trackId).form-container
+            span.close(style="cursor: pointer; font-size: 20px;") × 
+            //- p(style="margin-top: 10px; font-size: 16px; text-align:center")
+            //-     | Please
+            //-     | 
+            //-     a(href="mailto:info@sync-audio.com" style="color: #007BFF; text-decoration: none; font-size: 16px;") contact Sync-Audio
+            div
+                div(style="display: flex; justify-content: center;font-size: 24px; font-weight: bold;") Contact Us
+                div.trolleyTracks(style=track.id ? "padding:0px 30px" : "display: none;")
+                    div(id=trackId, data-genre=track.genre, data-mood=track.mood, data-checksum=track.checksum, data-style=track.style, data-duration=track.duration, data-tempo=track.tempo, class=track.featured==1 ? "track featured noselect" : "track noselect", style="margin-top: 0px; height: 70px;")
+                        div(style="position: relative;").left-container
+                                ul(style="margin-top: 5px;")
+                                    li(style="padding-bottom:45px")
+                                        a(style="display: inline-block; padding: 10px; border-radius: 15px; text-align: center; background-color: rgb(219, 234, 254);").play
+                                            img(src="/images/icon-play@2x.png", alt="Play Icon", style="width: 20px; height: 20px; display: block; margin: 0 auto;")
+                                    li(style="padding-top:4px; font-size:16px; max-width:300px;").title= track.title
+                                        .artist
+                                            a(style="font-size:13px; font-weight:5px").artist(href="javascript:void(0)")= track.artist
+                                    li
+                                        div(style="position: absolute; left: 0%; right:0%; max-width:500px bottom: 0; height: 50px; overflow: hidden; border-radius: 4px; top:40px;").waveform
+                                            img.noselect(src="/images/waveforms/"+track.checksum+"-gray.png", alt="")
+                                            div.played
+                                                img.noselect(src="/images/waveforms/"+track.checksum+"-blue.png", alt="")
+                include player_noselect.pug
+                form#form(action="/trolley/add/"+trackId+"/commercial", method="post", style="width: 80%;")
+                        //- div#use(style="width:80%") Use :- 
+                        //- br
+                        //- div#territory(style="width:80%") Territory :- 
+                        
+                        p(style="color: gray;").one-time-use One-time Use Coverage
+                        div(style="background-color:rgb(247, 250, 252); padding-left: 16px; border-radius: 4px; display: flex; gap: 20px;")
+                            p(style="font-weight: bold;font-size: 14px;") Commercial
+                            p(style="font-size: 14px;") #{licences[0].name}
+                        p(id="fill-info") Please fill in details below For your personalized Quote
+                        .entry
+                            div
+                                input#email(style="font-size:14px", type="email", name="email", placeholder="Buisness Email", value=email)
+                                div.error-message#emailError(style="color: red; display: none;font-size:14px") Please enter a valid email address.
+                        .entry
+                            div
+                                input#company(style="font-size:14px", type="text", name="company", placeholder="Company Name", value=company)
+                                input#licence(style="font-size:14px", type="hidden", name="licenceCategoryModal",  value="other")
+                        .entry
+                            div(style="font-size:14px")
+                                label(for="coverage_details") Add Details
+                            div(style="font-size:14px")
+                                textarea#coverage_details(style="font-size:14px", rows="6", name="coverage_details")= coverage_details
+                                div.error-message#coverage_detailsError(style="color: red; display: none; font-size:14px") Please enter coverage details.                            
+                        input(type="hidden", name="licenceCategory", value="other")
+                        input(type="hidden", name="trackArtist", value=track.artist, id="trackTitleField")
+                        input(type="hidden", name="use", value="", id="useField")
+                        input(type="hidden", name="territory", value="", id="territoryField")
+                        input(type="hidden", name="isCartForm", value="true")
+                        .entry(style="display:flex; align-items:center; justify-content:flex-start;")
+                            div
+                                input#submit(type="submit", value="Submit")

@@ -1,0 +1,331 @@
+[
+    {
+        "name": "Promotional content",
+        "description": "For use in a single (1):  Project promoting a product, brand, service, event, promotion, organization or company. For web, streaming sites and internally (Facebook, YouTube, Vimeo etc.)  Use within a single company/organization. (e.g. presentations, trainings and employees viewings). Does not include paid advertising or broadcasting rights.",
+        "rates": [
+            {
+                "name": "Tier 1",
+                "description": "Companies with 0-20 employees",
+                "rate": {
+                    "Per track": 159.99
+                }
+            },{
+                "name": "Tier 2",
+                "description": "Companies with 21-50 employees",
+                "rate": {
+                    "Per track": 259.99
+                }
+            },{
+                "name": "Tier 3",
+                "description": "Companies with 51-100 employees",
+                "rate": {
+                    "Per track": 359.99
+                }
+            },{
+                "name": "Tier 4",
+                "description": "Companies with more than 100 employees",
+                "rate": {
+                    "Per track": 500
+                }
+            }
+        ]
+    },{
+        "name": "Vlogger/blogger log",
+        "description": "For use in a single (1): Vlogger / Blogger log, hosted online, self-financed, up to 500k-page view (YouTube, Facebook etc.) permits monetization. Not to be used for paid advertising or promotion of a product, service or brand.",
+        "rate": {
+            "Per track": 29.99
+        }
+    },{
+        "name": "Wedding",
+        "description": "For use in a single (1): Wedding video or slideshow, internally and streaming online. 15 resalable, 400 giveaways.",
+        "rate": {
+            "Per track": 30
+        }
+    },{
+        "name": "Indie film",
+        "description": "For use in a single (1): indie full-length or short film. Budget up to £500k. For web streaming, trade shows and festival entry use. This does not include broadcasting rights.",
+        "rate": {
+            "Per track": 160
+        }
+    },{
+        "name": "Indie film trailer ",
+        "description": "For use in a single (1): promotional trailer of the film. Budget up to £500k. For web streaming sites (YouTube, Facebook etc.) tradeshows and festival entry. This does not include broadcasting rights or paid advertising.",
+        "rate": {
+            "Per track": 260
+        }
+    },{
+        "name": "Home video",
+        "description": "For use in a single (1): Home video or slideshow to be viewed on social networks (personal account only), family and friends. (Birthday, Holidays, Graduations etc.) Not to be used for branding, service, company or organization.",
+        "rate": {
+            "Per track": 30
+        }
+    },{
+        "name": "Crowdfunding",
+        "description": "For use in a single (1):  Crowdfunding video campaign for online streaming, promoting a product, brand, service, event, organization or company on a Crowdfunding platform only (Kickstarter, Indiegogo etc.)",
+        "rates": [
+            {
+                "name": "Tier 1",
+                "description": "Campaigns with goal £0–£10k",
+                "rate": {
+                    "Per track": 90
+                }
+            },{
+                "name": "Tier 2",
+                "description": "Campaigns with goal £10–£25k",
+                "rate": {
+                    "Per track": 180
+                }
+            },{
+                "name": "Tier 3",
+                "description": "Campaigns with goal £25–£50k",
+                "rate": {
+                    "Per track": 270
+                }
+            },{
+                "name": "Tier 4",
+                "description": "Campaigns with goal £50–£250k",
+                "rate": {
+                    "Per track": 360
+                }
+            },{
+                "description": "Campaigns with goal over £250k",
+                "rate": "contact"
+            }
+        ]
+    },{
+        "name": "Film trailer",
+        "conditions": "Film trailers are licenced on a per production bases allowing uncapped usage per trailer.",
+        "description": "Buyout, includes TV, DVD, online, public location, radio, unlimited cut-downs tag-ends changes.",
+        "rates": [
+            {
+                "name": "Film budget over £3m",
+                "description": "All media",
+                "rates": [
+                    {
+                        "description": "Single country",
+                        "rate": {
+                            "Per track": 3500
+                        }
+                    },{
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 7000
+                        }
+                    }
+                ]
+            },{
+                "name": "Film budget £1.25m–£3m",
+                "description": "All media",
+                "rates": [
+                    {
+                        "description": "Single country",
+                        "rate": {
+                            "Per track": 1700
+                        }
+                    },{
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 3400
+                        }
+                    }
+                ]
+            },{
+                "name": "Film budget under £1.25m",
+                "description": "All media",
+                "rates": [
+                    {
+                        "description": "Single country",
+                        "rate": {
+                            "Per track": 1300
+                        }
+                    },{
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 2500
+                        }
+                    }
+                ]
+            }
+        ]
+    },{
+        "name": "Film (excl. trailers)",
+        "conditions": "Per film rates allows uncapped usage per film",
+        "rates": [
+            {
+                "name": "Feature Film Buyout",
+                "description": "Worldwide",
+                "rates": [
+                    {
+                        "description": "Film budget up to £750k",
+                        "rate": {
+                            "Per track": 200
+                        }
+                    },{
+                        "description": "Film budget £750k–£3m",
+                        "rate": {
+                            "Per track": 500
+                        }
+                    },{
+                        "description": "Film budget over £3m",
+                        "rate": {
+                            "Per track": 1300
+                        }
+                    }
+                ]
+            }
+        ]
+    },{
+        "name": "Advertising",
+        "conditions": "Ads licence, designed specifically to promote goods or services to the public.",
+        "rates": [
+            {
+                "name": "Campaign Ads",
+                "description": "Clear a single track across unlimited adverts of a related or developing theme for a single product. Includes TV, indents, Radio & online exploitation. Unlimited cut-downs tag-ends changes, revisions & variations. Broadcast within a 12 month duration before a new licence is required to continue making a new advertisement using the same track.",
+                "rates": [
+                    {
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 12000
+                        }
+                    },{
+                        "description": "Single continent",
+                        "rate": {
+                            "Per track": 6000
+                        }
+                    }
+                ]
+            },{
+                "name": "All TV Ads",
+                "description": "Includes indents, online exploitation and paid media spend.",
+                "rates": [
+                    {
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 8200
+                        }
+                    },{
+                        "description": "Single continent",
+                        "rate": {
+                            "Per track": 4200
+                        }
+                    }
+                ]
+            },{
+                "name": "All Media Ads",
+                "description": "Includes but not limited to TV, radio, online exploitation, physical product and public location.",
+                "rates": [
+                    {
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 10500
+                        }
+                    },{
+                        "description": "Single continent",
+                        "rate": {
+                            "Per track": 5250
+                        }
+                    }
+                ]
+            },{
+                "name": "Radio Ads",
+                "description": "Includes online exploitation.",
+                "rates": [
+                    {
+                        "description": "Single country",
+                        "rate": {
+                            "Per track": 650
+                        }
+                    }
+                ]
+            },{
+                "name": "Cinema World Ads",
+                "description": "Includes online exploitation and physical product.",
+                "rates": [
+                    {
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 1000
+                        }
+                    }
+                ]
+            }
+        ]
+    },{
+        "name": "Game Trailer",
+        "conditions": "Game trailer, licensed on a per production bases allowing uncapped usage per trailer.",
+        "description": "Buyout, includes TV, physical product, online exploitation, public location & radio.",
+        "rates": [
+            {
+                "description": "Game budget over £3m",
+                "rates": [
+                    {
+                        "description": "Single country",
+                        "rate": {
+                            "Per track": 4000
+                        }
+                    },{
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 9000
+                        }
+                    }
+                ]
+            },{
+                "description": "Game budget £1.25m–£3m",
+                "rates": [
+                    {
+                        "description": "Single country",
+                        "rate": {
+                            "Per track": 2000
+                        }
+                    },{
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 4000
+                        }
+                    }
+                ]
+            },{
+                "description": "Game budget £750k–£3m",
+                "rates": [
+                    {
+                        "description": "Single country",
+                        "rate": {
+                            "Per track": 1500
+                        }
+                    },{
+                        "description": "Worldwide",
+                        "rate": {
+                            "Per track": 3000
+                        }
+                    }
+                ]
+            },{
+                "description": "Game budget under £750k",
+                "rate": "contact"
+            }
+        ]
+    },{
+        "name": "Games",
+        "conditions": "Games rate covers audio, visual or interactive productions, including sales & rental.",
+        "description": "Retail games, e.g. PlayStation, Xbox, PC Games (physical copies or online exploitation), including virtual reality experience.",
+        "rates": [
+            {
+                "description": "Worldwide",
+                "rate": {
+                    "Per track": 500
+                }
+            }
+        ]
+    },{
+        "name": "TV (Episodic)",
+        "conditions": "Cue sheet must be submitted upon completion of the production.",
+        "description": "All media rates, includes TV, radio, online exploitation and public location.",
+        "rate": {
+            "Per episode": 450,
+            "Per series (up to 10 ep.)": 1500,
+            "Per series (up to 20 ep.)": 3000,
+            "Per show annual": 4000
+        }
+    }
+]

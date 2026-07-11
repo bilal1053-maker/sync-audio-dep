@@ -1,0 +1,17 @@
+extends layout.pug
+
+append content
+	h2 Email All Artists
+	if sent
+		p(style="color:green") Email queued for #{sent} artists.
+	form(method="post", action="/admin/email_artists")
+		p
+			label Subject
+			br
+			input(type="text", name="subject", style="width:500px; padding:6px", required)
+		p
+			label Message
+			br
+			textarea(name="message", rows="10", style="width:500px; padding:6px", required)
+		p
+			input(type="submit", value="Send to all artists")

@@ -1,0 +1,145 @@
+extends layout.pug
+
+block vars
+	- var applyNoContentStyles = true
+
+block scripts
+	script(type="text/javascript", src="/js/playback.js")
+	script(type="text/javascript", src="/js/trolley.js")
+	style(type="text/css").
+		div.track a.remove {
+			display: block;
+		}
+		div.track a.license {
+			display: none;
+		}
+
+block content
+	.trolley-bg
+		div.margin-background
+			div(style="border: 1px solid rgb(237, 242, 245); padding:50px; padding-bottom:25px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); background-color:white", class="cart-wrapper")
+				h1(style="margin-bottom:40px;margin-left:10px") Your Cart
+				.trolleyTracks
+					for track in trolleyTracks
+						div(style="margin-top:-10px", class="mt-0")(id=track.track.id, data-genre=track.track.genre, data-mood=track.track.mood, data-checksum=track.track.checksum, data-style=track.track.style, data-duration=track.track.duration, data-tempo=track.track.tempo, class=track.track.featured==1 ? "track featured noselect" : "track noselect")
+							div.flex-container
+								div.left-container
+									ul
+										li(style="padding-bottom:45px")
+											a(style="display: inline-block; padding: 10px; border-radius: 15px; text-align: center; background-color: rgb(219, 234, 254);").play
+												img(src="/images/icon-play@2x.png", alt="Play Icon", style="width: 20px; height: 20px; display: block; margin: 0 auto;")
+										li(style="padding-top:4px; font-size:16px; max-width:300px;").title= track.track.title
+											.artist
+												a(style="font-size:13px; font-weight:5px").artist(href="javascript:void(0)")= track.track.artist
+										li
+											div(style="position: absolute; left: 44%; right:16%; max-width:500px bottom: 0; height: 33px; overflow: hidden; border-radius: 4px; top:15px;").waveform
+												img.noselect(src="/images/waveforms/"+track.track.checksum+"-gray.png", alt="")
+												div.played
+													img.noselect(src="/images/waveforms/"+track.track.checksum+"-blue.png", alt="")
+								div.right-continer
+									ul
+										if track.licence
+											li
+												if track.discount_applied
+													p(style="position:absolute;bottom:30px; right:46px; font-size:12px; color:gray; text-decoration:line-through") £#{track.original_price}
+													p(style="position:absolute;bottom:10px; right:46px; font-weight:bold; color:green", class="cart-right-price") £#{track.discounted_price}
+														span(style="margin-left:8px; background:green; color:white; font-size:10px; padding:2px 6px; border-radius:4px") 10% off
+												else
+													p(style="position:absolute;bottom:13px; right:46px; font-weight:bold", class="cart-right-price") £#{track.licence.track_price}
+											li
+												a(style="color:rgb(29 78 216);font-size:16px").remove(href="/trolley/remove/"+track.track.id+"/licence/"+track.licence.id)
+													img(src="/images/remove-icon.png",style="height:20px; width:20px; margin-top:17px; padding-right:10px")
+										else if track.comm_licence
+											li
+												p(style="position:absolute;bottom:13px; right:46px; font-weight:bold", class="cart-right-price") £#{track.comm_licence.price}
+											li
+												a.remove(href="/trolley/remove/"+track.track.id+"/comm_licence/"+track.comm_licence.id)
+													img(src="/images/remove-icon.png",style="height:20px; width:20px; margin-top:17px; padding-right:10px")
+
+						p(style="font-size:15px; color:gray; padding-top:0px; padding-left:5px") One-time Use Coverage
+						if track.licence
+							- var licenseType = (track.licence.id === 5 || track.licence.id === 9) ? 'Personal' : 'Business'
+							table.licence
+								tbody
+								tr
+									td
+										div(style="margin-top:-30px; background-color:rgb(247, 250, 252); padding:20px; padding-top:10px")
+											p(style="font-size:14px; text-align:left; font-weight:bold") #{licenseType}
+												span(style="position: relative; left: 100px; font-weight:lighter", class="cart-name") #{track.licence.name}
+											p(style="font-size:14px; text-align:left; font-weight:bold") Distribution list
+												span.info-box(style="position: relative; left: 58px; font-weight:lighter; text-decoration:underline; cursor: pointer;",data-description=track.licence.description) Covers all standard use
+											if !track.discount_applied && discountEligibleIds.includes(track.licence.id)
+												p(style="font-size:11px; color:gray; margin-top:6px") Buy 2 and get third at 10% discount
+
+						else if track.comm_licence
+							table.licence.commercial
+								tbody
+									tr
+										td
+											div(style="margin-top:-30px; background-color:rgb(247, 250, 252); padding:20px; padding-top:10px")
+												p(style="font-size:14px; text-align:left; font-weight:bold") Commercial
+													span(style="position: relative; left:82px; font-weight:lighter") #{track.comm_licence.name}
+												p(style="font-size:14px; text-align:left; font-weight:bold") Territory
+													span(style="position: relative; left:105px; font-weight:lighter") #{track.comm_licence.territory}
+												p(style="font-size:14px; text-align:left; font-weight:bold") Distribution list
+													span.info-box(style="position: relative; left: 59px; font-weight:lighter; text-decoration:underline; cursor: pointer;",data-description=track.comm_licence.description) Covers all standard use
+
+				include player_noselect.pug
+				table(style="margin-top:-10px").licence.total
+					tbody
+						tr
+							td(style="font-size:16px; color:black")
+								strong Total:
+							td(style="font-size:20px; color:black")
+								strong £#{total}
+				p(style="display:flex; align-text:center; justify-content:center; align-items:center; margin-top:10px").trolley.buttons
+					a.cart-button.enabled.checkout(href="/trolley/checkout") Checkout
+					div
+						p(style="font-size:15px; display:flex; align-text:center; justify-content:center; align-items:center;") or
+							a(href="/music", style="margin-left:5px; font-size:16px; color: rgb(10, 168, 168)") Continue Shopping
+						//- p(style="font-size:15px; display:flex; align-text:center; justify-content:center; align-items:center;")
+						//- 	a(href="mailto:archive@sync-audio.com", style="margin-left:5px; font-size:16px; color: black;") archive@sync-audio.com
+						//- rgb(29 78 216)
+
+			script.
+				$(document).ready(function() {
+					function updateInfoList(description) {
+					var infoDiv = $('#info-list');
+
+					if (infoDiv.length === 0) {
+						$(document.body).append('<div id="info-list" style="display: none; font-size:14px; position: absolute; background-color: white; color: rgb(148, 163, 184); border: 1px solid #ddd; padding: 10px; border-radius: 4px; max-width: 200px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);"></div>');
+						infoDiv = $('#info-list');
+					}
+
+					infoDiv.html(description);
+					}
+
+					$(".info-box").on("mouseenter", function(event) {
+					var description = $(this).data('description') || 'No description available';
+					updateInfoList(description);
+
+					var trackInfoDiv = $('#info-list');
+					trackInfoDiv.show();
+
+					var topPosition = $(this).offset().top + $(this).outerHeight() + 10;
+					var leftPosition = $(this).offset().left - (trackInfoDiv.outerWidth() / 2) + 78;
+
+					trackInfoDiv.css({
+						"top": topPosition + "px",
+						"left": leftPosition + "px",
+						"background-color": "white",
+						"color": "black",
+						"max-width": "200px"
+					});
+					});
+
+					$(".info-box").on("mouseleave", function(event) {
+					$('#info-list').remove();
+					});
+
+					$(document).on("click", function(event) {
+					if (!$(event.target).closest('span.info-box').length) {
+						$('#info-list').remove();
+					}
+					});
+				});

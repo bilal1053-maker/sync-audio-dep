@@ -1,0 +1,10 @@
+extends layout.pug
+
+append content
+	h1 Track saved
+	dl
+		dt Title
+		dd= track.title
+		dt Artist
+		dd= track.artist
+	a.button(href="/admin/tracks") OK

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package syncaudio;
+
+message Shortlist {
+    string name = 1;
+    repeated int32 tracks = 2;
+}

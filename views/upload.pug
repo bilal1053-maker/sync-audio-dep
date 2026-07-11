@@ -1,0 +1,109 @@
+script.
+		$(document).ready(function(){
+			//- $('#artist_count').hide();
+
+			function debounce(func, delay) {
+			let timer;
+			return function(...args) {
+				clearTimeout(timer);
+				timer = setTimeout(() => {
+				func.apply(this, args);
+				}, delay);
+			};
+			}
+
+			function searchArtist(artistName) {
+				if (!artistName) return;
+				fetch('/admin/tracks-by-artist?name=' + encodeURIComponent(artistName))
+				.then(response => response.json())
+				.then(data => {
+					console.log('Artist Search Results:', data, typeof data.tracks);
+					//- if(data?.tracks > 0){
+						$('#artist_count').show();
+						//- $('#track_count').text(data.tracks + (data?.tracks > 0 ? "+ " : " ") +"tracks");
+					//- } else {
+						//- $('#artist_count').hide();
+					//- }
+				})
+				.catch(error => {
+					console.error('Error searching artist:', error);
+				});
+			}
+			//- var artistInput = document.getElementById('artist');
+			//- artistInput.addEventListener('input', debounce(function () {
+			//- 	var artistName = artistInput.value;
+			//- 	if (!artistName){
+			//- 		//- $('#artist_count').hide();
+			//- 		return;
+			//- 	}
+			//- 	searchArtist(artistName);
+			//- }, 500))
+			})
+h1 Submit music
+form.upload(action="/account/upload", method="post", enctype="multipart/form-data")
+	.processing(style="display:none") Processing audio. Please wait.
+	.uploading(style="display:none") Uploading track. Please wait.
+	.uploadForm
+		p
+			span(style="padding-right: 10px;") Upload Music :
+			input(type="file", name="track", accept="audio/wav")
+			input(type="hidden", name="tempo")
+			input(type="hidden", name="duration")
+			input(type="hidden", name="waveform")
+		p
+			input(type="text", name="title", placeholder="Title")
+		p
+			input(type="text", name="artist", placeholder="Artist", id="artist")
+		p
+			input(type="text", name="writer", placeholder="Writer/composer (Full name)")
+		p
+			input(type="text", name="cae_number", placeholder="CAE number (optional)")
+		p
+			input(type="text", name="master_recording_owner", placeholder="Master recording owner (Full name)")
+		p(style="margin-bottom: 0px;")
+			span(style="padding-right: 10px;color: red;") Upload 1 Artist Photo Only :
+			input(type="file", name="image", accept="image/jpeg,image/jpg,image/png,image/webp")
+		p(style="color: red;margin-top: 0px !important;", id="artist_count")   Maximum 4 tracks initially, thereafter 4 tracks at each submissions
+			span(id="track_count")
+		p
+			input(type="text", name="link", placeholder="Youtube performance (Optional)")
+		.formField
+			div
+				label(for="style") Style
+				.style
+					for t in ['Music with vocals','Instrumental','Acapella','Poetry']
+						div
+							input(name="style", type="radio", value=t)
+							| 
+							= t
+		.formField
+			div
+				label(for="mood[]") Mood
+			.moods
+				for mood in moods
+					div
+						input(type="checkbox", name="mood[]", value=mood)
+						| 
+						= mood
+		.formField
+			div
+				label(for="genre") Genres
+			div.tags
+				datalist.tags
+					for tag in genres
+						option(value=tag)
+				if track && track.genres && track.genres.length > 0
+					datalist.projectTags
+						for tag in track.genres
+							option(value=tag)
+		if !isAdminUser
+			p
+				input(type="checkbox", name="tnc")
+				| I agree with the Sync-Audio
+				| 
+				a(href="/pdf/sync-audio_user_agreement_new.pdf", target="_blank") terms and conditions
+			p
+				a.button.disabled.submit(href="javascript:void(0)") Upload
+		else
+			p
+				input(type="submit", value="Upload", disabled)

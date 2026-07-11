@@ -1,0 +1,25 @@
+extends layout.pug
+
+block scripts
+	if trolley && trolley.licenceId
+		script.
+			var selectedLicenceId = "#{trolley.licenceId}";
+	else
+		script.
+			var selectedLicenceId = null;
+	script(type="text/javascript", src="/js/licence.js")
+
+block content
+	h1 Select Licence
+	form.licence(action="/trolley/licence", method="post")
+		p
+			select(name="licence_id")
+				option
+				|
+				for licence in licences
+					option(value=licence.id)= licence.name
+		for licence in licences
+			p.licenceDescription(id="licence_"+licence.id, style="display:none")= licence.description
+		a.button.large(href="javascript:history.back()") Cancel
+		|
+		a.button.disabled#submit(href="javascript:void(0);") Select

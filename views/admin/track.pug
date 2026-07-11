@@ -1,0 +1,209 @@
+extends layout.pug
+
+append scripts
+	include ../jquery.pug
+	script(src="/js/genres.js")
+	script(src="/js/moods.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js")
+	script.
+		$(function() {
+			async function copyText(text, button) {
+				try {
+					await navigator.clipboard.writeText(text);
+				} catch (error) {
+					const textarea = document.createElement('textarea');
+					textarea.value = text;
+					document.body.appendChild(textarea);
+					textarea.select();
+					document.execCommand('copy');
+					document.body.removeChild(textarea);
+				}
+
+				const icon = button.find('i');
+				icon.removeClass('bi-clipboard').addClass('bi-clipboard-check');
+				setTimeout(function() {
+					icon.removeClass('bi-clipboard-check').addClass('bi-clipboard');
+				}, 1500);
+			}
+
+			function getFieldValue(target) {
+				if (target === 'style') {
+					return $('input[name="style"]:checked').val() || '';
+				}
+				if (target === 'mood') {
+					return $('input[name="mood[]"]:checked').map(function() {
+						return $(this).val();
+					}).get().join(', ');
+				}
+				if (target === 'genres') {
+					return $('input[name="genres[]"]').map(function() {
+						return $(this).val();
+					}).get().join(', ');
+				}
+				if (target === 'accepted') {
+					return $('select[name="accepted"] option:selected').text().trim();
+				}
+				const staticValue = $(`[data-copy-value="${target}"]`).text().trim();
+				if (staticValue) {
+					return staticValue;
+				}
+				const input = $(`[name="${target}"]`);
+				return input.length ? (input.val() || '').trim() : '';
+			}
+
+			$(document).on('click', 'a.copy-field, a.copy-track-link', function(event) {
+				event.preventDefault();
+				const target = $(this).data('copy-target');
+				const value = getFieldValue(target);
+
+				if (!value) {
+					alert('Nothing to copy for this field.');
+					return;
+				}
+
+				copyText(value, $(this));
+			});
+		});
+
+mixin copyButton(target, label)
+	//- a.copy-field(href="javascript:void(0)", title=`Copy ${label}`, data-copy-target=target, aria-label=`Copy ${label}`)
+	//- 	i.bi.bi-clipboard
+
+mixin fieldLabel(title, target, label)
+	div.field-label-row
+		label(for=target)= title
+		+copyButton(target, label || title)
+
+mixin formField(title, name, type, value, placeholder)
+	.formField
+		+fieldLabel(title, name, title)
+		div
+			if placeholder
+				input(type=type, name=name, id=name, value=value, placeholder=placeholder)
+			else
+				input(type=type, name=name, id=name, value=value)
+
+append content
+	style.
+		.field-label-row,
+		.track-audio-row {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		a.copy-field,
+		a.copy-track-link {
+			color: inherit;
+			text-decoration: none;
+			cursor: pointer;
+			line-height: 1;
+		}
+		a.copy-field:hover,
+		a.copy-track-link:hover {
+			color: rgb(10, 168, 168);
+		}
+		.track-audio-row {
+			margin-bottom: 16px;
+		}
+	h1 Track Review
+	.track-audio-row
+		audio(src="/tracks/"+track.checksum+".mp3", controls)
+		//- a.copy-track-link(href="javascript:void(0)", title="Copy track link", data-copy-target="link", aria-label="Copy track link")
+			i.bi.bi-clipboard
+	form(action="/admin/tracks/"+track.id, method="post")
+		+formField('Title','title','text',track.title)
+		+formField('Artist','artist','text',track.artist)
+		+formField('Writer/composer','writer','text',track.writer,'Full Name')
+		+formField('CAE number','cae_number','text',track.cae_number)
+		+formField('Master recording owner','master_recording_owner','text',track.master_recording_owner,'Full Name')
+		+formField('Link','link','text',track.link, 'link (Optional)')
+		.formField
+			+fieldLabel('Style', 'style', 'Style')
+			.style
+				for t in ['Music with vocals','Instrumental','Acapella','Poetry']
+					div
+						if track && track.style == t
+							input(name="style", type="radio", value=t, checked)
+							| 
+							= t
+						else
+							input(name="style", type="radio", value=t)
+							|
+							= t
+		.formField
+			+fieldLabel('Mood', 'mood', 'Mood')
+			.moods
+				for mood in moods
+					- var selected = false;
+						if track && track.moods
+								for m in track.moods
+									if m == mood
+										- selected = true;
+						div
+							input(type="checkbox", name="mood[]", value=mood, checked=selected)
+							|
+							= mood
+		.formField
+			+fieldLabel('Genres', 'genres', 'Genres')
+			div.tags
+				datalist.tags
+					for tag in genres
+						option(value=tag)
+				if track && track.genres && track.genres.length > 0
+					datalist.projectTags
+						for tag in track.genres
+							option(value=tag)
+		+formField('Tempo','tempo','number',track.tempo)
+		.formField
+			+fieldLabel('Action', 'accepted', 'Action')
+			div
+				select(name="accepted", id="accepted")
+					if !track.reviewed
+						option(value="-1") Decide later
+						option(value="1") Accept
+						option(value="0") Reject
+					else if track.accepted
+						option(value="1", selected) Accept
+						option(value="0") Reject
+					else
+						option(value="1") Accept
+						option(value="0", selected) Reject
+		if track.date_reviewed
+			.formField
+				+fieldLabel('Date reviewed', 'date_reviewed', 'Date reviewed')
+				div(data-copy-value="date_reviewed")= track.date_reviewed
+		if track.date_added
+			.formField
+				+fieldLabel('Date added', 'date_added', 'Date added')
+				div(data-copy-value="date_added")= track.date_added
+		.formField
+			input(type="submit", value="Save")
+	.formField
+		a(href="/admin/tracks/"+track.id+"/download/wav") Download WAV
+		|  |
+		a(href="/admin/tracks/"+track.id+"/download/mp3") Download MP3
+	if stems && stems.length > 0
+		.formField
+			h3(style="margin-bottom:10px") Stems
+			table(style="border-collapse:collapse; width:100%")
+				thead
+					tr
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd") Type
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd") File
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd") Uploaded
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd") Actions
+				tbody
+					for stem in stems
+						tr
+							td(style="padding:6px 12px")= stem.stem_type
+							td(style="padding:6px 12px; font-size:13px; color:gray")= stem.file_name
+							td(style="padding:6px 12px; font-size:13px; color:gray")= stem.uploaded_at
+							td(style="padding:6px 12px")
+								a(href="/admin/stems/"+stem.stem_id+"/download") Download
+								|  |
+								a(href="/admin/stems/"+stem.stem_id+"/delete", onclick="return confirm('Delete this stem?')") Delete
+	else
+		.formField
+			p(style="color:gray; font-size:13px") No stems uploaded for this track.
+	.formField
+		a(href="/admin/tracks/"+track.id+"/delete") Delete permanently

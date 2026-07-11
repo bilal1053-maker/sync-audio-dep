@@ -1,0 +1,703 @@
+//- div#track-list
+if tracks && tracks.length > 0
+	each track, index in tracks
+		div(style="margin-top:10px; margin-bottom:20px;")(id=track.id, data-genre=track.genre, data-mood=track.mood, data-checksum=track.checksum, data-style=track.style, data-duration=track.duration, data-formattedDuration= track.FormattedDuration, data-tempo=track.tempo, data-title=track.title, data-artist=track.artist,  class=track.featured==1 ? "track featured noselect" : "track noselect", data-show=index>=(current_page - 1)*20 && index < current_page * 20 ? "show-it" : isMusicPage ? "hide-it" : "", data-id=track.id)
+			div.flex-container
+				div.left-container
+					ul
+						li
+							a(style="display: inline-block; padding: 10px; border-radius: 15px; text-align: center; background-color: rgb(219, 234, 254);").play
+								img(src="/images/icon-play@2x.png", alt="Play Icon", style="width: 20px; height: 20px; display: block; margin: 0 auto;")
+						li(style="font-size:16px; font-weight:lighter").track_info_wrapper
+							span.track_title.title= track.title
+							.artist
+								a(style="font-size:15px; font-weight:5px;", href="javascript:void(0)")
+									span.track_artist.artist= track.artist
+						li.genre(style="display: inline;font-size: 13px; color: rgb(145, 150, 152); margin-right: 48%; position: absolute; right: 0; height: 18px; padding-top: 10px;",class=showingShortlist ? "shortlist-genre_list" : "").genre_list= track.genre
+
+						li
+							div(style="position: absolute; left: 54%; right:17%; max-width:500px bottom: 0; height: 33px; overflow: hidden; border-radius: 4px; top:5px; height: 50px;").waveform.music-wave.music-waves
+								//- img.noselect(src="/images/waveforms/"+track.checksum+"-gray.png", alt="", style="filter: brightness(2) contrast(0.5) grayscale(1); height: 45px;")
+								//- img.noselect(src="/images/waveforms/"+track.checksum+"-gray.png", alt="", style="filter: brightness(2) contrast(0.8); height: 45px; width: 100%;")
+								img.noselect(src="/images/waveforms/"+track.checksum+"-gray.png", alt="", style="filter: brightness(2) contrast(0.8);width: 100%;height: 50px;").music-waves
+								div.played
+									//- img.noselect(src="/images/waveforms/"+track.checksum+"-blue.png", alt="", style="filter: brightness(0) saturate(0); height: 45px;")
+									//- img.noselect(src="/images/waveforms/"+track.checksum+"-blue.png", alt="", style="filter: brightness(1) saturate(0); height: 45px;")
+									//- img.noselect(src="/images/waveforms/"+track.checksum+"-blue.png", alt="", style="filter: invert(0%) sepia(95%) saturate(500%) hue-rotate(180deg) brightness(108%) opacity(0.6); height: 45px;")
+									//- img.noselect(src="/images/waveforms/"+track.checksum+"-blue.png", alt="", style="filter: invert(54%) sepia(30%) saturate(200%) hue-rotate(180deg) brightness(150%) opacity(0.95); height: 45px;")
+									img.noselect(src="/images/waveforms/"+track.checksum+"-blue.png", alt="", style="filter: invert(54%) sepia(30%) saturate(200%) hue-rotate(180deg) brightness(150%) opacity(0.95); clip-path: inset(0 100% 0 0);transition: clip-path 0.1s linear;width: 100%;height: 50px;").music-waves
+				div.right-container(class=showingShortlist ? "shortlist-right-container" : "")
+					ul
+						li(style="padding-top: 13px; padding-right:30px; color:gray;font-size:14px",class=showingShortlist ? "shortlist-right-duration-li" : "").right-duration-li.duration= track.formattedDuration
+						li(class=showingShortlist ? "shortlist-li" : "")
+							a.info
+								img(style="margin-top:6px")(src="/images/info.png", alt="Info")
+						li(style="padding-bottom:10px", class=showingShortlist ? "shortlist-li" : "")
+							a.add
+								img(style="margin-top:6px")(src="/images/add.png", alt="Add to shortlist")
+						li(class=showingShortlist ? "shortlist-li" : "")
+							a.license
+								img(style="margin-top:7px")(src="/images/trolley-black.png")
+						if showingShortlist && name
+							li(class=showingShortlist ? "shortlist-li" : "")
+								a.listremove(href="/shortlist?name="+encodeURIComponent(name)+"&remove="+track.id)
+									img(src="/images/remove-icon.png", alt="Remove from shortlist", style="height:20px; width:20px; margin-top:8px")
+
+				a.remove(href="/trolley/remove/"+track.id)
+					img(style="margin-top:7px")(src="/images/icon-stop.png", alt="Remove", srcset="/images/icon-stop@2x.png 2x, /images/icon-stop@3x.png 3x")
+				a.delete(href="/account/delete_track/"+track.id)
+					img(style="margin-top:7px")(src="/images/icon-stop.png", alt="Remove", srcset="/images/icon-stop@2x.png 2x, /images/icon-stop@3x.png 3x")
+
+	else
+		p No tracks available
+
+	//- div.pagination
+	//- 	a(id="prev-page", class="disabled") Previous
+	//- 	a(id="next-page") Next
+
+	#player.noselect
+		audio(type="audio/mpeg", autoplay)
+		.player
+			//- #bottom_title hello
+			//- #btn_rwd.button.rwd
+			//- 	a.rwd(href="javascript:void(0)")
+			//- 		//- img(src="/images/icon-rwd.png", alt="Rewind" , height="25", width="25", srcset="/images/icon-rwd@2x.png 2x, /images/icon-rwd@3x.png 3x")
+			//- 		img(src="/images/forward-icon.svg", alt="Rewind" , height="27", width="27", srcset="/images/icon-rwd@2x.png 2x, /images/icon-rwd@3x.png 3x")
+			#btn_play.button.play
+				a(style="display: inline-block; padding: 10px; border-radius: 15px; text-align: center; background-color: rgb(219, 234, 254);").play(href="javascript:void(0)")
+					img(src="/images/icon-play@2x.png", alt="Play Icon", style="width: 20px; height: 20px; display: block; margin: 0 auto;")
+					//- img(src="/images/icon-pause.png", style="width: 25px; height: 25px;" alt="Play/Pause", srcset="/images/icon-pause@2x.png 2x, /images/icon-pause@3x.png 3x")
+					//- img(src="/images/play-icon.svg", style="width: 27px; height: 27px;" alt="Play/Pause")
+					//- #btn_fwd.button.fwd
+					//- 	a.fwd(href="javascript:void(0)")
+					//- 		//- img(src="/images/icon-fwd.png", height="25", width="25", alt="Fast Forward" ,srcset="/images/icon-fwd.png, /images/icon-fwd.png")
+					//- 		img(src="/images/backward-icon.svg", height="27", width="27", alt="Fast Forward")
+					//- .transport
+					//- 	.played
+			span#played_left_title
+			span#played_left_artist
+			span.played#played_left 00:00
+			div(style="position: absolute; width:60%; cursor: pointer; left: 23%; right:17%; max-width:500px bottom: 0; height: auto; overflow: hidden; border-radius: 4px; top:0px;").waveform#custom_waveform
+						//- img.noselect(src="/images/waveforms/7e5d72ac400ab70c7712bef88d29b5528d9bb5ab-gray.png", alt="", style="filter: brightness(2) contrast(0.5) grayscale(1);height: 34px;")
+						img.noselect(src="/images/waveforms/7e5d72ac400ab70c7712bef88d29b5528d9bb5ab-gray.png", alt="", style="filter: brightness(2) contrast(0.8); height: 60px; width: 100%;")#bottom_bg_img
+						div(style="position: absolute; top: 0px;")#bottom-player.played
+							//- img.noselect(src="/images/waveforms/7e5d72ac400ab70c7712bef88d29b5528d9bb5ab-blue.png", alt="", style="filter: brightness(0) saturate(0);height: 34px;")
+							//- img.noselect(src="/images/waveforms/bottom-gray.png", alt="", style="filter: brightness(0) saturate(0); height: 60px;")#bottom_front_img
+							//- img.noselect(src="/images/waveforms/bottom-gray.png", alt="", style="filter: invert(0%) sepia(95%) saturate(500%) hue-rotate(180deg) brightness(108%) opacity(0.6); height: 60px;")#bottom_front_img
+							img.noselect(src="/images/waveforms/bottom-gray.png", alt="", style="filter: invert(54%) sepia(30%) saturate(200%) hue-rotate(180deg) brightness(150%) opacity(0.95); height: 60px;clip-path: inset(0 100% 0 0);transition: clip-path 0.1s linear;width: 100%;")#bottom_front_img
+			#dynamic_info.info
+				//- span.title
+				span.artist
+				span.time
+					span.remaining
+						//- .button.rwd
+						//- 	a.rwd(href="javascript:void(0)")
+						//- 		img(src="/images/icon-rwd.png", alt="Rewind" ,srcset="/images/icon-rwd@2x.png 2x, /images/icon-rwd@3x.png 3x")
+						//- .button.fwd
+						//- 	a.fwd(href="javascript:void(0)")
+						//- 		img(src="/images/icon-fwd.png", alt="Fast Forward" ,srcset="/images/icon-fwd@2x.png 2x, /images/icon-fwd@3x.png 3x")
+						//- .button.stop
+						//- 	a.stop(href="javascript:void(0)")
+						//- 		img(src="/images/icon-stop.png", alt="Stop" ,srcset="/images/icon-stop@2x.png 2x, /images/icon-stop@3x.png 3x")
+	if shortlists
+		script.
+			window.myShortlists = !{JSON.stringify(shortlists)};
+
+	//- Modal HTML structure
+	div#trackModal.modal(style="display:none;")
+		div.modal-content
+			span.close &times;
+			div.modal-header
+				div(style="margin-top:-20px; margin-bottom:-16px")
+					h2
+				div(style="margin-top:-20px; margin-bottom:-16px")
+					p()
+			div.modal-body
+	.modal#categoryFormModal(style="display:none;")
+		.modal-content1
+			.close x
+			.form-container
+				//- form#form(action="/trolley/add/"+trackId+"/commercial", method="post")
+				form#form()
+					.entry
+						div(style="font-size:14px")
+							label(for="firstName") First name
+						div(style="font-size:15px")
+							input#firstName(style="font-size:14px", type="text", name="firstName", placeholder="First name", value=firstName)
+							.error-message#firstNameError(style="color: red; display: none;font-size:14px") Please enter your first name.
+					.entry
+						div(style="font-size:14px")
+							label(for="lastName") Last name
+						div(style="font-size:14px")
+							input#lastName(style="font-size:14px", type="text", name="lastName", placeholder="Last name", value=lastName)
+							.error-message#lastNameError(style="color: red; display: none;font-size:14px") Please enter your last name.
+					//- .entry
+					//- 	div(style="font-size:14px")
+					//- 		label(for="company") Company
+					//- 	div
+					//- 		input#company(style="font-size:14px", type="text", name="company", placeholder="Company Name", value=company)
+					//- 		.error-message#companyError(style="color: red; display: none;font-size:14px") Please enter company.
+					.entry
+						div(style="font-size:14px")
+							label(for="email") Email
+						div
+							input#email(style="font-size:14px", type="email", name="email", placeholder="name@company.com", value=email)
+							.error-message#emailError(style="color: red; display: none;font-size:14px") Please enter a valid email address.
+					//- .entry
+					//-     div(style="font-size:14px")
+					//-         label(for="website") Website
+					//-     div
+					//-         input#website(style="font-size:14px", type="text", name="website", placeholder="www.mywebsite.com", value=website)
+					//-         span.error-message#websiteError(style="color: red; display: none;font-size:14px") Please enter a valid website URL.
+					//- .entry
+					//-     div(style="font-size:14px")
+					//-         label(for="projectTitle") Project title
+					//-     div
+					//-         input#projectTitle(style="font-size:14px", type="text", name="projectTitle", placeholder="e.g. Big Bus", value=projectTitle)
+					//-         span.error-message#projectTitleError(style="color: red; display: none;font-size:14px") Please enter the project title.
+					input(type="hidden", name="licenceCategory", value="")
+					.entry(style="display:flex; align-items:center; justify-content:center;")
+						div
+							input#submit(type="submit", value="Submit", disabled="disabled")
+
+
+	script(type="text/javascript", src="/js/shortlist.js")
+	script.
+		$(document).ready(function(){
+			console.log("Document is ready")
+			$(document.body).append('<div id="trackinfo"><div>Duration: <span class="duration"></span></div><div>Genre: <span class="genre"></span></div><div>Tempo: <span class="tempo"></span></div><div>Mood: <span class="mood"></span></div><div>Style: <span class="style"></span></div></div>');
+			var trackInfoDiv = $('#trackinfo');
+			var trackModal = $('#trackModal');
+
+			$(document.body).on("mousedown", function(event){
+				var x = event.pageX;
+				var y = event.pageY;
+				var trackOffset = trackInfoDiv.offset();
+				var trackRect = {
+					"left": trackOffset.left,
+					"top": trackOffset.top,
+					"right": trackOffset.left + trackInfoDiv.outerWidth(),
+					"bottom": trackOffset.top + trackInfoDiv.outerHeight()
+				};
+				if (x < trackRect.left || x > trackRect.right || y < trackRect.top || y > trackRect.bottom) {
+					trackInfoDiv.hide();
+				}
+			});
+			$("a.info").on("click", function(event) {
+				event.preventDefault(); // Prevent default action
+				var trackInfo = $(this).closest("div.track").data();
+				var durationMinutes = Math.floor(trackInfo.duration / 60);
+				var durationSeconds = Math.round(trackInfo.duration % 60);
+				var duration = (durationMinutes + "").padStart(2, "0") + ":" + (durationSeconds + "").padStart(2, "0");
+				var img = $(this).find("img");
+				trackInfoDiv.find("span.duration").css({"color":"gray","font-size":"15px"}).text(duration);
+				trackInfoDiv.find("span.genre").css({"color":"gray","font-size":"15px"}).text(trackInfo.genre || '').parent().toggle(!!trackInfo.genre);
+				trackInfoDiv.find("span.tempo").css({"color":"gray","font-size":"15px"}).text((trackInfo.tempo || '') + " BPM").parent().toggle(!!trackInfo.tempo);
+				trackInfoDiv.find("span.mood").css({"color":"gray","font-size":"15px"}).text(trackInfo.mood || '').parent().toggle(!!trackInfo.mood);
+				trackInfoDiv.find("span.style").css({"color":"gray","font-size":"15px"}).text(trackInfo.style || '').parent().toggle(!!trackInfo.style);
+				trackInfoDiv.show();
+				var topPosition = $(this).offset().top - trackInfoDiv.outerHeight() - 35;
+				var leftPosition = $(this).offset().left + (img.width() / 2) - (trackInfoDiv.outerWidth() / 2);
+				trackInfoDiv.css({
+					"top": topPosition + "px",
+					"left": leftPosition + "px",
+					"background-color": "white",
+					"color": "black",
+					"max-width": "200px"
+				});
+			});
+
+			$(document).on("click", "a.license", function(event) {
+				event.preventDefault(); 
+				var $track = $(this).closest(".track");
+				var trackTitle = $track.find("li.title").text().trim();
+				var artistName = $track.find("a.artist").text();
+				var trackTitleWithoutArtist = trackTitle.replace(artistName, "").trim();
+				var trackId = $track.attr("id");
+
+				$("#trackModal .modal-header h2").text(trackTitleWithoutArtist).css({"margin-top":"40px"});
+				$("#trackModal .modal-header p").text(artistName).css({"font-size":"16px","color":"gray","margin-bottom":"40px","margin-top":"25px"});
+
+				$("#trackModal .modal-body").empty();
+				var $personalBox = $("<div>").addClass("box personal")
+					.data("track-id", trackId)
+					.append($("<h3>").text("Personal").css("font-size","17px"))
+					.append($("<p>").text("Home / Students, Vlogger").css({ "margin-top":"-12px","font-size":"14px"}));
+
+				var $businessBox = $("<div>").addClass("box business")
+					.data("track-id", trackId)
+					.append($("<h3>").text("Business").css("font-size","17px"))
+					.append($("<p>").text("Promotional 1, 2, 3, Wedding, Indie Film, Indie Trailer, Podcast").css({ "margin-top":"-12px","font-size":"14px"}));
+
+				var $commercialBox = $("<a>").addClass("box commercial")
+					.attr("href", `/trolley/add/${trackId}/commercial`)
+					.append($("<h3>").text("Commercial").css("font-size","17px"))
+					.append($("<p>").text("Film, TV, Ads, Game etc.").css( { "margin-top":"-12px","font-size":"14px"}));
+
+				$("#trackModal .modal-body").append($personalBox, $businessBox, $commercialBox);
+
+				//- Change here
+				//- const isFormFilled =  document.cookie.includes("form_submitted");
+				const isFormFilled = sessionStorage.getItem("form_submitted") ? sessionStorage.getItem("form_submitted") === "true" : false;
+				if(!isFormFilled){
+					$("#categoryFormModal").show();
+				} else {
+					$("#trackModal").show();
+				}
+
+			});
+
+			$("a.delete").on("click", function(event) {
+				if (confirm("Delete track? This cannot be undone.")) {
+					return true;
+				} else {
+					event.preventDefault();
+					return false;
+				}
+			});
+
+			$(document).on("click", "#trackModal .modal-body a.box.commercial", function(event) {
+				var href = $(this).attr("href");
+				window.location.href = href; 
+			});
+			$(document).on("click", "div.box.personal, div.box.business", function(event) {
+				var $box = $(this);
+				var boxType = $box.hasClass("personal") ? "Personal" : "Business";
+				var boxTitle = $box.find("h3").text();
+				var boxDescription = $box.find("p").text();
+				var trackId = $box.data("track-id");
+
+				$("#trackModal .modal-header h2").text("Whats your project type?");
+				$("#trackModal .modal-header p").text("");
+				var licences = !{JSON.stringify(licences)};
+				$("#trackModal .modal-body").empty();
+
+				licences.forEach(function(licence) {
+					if (boxType === "Personal" && (licence.id !== 5 && licence.id !== 9)) {
+						return; 
+					}
+					if (boxType === "Business" && (licence.id === 5 || licence.id === 9 || licence.id === 10)) {
+						return; 
+					}
+					var $licenseBox = $("<div>").addClass("box new")
+						.data("track-id",trackId)
+						.data("licence-id", licence.id)
+						.data("licence-price",licence.track_price)
+						.data("licence-description", licence.description)
+						.append($("<p>").text(licence.name).css({"font-size":"16px","color":"black","padding-top":"10px","font-weight":"20px"}))
+						.append($("<a>").attr("href", `/trolley/add/${trackId}/licence/${licence.id}`))
+
+					$("#trackModal .modal-body").append($licenseBox);
+				});
+
+				trackModal.show();
+			});
+			$(document).on("click", "#trackModal .modal-body .box.new", function(event) {
+				var $licenseBox = $(this);
+				var licenceId = $licenseBox.data("licence-id");
+				var trackId = $licenseBox.data("track-id");
+				var licence_price = $licenseBox.data("licence-price");
+				var licence_description = $licenseBox.data("licence-description");
+
+			$("#trackModal .modal-body").empty();
+
+			$("#trackModal .modal-header h2").text("Purchase Options");
+
+			// Variable to hold the cut price
+			var cutPrice = null;
+
+			// Determine the cut price based on the id
+			switch (licenceId) {
+				case 5:
+					cutPrice = "£59";
+					break;
+				case 9:
+					cutPrice = "£18";
+					break;
+				case 6:
+					cutPrice = "£49";
+					break;
+				case 16:
+					cutPrice = "£259";
+					break;
+				// Add more cases as needed
+				default:
+					cutPrice = null; // No cut price for other IDs
+			}
+
+			var $selectedLicenseBox = $("<div>").addClass("selected-license")
+				.append(
+					$("<div>").addClass("license-info")
+					.append(
+						$("<div>")
+						.append($("<h3>").text("Single Song").css({"font-size": "20px","line-height": "2px"}))
+						.append($("<p>").text("One Time Use").css({"font-size": "12px", "color": "#666","font-style": "italic","margin-top":"-5px"}))
+					)
+					.append(
+						$("<div>").addClass("price-info")
+						.append($("<div>").text("Starting at").css({"font-size": "13px", "color": "#666","margin-top":"10px", "margin-bottom":"0px","font-style": "italic"}))
+						.append(cutPrice ? $("<span>").text(cutPrice).css({"font-size": "20px", "text-decoration": "line-through", "color": "gray", "margin-right": "8px", "position": "relative", "top": "-1px"}) : null)
+						.append($("<span>").addClass("price").text(`£${licence_price}`).css({"font-size": "27px", "padding":"0px"}))
+					)
+				)
+				.append(
+					$("<div>")
+					.append($("<p>").text(`${licence_description}`))
+				);
+
+			var $form = $("<form>").attr("id", "addToCartForm").attr("action", "/trolley/add/" + trackId  + "/licence/" + licenceId).attr("method", "POST")
+			.append(
+				$("<p>").append(
+				$("<input>").attr("type", "checkbox").attr("name", "agree").on("change", function() {
+					$("#addToCartBtn").prop("disabled", !this.checked);
+					updateButtonState(this.checked);
+				})
+				).append(
+				$("<label>").text(" I agree with the ").css("font-size","16px")
+				).append(
+				$("<a>").attr("href", `/trolley/licence_tnc/${licenceId}`).attr("target", "_blank").text("licence terms and conditions").css({"color":"rgb(10, 168, 168)", "font-size":"16px"})
+				)
+			)
+			.append(
+				$("<p>").append(
+				$("<input>").attr("type", "submit").attr("id", "addToCartBtn").attr("value", "Add to cart").addClass('cart-button').css("font-size","18px").prop("disabled", true)
+				)
+			);
+
+			$("#trackModal .modal-body")
+			.append($selectedLicenseBox)  
+			.append($form);              
+
+			function updateButtonState(checked) {
+			if (checked) {
+				$("#addToCartBtn").removeClass("disabled").addClass("enabled");
+			} else {
+				$("#addToCartBtn").removeClass("enabled").addClass("disabled");
+			}
+			}
+
+			updateButtonState($("input[name='agree']").is(":checked"));
+
+			trackModal.show();
+
+			});
+
+			//- $(".close, .btn-close").on("click", function(event) {
+			//- trackModal.hide();
+			//- });
+
+			//- $(window).on("click", function(event) {
+			//- 	if ($(event.target).is(trackModal)) {
+			//- 		trackModal.hide();
+			//- 	}
+			//- });
+
+		});
+		$(document).ready(function() {
+			const $trackModal = $('#trackModal');
+
+			$('.close').on('click', function() {
+				$trackModal.hide();
+			});
+
+			$(window).on('click', function(event) {
+				if ($(event.target).is($trackModal)) {
+				$trackModal.hide();
+				}
+			})
+		});
+	//- script.
+	//- 		document.addEventListener('DOMContentLoaded', () => {
+	//- 			const itemsPerPage = 10;
+	//- 			const trackList = document.querySelectorAll(' .track');
+	//- 			const totalItems = trackList.length;
+	//- 			const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+	//- 			let currentPage = 1;
+
+	//- 			function showPage(page) {
+	//- 				if (page < 1 || page > totalPages) return;
+
+	//- 				currentPage = page;
+
+	//- 				trackList.forEach((item, index) => {
+	//- 				if (index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage) {
+	//- 					item.style.display = 'block';
+	//- 				} else {
+	//- 					item.style.display = 'none';
+	//- 				}
+	//- 				});
+
+	//- 				updatePaginationControls();
+	//- 			}
+
+	//- 			function updatePaginationControls() {
+	//- 				document.getElementById('prev-page').classList.toggle('disabled', currentPage === 1);
+	//- 				document.getElementById('next-page').classList.toggle('disabled', currentPage === totalPages);
+	//- 			}
+
+	//- 			document.getElementById('prev-page').addEventListener('click', () => {
+	//- 				if (currentPage > 1) {
+	//- 				showPage(currentPage - 1);
+	//- 				}
+	//- 			});
+
+	//- 			document.getElementById('next-page').addEventListener('click', () => {
+	//- 				if (currentPage < totalPages) {
+	//- 				showPage(currentPage + 1);
+	//- 				}
+	//- 			});
+
+	//- 			// Initial page load
+	//- 			showPage(currentPage);
+	//- 			});
+	script.
+		$(document).ready(function() {
+			$("#categoryFormModal").hide();
+			$("#contactModal").hide();
+
+			function disableSubmitButton() {
+				$("#form input[type='submit']").prop('disabled', true).css({
+					"background-color": "rgba(0, 164, 228, 0.3)", // Light blue color when disabled
+					"cursor": "not-allowed"
+				});
+			}
+			//- function setCookie(name, value, days) {
+			//- 	let existingCookies = document.cookie.split("; ").reduce((acc, cookie) => {
+			//- 		let [key, val] = cookie.split("=");
+			//- 		acc[key] = val;
+			//- 		return acc;
+			//- 	}, {});
+
+			//- 	existingCookies[name] = encodeURIComponent(value); // Add/Update the new cookie
+
+			//- 	let updatedCookies = Object.entries(existingCookies)
+			//- 		.map(([key, val]) => `${key}=${val}`)
+			//- 		.join("; ");
+
+			//- 	//- let date = new Date();
+			//- 	//- date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+			//- 	console.log('doc===>1', updatedCookies)
+			//- 	document.cookie = `${updatedCookies};`;
+			//- }
+
+			function setCookie(name, value, days) {
+				let cookies = document.cookie ? document.cookie.split("; ") : [];
+				let cookieMap = {};
+
+				// Parse existing cookies
+				cookies.forEach(cookie => {
+					let [key, val] = cookie.split("=");
+					cookieMap[key] = decodeURIComponent(val);
+				});
+
+				// Update or Add the new cookie
+				cookieMap[name] = value;
+
+				// Set expiration date
+				let date = new Date();
+				//- date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+				//- let expires = `expires=${date.toUTCString()}`;
+
+				// Rebuild and set all cookies
+				let updatedCookies = Object.entries(cookieMap)
+					.map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
+					.join("; ");
+
+				console.log('updated===>', name, value, updatedCookies, cookieMap)
+				document.cookie = `${updatedCookies};`;
+			}
+
+			function enableSubmitButton() {
+				$("#form input[type='submit']").prop('disabled', false).css({
+					"background-color": "rgba(0, 150, 228)", // Original color when enabled
+					"cursor": "pointer"
+				});
+			}
+
+	
+
+			function validateForm() {
+				var isValid = true;
+
+				// Reset error messages
+				$(".error-message").hide();
+
+				// Validate required fields
+				$("#form input[type='text'], #form input[type='email'], #form textarea").each(function() {
+					var id = $(this).attr('id');
+
+					// Skip validation for the Company field
+					//- if (id === 'company') {
+					//- 	return;
+					//- }
+					if ($(this).val().trim() === '') {
+						isValid = false;
+						if ($(this).data('touched')) {
+				console.log('isValid===>', "#" + id + "Error", $("#" + id + "Error"))
+					$("#" + id + "Error").text("This field is required.").show();
+						}
+					} else {
+						$("#" + id + "Error").hide();
+					}
+				});
+
+				// Validate Company field separately
+				var companyField = $("#form input#company");
+				//- if (companyField.data('touched') && companyField.val().trim() === '') {
+				//- 	$("#" + companyField.attr('id') + "Error").hide(); // Ensure no error is shown for Company field if empty
+				//- }
+
+				// Validate email
+				var email = $("#form input[name='email']").val();
+				var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+				if (email && !emailPattern.test(email)) {
+					isValid = false;
+					if ($("#email").data('touched')) {
+						$("#emailError").text("Please enter a valid email address.").show();
+					}
+				}
+
+				// Validate website
+				var website = $("#form input[name='website']").val();
+				var websitePattern = /^(http[s]?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}$/;
+				if (website && !websitePattern.test(website)) {
+					isValid = false;
+					if ($("#website").data('touched')) {
+						$("#websiteError").text("Please enter a valid website URL.").show();
+					}
+				}
+
+				// Enable or disable submit button based on validity
+				if (isValid) {
+					enableSubmitButton();
+				} else {
+					disableSubmitButton();
+				}
+			}
+			
+
+
+			function initialCheck() {
+				var allFilled = true;
+
+				// Check all text, email, and website fields except the company field
+				$("#form input[type='text'], #form input[type='email'], #form input[name='website']").each(function() {
+					//- if ($(this).attr('id') !== 'company' && $(this).val().trim() === '') {
+					if ($(this).val().trim() === '') {
+						allFilled = false;
+					}
+				});
+
+				if (allFilled) {
+					validateForm(); // Validate form fields
+				} else {
+					disableSubmitButton(); // Disable the button if not all required fields are filled
+				}
+						}
+
+			// Event handlers for form validation and submit button state
+			$("#form input").on("focus blur input", function() {
+				$(this).data('touched', true); // Mark field as interacted
+				validateForm(); // Validate form on focus, blur, and input
+			});
+
+			$("#form textarea").on("focus blur input", function() {
+				$(this).data('touched', true); // Mark field as interacted
+				validateForm(); // Validate form on focus, blur, and input
+			});
+
+			$("#form").on("submit", function(event) {
+				validateForm(); // Validate form on submit
+
+				if ($("#form input[type='submit']").prop('disabled')) {
+					event.preventDefault(); // Prevent form submission if invalid
+				}
+				event.preventDefault();
+				//- document.cookie = "username=test" 
+				setCookie("first_name", "Aa")
+				//- setCookie("first_name", $("#form input#firstName").val())
+				//- setCookie("last_name", $("#form input#lastName").val())
+				//- setCookie("company", $("#form input#company").val())
+				//- setCookie("email", $("#form input#email").val())
+
+				$.ajax({
+					url: "trolley/save-cookies",
+					type: "POST",
+					contentType: "application/json",
+					data: JSON.stringify({
+					first_name: $("#form input#firstName").val(),
+					last_name: $("#form input#lastName").val(),
+					company: $("#form input#company").val(),
+					email: $("#form input#email").val(),
+		 		}),
+				success: function(response) {
+					console.log("Cookie set successfully:", response);
+					sessionStorage.setItem("form_submitted", "true");
+				},
+				error: function(xhr, status, error) {
+					console.error("Error setting cookie:", error);
+				}
+				});
+				$("#categoryFormModal").hide();
+				$("#trackModal").show();
+			});
+
+			$("input[name='licenceCategory']").on("click", function() {
+				$("#categoryFormModal").hide();
+				$("#contactModal").hide();
+				var selectedCategory = $(this).val();
+				if (selectedCategory == "other") {
+					$("#contactModal").show();
+				} else {
+
+					//- Old code
+					//- $("#categoryFormModal").show();
+					//- $("#form input[name='licenceCategory']").val(selectedCategory);
+					//- initialCheck(); // Revalidate form when modal opens
+
+		//- 			const trackId = $("*[data-track]").attr("data-track");
+		//- var form = $('<form>', {
+		//- 	id: 'dynamicForm',
+		//- 	action: "/trolley/add/" + trackId + "/commercial",
+		//- 	method: "POST"
+		//- });
+		//- form.append($('<input>', {
+		//- 	type: 'hidden',
+		//- 	name: 'licenceCategory',
+		//- 	value: selectedCategory
+		//- }));
+		//- $("body").append(form);
+		//- form.submit();
+
+
+			}
+			});
+
+			$(".modal .close").on("click", function() {
+				$(".modal").hide();
+				initialCheck(); // Revalidate form when modal closes
+				if($(".box.personal").length !== 0){
+					$("#trackModal").show();
+				}
+			});
+
+			$(window).on("click", function(event) {
+				if ($(event.target).hasClass("modal")) {
+					$(".modal").hide();
+					initialCheck(); // Revalidate form when modal closes
+				}
+			});
+
+			// Initially check all fields and disable/enable the submit button
+			initialCheck();
+		});
+	script.
+		document.addEventListener('DOMContentLoaded', () => {
+		const trackList = document.querySelectorAll('.track');
+
+		// Show all tracks
+		trackList.forEach((item) => {
+			item.style.display = 'block';
+		});
+		});

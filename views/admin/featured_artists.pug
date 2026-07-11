@@ -1,0 +1,77 @@
+extends layout.pug
+
+mixin artist(artist)
+	li.artist(data-id=artist.id)
+		div
+			img(src= artist.image_url || "/images/artists/"+artist.id+".jpg", alt=artist.artist, width="64", height="64", onerror="handleImageError(this)")
+		div= artist.artist
+		div.actions
+			span.add
+				a.add(href="javascript:void(0)") Add to featured
+				|
+				| |
+				|
+			span.remove
+				a.remove(href="javascript:void(0)") Remove from featured
+				|
+				| |
+				|
+			a(href="/admin/artist/"+artist.id) Edit
+			|
+			| |
+			|
+			a.delete-photo(href="/admin/artist/"+artist.id+"/delete-photo") Delete Photo
+			|
+			| |
+			|
+			a(href="/admin/artist/"+artist.id+"/delete") Delete
+
+block scripts
+	include ../jquery_ui.pug
+	script.
+		$(function() {
+			function updateOrder() {
+				var data = {"featured_artists":[]};
+				$("#featured li").each(function(index, element){
+					data.featured_artists.push({"id":$(element).data("id"),"priority":index+1});
+				});
+				$.post(location.href, data, function() {
+
+				}, 'json');
+			}
+			$("#featured, #available" ).sortable({
+				"connectWith": ".artistList",
+				"update": updateOrder
+			}).disableSelection();
+			$("ul.artistList a.add").on("click", function(){
+				$("#featured").append($(this).closest("li.artist"));
+				updateOrder();
+			});
+			$("ul.artistList a.remove").on("click", function(){
+				$("#available").append($(this).closest("li.artist"));
+				updateOrder();
+			});
+		});
+	script.
+		function handleImageError(img) {
+			const artistDiv = img.closest('li.artist');
+			if (artistDiv) {
+				const deleteLink = artistDiv.querySelector('a.delete-photo');
+				if (deleteLink) {
+					deleteLink.style.pointerEvents = 'none';
+					deleteLink.style.opacity = '0.5';
+				}
+			}
+		}
+
+append content
+	p
+		a.button(href="/admin/artist") Add artist
+	h1 Featured artists
+	ul#featured.artistList
+		for artist in featured
+			+artist(artist)
+	//- h1 Other artists
+	//- ul#available.artistList
+	//- 	for artist in other
+	//- 		+artist(artist)

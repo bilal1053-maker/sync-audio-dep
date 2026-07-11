@@ -1,0 +1,36 @@
+extends ./layout.pug
+
+append content
+    h1 Licensed tracks
+    h2 Customer
+    p 
+        | #{first_name} #{last_name}
+        | 
+        a(href="mailto:"+email)= email
+    if tracks
+        for track in tracks
+            div.licensee_track
+                h2 #{track.title} by #{track.artist}
+                table.commercial_licence
+                    tbody
+                        tr
+                            td.heading Date
+                            td= track.date_created
+                        tr
+                            td.heading Licence
+                            td= track.name
+                        tr
+                            td.heading Territory
+                            td= track.territory
+                        tr
+                            td.heading Use
+                            td= track.use
+                        tr
+                            td.heading Company
+                            td= track.company
+                        tr
+                            td.heading Website
+                            td= track.website
+                        tr
+                            td.heading Project
+                            td= track.project_title

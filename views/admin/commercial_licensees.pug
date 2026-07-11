@@ -1,0 +1,20 @@
+extends ./layout.pug
+
+append content
+    h1 Commercial Licensees
+    if licensees
+        table.licensees
+            thead
+                tr
+                    td Name
+                    td Email
+                    td Licences
+            tbody
+            for licensee in licensees
+                tr
+                    td #{licensee.first_name} #{licensee.last_name}
+                    td
+                        a(href="mailto:"+licensee.email)= licensee.email
+                    td
+                        a(href="?email="+licensee.email+"&first_name="+encodeURIComponent(licensee.first_name)+"&last_name="+encodeURIComponent(licensee.last_name)) View | 
+                        a(href="/admin/commercial_licensees/"+licensee.email+"/delete-license") Delete

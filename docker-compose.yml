@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+  website:
+    image: sync-audio:latest
+    restart: always
+    depends_on:
+      - database
+    environment:
+      - PORT=8080
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - PAYPAL_MODE=${PAYPAL_MODE}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET}
+      - PAYPAL_RETURN_URL=${PAYPAL_RETURN_URL}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+    ports:
+      - '${PORT}:8080'
+    volumes:
+      - ./static/tracks:/app/static/tracks
+      - ./static/images/waveforms:/app/static/images/waveforms
+      - ./static/images/artists:/app/static/images/artists
+  database:
+    image: mysql/mysql-server:latest
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./db/data:/var/lib/mysql

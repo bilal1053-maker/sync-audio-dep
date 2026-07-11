@@ -1,0 +1,91 @@
+extends layout.pug
+
+block vars
+    - var applyNoContentStyles = true
+
+block content
+    div(style="padding:100px; padding-left:80px; padding-top:70px; padding-bottom:50px")#faq_wrapper
+        .container
+            .sidebar
+                h2(style="font-size:24px; color:rgb(17, 24, 39)")#faq_title Frequently asked questions
+                p(style="color:rgb(75, 85, 99);line-height:25px;", class="mob-mb-0 faq-greenbox-title") Can’t find the answer you’re looking for? Reach out to our 
+                    a(style="color:rgb(10, 168, 168);font-size:16px;font-weight:600")(href="mailto:supportteam@sync-audio.com") customer support
+                    span  team.
+
+                // Important Notice Section
+                //- div(style="border: 2px solid rgb(10, 168, 168); padding: 10px; margin-top: 300px; background-color: rgb(235, 248, 250); margin-right:70px ; margin-bottom:0px").mr-0.mt-30
+                div(style="border: 2px solid rgb(10, 168, 168); padding: 10px; margin-top: 60px; background-color: rgb(235, 248, 250); margin-right:70px ; margin-bottom:0px").mr-0.mt-30.mr-0-laptop.green-box-section
+                    h3(style="color:rgb(17, 24, 39); line-height:25px;font-size:20px; margin-top:0") How Do I Dispute a Content ID Claim on my YouTube Video?
+
+                    p(style="color:rgb(75, 85, 99); line-height:25px; margin-top:-10px")
+                        | If you are NOT monetizing your video, you can choose to disregard the claim or dispute it. If you ARE monetizing your videos, you should dispute the claim. There is a simple process to do so.
+                        br
+                        | Please note, while the claim is being resolved, ads are still running, and the revenue earned will be released to you as soon as the claim is resolved.
+                    
+                    p(style="color:rgb(75, 85, 99); line-height:25px font-size:16px; margin-top:-13px")
+                        | YouTube has published
+                        a(style="color:rgb(10, 168, 168);" href="https://support.google.com/youtube/answer/2797454?hl=en")  this video  
+                        | to help, as well as these simple instructions:
+
+                    ol(style="color:rgb(75, 85, 99); line-height:20px; margin-top:-10px")
+                        li Sign in to your YouTube Studio.
+                        li From the left Menu, click Videos.
+                        li Filter for Copyright claims.
+                        li Hover over “Copyright claim” in the Restrictions column and click SEE DETAILS.
+
+                    p(style="color:rgb(75, 85, 99); line-height:25px;  margin-bottom:-5px; margin-top:-5px") When you are asked to explain your claim, please state "This track was licensed through Sync-Audio."
+            .content
+                p(style="font-size:16px; font-weight: 600; color:rgb(17, 24, 39); margin-bottom:-15px")#faq_subtitle Why should I create a user account?
+                p(style="color:rgb(75, 85, 99); font-family:'Inter'; line-height:25px; padding-bottom:20px") Sync-Audio user account gives you access to preferences to express, create and download your choice of music for your project, including your licence on receipt. In return it allows us to retain user history. Your account remembers your contact details, play history and purchases to continually optimize your preferences to meet your needs.
+                
+                h3(style="font-size:16px; font-weight: 600; color:rgb(17, 24, 39); margin-bottom:-15px")  What is a music license?
+                p(style="color:rgb(75, 85, 99); font-family:'Inter'; line-height:25px;padding-bottom:20px") A music licence allows you to use the artist music for your film, video or new media, even if the film or video/new media is for personal use, business use and non-profit use. A licence gives you the legal permission to use the artist music for your project.
+
+                h3(style="font-size:16px; font-weight: 600; color:rgb(17, 24, 39); margin-bottom:-15px")  What is the license type?
+                p(style="color:rgb(75, 85, 99); font-family:'Inter'; line-height:25px;padding-bottom:20px") Sync-Audio grants you a non-exclusive licence. All of our licence is valued for perpetuity of the film, video and new media that it was used in.
+
+                h3(style="font-size:16px; font-weight: 600; color:rgb(17, 24, 39); margin-bottom:-15px")  What kind of file will i be able to download?
+                p(style="color:rgb(75, 85, 99); font-family:'Inter'; line-height:25px;padding-bottom:20px") You can download your purchases as WAV or MP3 files.
+
+                h3(style="font-size:16px; font-weight: 600; color:rgb(17, 24, 39); margin-bottom:-15px")  What does a Single Use license mean?
+                p(style="color:rgb(75, 85, 99); font-family:'Inter'; line-height:25px;padding-bottom:20px") A single use license means the song/track can only be used once. 1 song/track synced to one edit of one video. It does not include cutdowns, edits, lifts, versions unless specified (separate licences would be required).
+
+                h3(style="font-size:16px; font-weight: 600; color:rgb(17, 24, 39); margin-bottom:-15px")  What about Commercial license requests?
+                p(style="color:rgb(75, 85, 99); font-family:'Inter'; line-height:25px;padding-bottom:20px") Once we received your commercial request, one of our reps will be in touch ASAP.
+
+                h3(style="font-size:16px; font-weight: 600; color:rgb(17, 24, 39); margin-bottom:-15px")  Film/Video Guidelines
+                p(style="color:rgb(75, 85, 99); font-family:'Inter'; line-height:25px;padding-bottom:20px") Any adult content/themes, alcohol, tobacco or drug use and political content (see License) or seek Sync-Audio approval before license purchase.
+
+                h3(style="font-size:16px; font-weight: 600; color:rgb(17, 24, 39); margin-bottom:-15px")  Sync-Audio Licensing Options
+                p(style="color:rgb(75, 85, 99); font-family:'Inter'; line-height:25px;padding-bottom:20px") Sync-Audio offers several licensing options: Personal use, Business use, Commercial use. Special license 
+                    span(style="font-weight: bold;") (for recording Artists/producers) 
+                    span info@sync-audio.com ask for traditional assistance. Note: Our music is not Stock Music, our music is from real artist from everywhere!
+
+                p(style="color:rgb(75, 85, 99);line-height:25px;", class="mob-mb-0 faq-greenbox-title-mob") Can’t find the answer you’re looking for? Reach out to our 
+                    a(style="color:rgb(10, 168, 168);font-size:16px;font-weight:600")(href="mailto:supportteam@sync-audio.com") customer support
+                    span  team.
+
+                //- p(style="color:rgb(75, 85, 99);line-height:25px;") 
+                //-     span(style="font-weight: bold;") Email Address: 
+                //-     span supportteam@sync-audio.com
+
+                div(style="border: 2px solid rgb(10, 168, 168); padding: 10px; margin-top: 60px; background-color: rgb(235, 248, 250); margin-right:70px ; margin-bottom:0px").mr-0.mt-30.mr-0-laptop.mob-green-box-section
+                    h3(style="color:rgb(17, 24, 39); line-height:25px;font-size:20px; margin-top:0") How Do I Dispute a Content ID Claim on my YouTube Video?
+
+                    p(style="color:rgb(75, 85, 99); line-height:25px; margin-top:-10px")
+                        | If you are NOT monetizing your video, you can choose to disregard the claim or dispute it. If you ARE monetizing your videos, you should dispute the claim. There is a simple process to do so.
+                        br
+                        | Please note, while the claim is being resolved, ads are still running, and the revenue earned will be released to you as soon as the claim is resolved.
+                    
+                    p(style="color:rgb(75, 85, 99); line-height:25px font-size:16px; margin-top:-13px")
+                        | YouTube has published
+                        a(style="color:rgb(10, 168, 168);" href="https://support.google.com/youtube/answer/2797454?hl=en")  this video  
+                        | to help, as well as these simple instructions:
+
+                    ol(style="color:rgb(75, 85, 99); line-height:20px; margin-top:-10px")
+                        li Sign in to your YouTube Studio.
+                        li From the left Menu, click Videos.
+                        li Filter for Copyright claims.
+                        li Hover over “Copyright claim” in the Restrictions column and click SEE DETAILS.
+
+

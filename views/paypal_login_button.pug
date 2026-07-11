@@ -1,0 +1,13 @@
+#lippButton
+script(src="https://www.paypalobjects.com/js/external/api.js")
+script.
+	paypal.use( ['login'], function (login) {
+		login.render ({
+			"appid":"#{paypalConfig.client_id}",
+			"authend":"#{paypalConfig.mode}",
+			"scopes":"openid email",
+			"containerid":"lippButton",
+			"locale":"en-gb",
+			"returnurl":"#{paypalConfig.return_url}"
+		});
+	});

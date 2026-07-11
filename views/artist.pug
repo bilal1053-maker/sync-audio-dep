@@ -1,0 +1,19 @@
+extends layout.pug
+
+block vars
+	- var applyNoContentStyles = true
+
+block scripts
+	script(type="text/javascript", src="/js/playback.js")
+
+block content
+	div(style="margin-right:100px; margin-left:100px; margin-bottom:100px", class="playlist_wrapper")
+		div.centered-container(style="display: flex; justify-content: center; align-items: center;padding-bottom:20px; background-color:rgb(237, 242, 245); margin-left:-100px; margin-right:-100px; padding-top:40px; margin-bottom:30px")
+			div.image-artist(style="margin-bottom: 20px;")
+				img(src="/images/artists/"+id+".jpg")
+			div.text-container(style="display: flex; flex-direction: column; align-items: flex-start; margin-left: 20px;")
+				h3(style="margin: -30px 30px 10px 0; text-align: center;")= tracks[0].artist
+				div(style="max-width:300px")
+					b(style="color: #999999; font-size: 14px; font-weight: lighter; text-align: center; margin-bottom: 20px; max-width: 300px; overflow-wrap: break-word;")= text
+		div.artist-track-wrapper
+			include tracks.pug

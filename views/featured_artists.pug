@@ -1,0 +1,13 @@
+if artists && artists.length > 0
+  h1(style="text-align: center; margin-top: 100px; margin-bottom: 50px;")#featured_art Featured Artists
+  p(style="text-align: center; color: gray; margin-bottom: 60px; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 25px; font-size: 18px;")#feature_desc Our dynamic team showcases music from featured artists from everywhere, ensuring authenticity and a range of options to discover the perfect song for your project.
+  ul.artists(style="display: flex; flex-wrap: wrap; gap: 90px;margin-top:80px") 
+    each artist in artists
+      li(style="flex: 1 1 calc(20% - 100px);", class="artist-wrapper") 
+        div.image(style="margin-bottom: 20px;",loading="lazy")
+          a(href="/artist/" + artist.id)
+            img(src= artist.image_url || "/images/artists/" + artist.id + ".jpg" style="width: 100%; height: auto;",loading="lazy")
+        h4(style="margin: 0 0 10px 0; text-align: center;")
+          a(href="/artist/" + artist.id)= artist.name
+          br
+          b(href="/artist/" + artist.id, style="color: #999999; font-size: 16px; font-weight: lighter;")= artist.job

@@ -1,0 +1,43 @@
+extends layout.pug
+
+block vars
+	- var applyNoContentStyles = true
+
+block scripts
+	script(type="text/javascript").
+		$(() => {
+			$("#submitMusic").on("click", function() {
+				const url = location.protocol+"//"+location.host+$(this).attr("href");
+				document.cookie = "redirect_url="+encodeURIComponent(url)
+				return true
+			})
+		})();
+
+block content
+	if submissionsClosed
+		div(style="text-align:center; padding:40px; background-color:#fff8f8; border:1px solid #f5c6cb; border-radius:8px; margin:40px auto; max-width:600px")
+			h2(style="color:#c0392b") Submissions Temporarily Closed
+			p(style="font-size:16px; color:#555; margin-top:10px") Due to high volume, we are not accepting any new submissions until further notice.
+			p(style="font-size:14px; color:#888") Thank you for your interest in Sync-Audio. Please check back soon.
+	else
+		div()#submission_container
+			div(style="padding:100px; padding-top:80px; text-align:center")#submission_wrapper
+				h1(style="line-height:10px;")#line_height_normal Submit Music to Sync-Audio
+				p(style="color: gray; padding: 20px 0; font-size:16px; line-height:10px").submissions#line_height_normal Are you an independent music maker? Licence your best unsigned songs on Sync-Audio.
+				div.video.submissions
+					iframe(src="//player.vimeo.com/video/139976493", width="100%", height="100%", frameborder="0", webkitallowfullscreen="1", mozallowfullscreen="1", allowfullscreen="1")
+				h3(style="padding-top:30px") 1. Log In With Paypal
+				p(style="color: gray; font-size:16px;margin-top:-10px") Your PayPal account will be used for authentication and to pay you commission on the sales of your music. It's free to join.
+				h3(style="padding-top:15px") 2. Upload Your Song
+				p(style="color: gray; font-size:16px; margin-top:-10px")  Your submission will be reviewed by Sync-Audio. Sync-Audio reserves the right to refuse songs.
+				h3(style="padding-top:15px") 3. Get Paid
+				p(style="color: gray; font-size:16px; margin-top:-10px")  Get paid when people licence your song on Sync-Audio. You will get 50% of the licence price minus PayPal fee.
+				p.submissions
+					a.cart-button.enabled(id="submitMusic", href="/account/submissions") Submit Music
+					p(style="color: gray; display: block;") Review our submission guidelines
+					p(style=" font-size:15px; margin-top:-5px") Your song/track is a product that can be sold over and over again whilst you keep ownership of your music.
+				h1(style="padding-top:10px") Find Out More
+				p
+					a(style="font-size:16px; color: rgb(10, 168, 168);").faq-link(href="/submissions/payment_policy") Artist payment policy
+				p
+					a(style="font-size:16px; color: rgb(10, 168, 168);").faq-link(href="/submissions/faq") Frequently asked questions

@@ -1,0 +1,35 @@
+extends layout.pug
+
+block content
+    h1 Select Licence
+    if commercial && commercial.length > 0
+        table.licences.nonprof
+            thead
+                tr
+                    td Commercial Licence
+                    td Price
+            tbody
+                for category in commercial
+                    tr
+                        td
+                            a(href="/trolley/add/"+trackId+"/commercial/"+category.id)= category.name
+                        td
+                            a(href="/trolley/add/"+trackId+"/commercial/"+category.id) Request
+    table.licences.nonprof
+        thead
+            tr
+                td Licence
+                td Price per track
+        tbody
+            tr.highlight
+                td
+                    a(href="/trolley/add/"+trackId+"/commercial") Commercial
+                td
+                    a(href="/trolley/add/"+trackId+"/commercial") Request
+            for licence in licences
+                if licence.id != 10
+                    tr
+                        td
+                            a(href="/trolley/add/"+trackId+"/licence/"+licence.id)= licence.name
+                        td
+                            a(href="/trolley/add/"+trackId+"/licence/"+licence.id) £#{licence.track_price}

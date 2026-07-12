@@ -5,14 +5,30 @@ block scripts
 	script(src="/js/genres.js")
 	script(src="/js/moods.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js")
+	script.
+		function downloadSelectedTracks() {
+			var ids = Array.prototype.slice.call(document.querySelectorAll(".track-select:checked")).map(function(el) { return el.value; });
+			if (ids.length === 0) {
+				alert("Select at least one track first.");
+				return;
+			}
+			var format = document.getElementById("bulk-download-format").value;
+			window.location = "/admin/tracks/download?ids=" + ids.join(",") + "&format=" + format;
+		}
 
 append content
 	include ../upload.pug
+	div(style="margin:10px 0")
+		select#bulk-download-format
+			option(value="wav") WAV
+			option(value="mp3") MP3
+		button(type="button", onclick="downloadSelectedTracks()") Download Selected
 	if unreviewed.length > 0
 		h1 Awaiting Review
 		ul
 			for track in unreviewed
 				li
+					input.track-select(type="checkbox", value=track.id)
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
 							span(style="margin-left:8px; font-size:11px; color:rgb(10,168,168)") Stems: #{track.stemCount}
@@ -21,6 +37,7 @@ append content
 		ul
 			for track in accepted
 				li
+					input.track-select(type="checkbox", value=track.id)
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
 							span(style="margin-left:8px; font-size:11px; color:rgb(10,168,168)") Stems: #{track.stemCount}
@@ -29,6 +46,7 @@ append content
 		ul
 			for track in rejected
 				li
+					input.track-select(type="checkbox", value=track.id)
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
 							span(style="margin-left:8px; font-size:11px; color:rgb(10,168,168)") Stems: #{track.stemCount}

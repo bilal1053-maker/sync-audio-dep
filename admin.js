@@ -432,92 +432,138 @@ module.exports = function(config, paypalLogin) {
 			renderError(res)(error)
 		}
 	});
+	async function prepareTaggedTrack(id, format) {
+		const NodeID3 = require("node-id3");
+		const { exec } = require("child_process");
+		const os = require("os");
 
-	async function downloadTrack(req, res, format) {
-		try {
-			const NodeID3 = require("node-id3");
-			const { exec } = require("child_process");
-			const os = require("os");
-			const archiver = require("archiver");
-			const id = req.params[0];
-			const tracks = await db.query("SELECT checksum, file_name, title, artist, writer, tempo FROM tracks WHERE track_id = ?", [id]);
-			if (tracks.length == 0) {
-				res.sendStatus(404);
-				return;
-			}
-			const track = tracks[0];
-			const genres = await db.query("SELECT genre FROM genres WHERE track_id = ?", [id]);
-			const moods = await db.query("SELECT mood FROM moods WHERE track_id = ?", [id]);
+		const tracks = await db.query("SELECT checksum, file_name, title, artist, writer, tempo FROM tracks WHERE track_id = ?", [id]);
+		if (tracks.length == 0) {
+			return null;
+		}
+		const track = tracks[0];
+		const genres = await db.query("SELECT genre FROM genres WHERE track_id = ?", [id]);
+		const moods = await db.query("SELECT mood FROM moods WHERE track_id = ?", [id]);
 
-			const baseName = (track.file_name || (track.title + " " + track.artist)).replace(/[\/\\:*?"<>|]/g, "_");
-			const audioFileName = baseName + "." + format;
-			const filePath = path.resolve(__dirname, "static/tracks", track.checksum + "." + format);
-			const genreStr = genres.map(g => g.genre).join(", ");
-			const moodStr = moods.map(m => m.mood).join(", ");
+		const baseName = (track.file_name || (track.title + " " + track.artist)).replace(/[\/\\:*?"<>|]/g, "_");
+		const audioFileName = baseName + "." + format;
+		const filePath = path.resolve(__dirname, "static/tracks", track.checksum + "." + format);
+		const genreStr = genres.map(g => g.genre).join(", ");
+		const moodStr = moods.map(m => m.mood).join(", ");
 
-			const metadataTxt = [
-				"Title: " + (track.title || ""),
-				"Artist: " + (track.artist || ""),
-				"Writer/Composer: " + (track.writer || ""),
-				"BPM: " + (track.tempo || ""),
-				"Genre: " + genreStr,
-				"Mood: " + moodStr,
-				"Publisher: Sync-Audio"
-			].join("\r\n");
+		const metadataTxt = [
+			"Title: " + (track.title || ""),
+			"Artist: " + (track.artist || ""),
+			"Writer/Composer: " + (track.writer || ""),
+			"BPM: " + (track.tempo || ""),
+			"Genre: " + genreStr,
+			"Mood: " + moodStr,
+			"Publisher: Sync-Audio"
+		].join("\r\n");
 
-			function sendZip(audioFilePath, cleanup) {
-				const zipName = baseName + "." + format + ".zip";
-				res.setHeader("Content-Disposition", `attachment; filename="${zipName}"`);
-				res.setHeader("Content-Type", "application/zip");
-				const archive = archiver("zip", { zlib: { level: 0 } });
-				archive.on("error", (err) => { console.error("Archiver error:", err); });
-				archive.pipe(res);
-				archive.file(audioFilePath, { name: audioFileName });
-				archive.append(Buffer.from(metadataTxt, "utf8"), { name: "metadata.txt" });
-				archive.finalize().then(() => {
-					if (cleanup) fs.unlink(audioFilePath, () => {});
-				});
-			}
-
-			if (format === "mp3") {
-				const tags = {
-					title: track.title || "",
-					artist: track.artist || "",
-					composer: track.writer || "",
-					bpm: track.tempo ? String(track.tempo) : "",
-					genre: genreStr,
-					comment: { language: "eng", text: moodStr }
-				};
-				const fileBuffer = fs.readFileSync(filePath);
-				const taggedBuffer = NodeID3.write(tags, fileBuffer);
-				const tmpMp3 = path.join(os.tmpdir(), track.checksum + "_tagged.mp3");
-				fs.writeFileSync(tmpMp3, taggedBuffer);
-				sendZip(tmpMp3, true);
-			} else {
-				const tmpWav = path.join(os.tmpdir(), track.checksum + "_tagged.wav");
-				const ffmpeg = "ffmpeg";
-				const cmd = `"${ffmpeg}" -i "${filePath}" -y `
-					+ `-metadata title="${(track.title || "").replace(/"/g, '\\"')}" `
-					+ `-metadata artist="${(track.artist || "").replace(/"/g, '\\"')}" `
-					+ `-metadata composer="${(track.writer || "").replace(/"/g, '\\"')}" `
-					+ `-metadata BPM="${track.tempo || ""}" `
-					+ `-metadata genre="${genreStr.replace(/"/g, '\\"')}" `
-					+ `-metadata comment="${moodStr.replace(/"/g, '\\"')}" `
-					+ `-codec copy "${tmpWav}"`;
+		if (format === "mp3") {
+			const tags = {
+				title: track.title || "",
+				artist: track.artist || "",
+				composer: track.writer || "",
+				bpm: track.tempo ? String(track.tempo) : "",
+				genre: genreStr,
+				comment: { language: "eng", text: moodStr }
+			};
+			const fileBuffer = fs.readFileSync(filePath);
+			const taggedBuffer = NodeID3.write(tags, fileBuffer);
+			const tmpMp3 = path.join(os.tmpdir(), track.checksum + "_tagged.mp3");
+			fs.writeFileSync(tmpMp3, taggedBuffer);
+			return { audioFilePath: tmpMp3, audioFileName, baseName, metadataTxt, cleanup: true };
+		} else {
+			const tmpWav = path.join(os.tmpdir(), track.checksum + "_tagged.wav");
+			const ffmpeg = "ffmpeg";
+			const cmd = `"${ffmpeg}" -i "${filePath}" -y `
+				+ `-metadata title="${(track.title || "").replace(/"/g, '\\"')}" `
+				+ `-metadata artist="${(track.artist || "").replace(/"/g, '\\"')}" `
+				+ `-metadata composer="${(track.writer || "").replace(/"/g, '\\"')}" `
+				+ `-metadata BPM="${track.tempo || ""}" `
+				+ `-metadata genre="${genreStr.replace(/"/g, '\\"')}" `
+				+ `-metadata comment="${moodStr.replace(/"/g, '\\"')}" `
+				+ `-codec copy "${tmpWav}"`;
+			return await new Promise((resolve) => {
 				exec(cmd, (err) => {
 					if (err) {
 						console.error("FFmpeg metadata error:", err);
-						sendZip(filePath, false);
-						return;
+						resolve({ audioFilePath: filePath, audioFileName, baseName, metadataTxt, cleanup: false });
+					} else {
+						resolve({ audioFilePath: tmpWav, audioFileName, baseName, metadataTxt, cleanup: true });
 					}
-					sendZip(tmpWav, true);
 				});
+			});
+		}
+	}
+
+	async function downloadTrack(req, res, format) {
+		try {
+			const archiver = require("archiver");
+			const id = req.params[0];
+			const prepared = await prepareTaggedTrack(id, format);
+			if (!prepared) {
+				res.sendStatus(404);
+				return;
 			}
+			const zipName = prepared.baseName + "." + format + ".zip";
+			res.setHeader("Content-Disposition", `attachment; filename="${zipName}"`);
+			res.setHeader("Content-Type", "application/zip");
+			const archive = archiver("zip", { zlib: { level: 0 } });
+			archive.on("error", (err) => { console.error("Archiver error:", err); });
+			archive.pipe(res);
+			archive.file(prepared.audioFilePath, { name: prepared.audioFileName });
+			archive.append(Buffer.from(prepared.metadataTxt, "utf8"), { name: "metadata.txt" });
+			archive.finalize().then(() => {
+				if (prepared.cleanup) fs.unlink(prepared.audioFilePath, () => {});
+			});
 		} catch (error) {
 			renderError(res)(error);
 		}
 	}
 
+	async function bulkDownloadTracks(req, res) {
+		try {
+			const archiver = require("archiver");
+			const format = req.query.format === "mp3" ? "mp3" : "wav";
+			const ids = String(req.query.ids || "").split(",").map(s => s.trim()).filter(Boolean);
+			if (ids.length === 0) {
+				res.sendStatus(400);
+				return;
+			}
+			const preparedTracks = [];
+			for (const id of ids) {
+				const prepared = await prepareTaggedTrack(id, format);
+				if (prepared) {
+					preparedTracks.push(prepared);
+				}
+			}
+			if (preparedTracks.length === 0) {
+				res.sendStatus(404);
+				return;
+			}
+			res.setHeader("Content-Disposition", `attachment; filename="tracks.${format}.zip"`);
+			res.setHeader("Content-Type", "application/zip");
+			const archive = archiver("zip", { zlib: { level: 0 } });
+			archive.on("error", (err) => { console.error("Archiver error:", err); });
+			archive.pipe(res);
+			for (const prepared of preparedTracks) {
+				archive.file(prepared.audioFilePath, { name: prepared.audioFileName });
+				archive.append(Buffer.from(prepared.metadataTxt, "utf8"), { name: prepared.baseName + "_metadata.txt" });
+			}
+			archive.finalize().then(() => {
+				for (const prepared of preparedTracks) {
+					if (prepared.cleanup) fs.unlink(prepared.audioFilePath, () => {});
+				}
+			});
+		} catch (error) {
+			renderError(res)(error);
+		}
+	}
+
+	router.get("/tracks/download", paypalLogin.login, adminLogin, bulkDownloadTracks);
 	router.get("/tracks/(*)/download/wav", paypalLogin.login, adminLogin, (req, res) => downloadTrack(req, res, "wav"));
 	router.get("/tracks/(*)/download/mp3", paypalLogin.login, adminLogin, (req, res) => downloadTrack(req, res, "mp3"));
 

@@ -1,11 +1,9 @@
 config.json
 .vscode/
 node_modules/
-static/images/artists
 tmp
 *.gz
 restored_files/
-static/images/waveforms
 static/tracks
 .env
 db

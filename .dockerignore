@@ -1,6 +1,11 @@
 node_modules
 tmp
-static/tracks
+static/tracks/*
+!static/tracks/d310a29040ca551c8b37bfb3c2506ac70434dcbf.*
+!static/tracks/940c3afd317a636bfaf7dea528c268b0e55dca19.*
+!static/tracks/3f76b77707433938e26be26e16b7668ed43ada1a.*
+!static/tracks/7e5d72ac400ab70c7712bef88d29b5528d9bb5ab.*
+!static/tracks/e05b9b2a615ef2c66f1d493eddf1a36a551aac31.*
 restored_files
 .vscode
 Dockerfile

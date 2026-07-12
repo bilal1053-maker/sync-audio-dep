@@ -1,6 +1,5 @@
 node_modules
 tmp
-static/images/waveforms
 static/tracks
 restored_files
 .vscode

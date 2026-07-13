@@ -44,7 +44,7 @@ module.exports = function(config) {
 				paymentRequest.transactions[0].item_list.items.push({
 					"name": track.track.title + " by " + track.track.artist,
 					"sku": track.track.id,
-					"price": track.licence ? track.licence.track_price : track.comm_licence.price,
+					"price": track.licence ? (track.discount_applied ? track.discounted_price : track.licence.track_price) : track.comm_licence.price,
 					"currency": "GBP",
 					"quantity": 1
 				});

@@ -17,13 +17,6 @@ append content
 		li
 			a(href="/admin/email_artists") Email all artists
 		li
-			if submissionsOpen
-				span(style="color:green") Submissions: ON
-				|  —
-				a(href="/admin/submissions/toggle", style="color:red") Turn OFF
-			else
-				span(style="color:red") Submissions: OFF
-				|  —
-				a(href="/admin/submissions/toggle", style="color:green") Turn ON
+			a(href="/admin/submissions/settings") Submission settings
 		li
 			a(href="/account/logout") Log out

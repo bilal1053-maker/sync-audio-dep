@@ -106,6 +106,7 @@ module.exports = function(config) {
 						track.licence = licences[tr.licence_id];
 						if (DISCOUNT_ELIGIBLE_LICENCE_IDS.includes(parseInt(tr.licence_id))) {
 							discountEligibleCount++;
+							track.discountEligiblePosition = discountEligibleCount;
 							if (discountEligibleCount % 3 === 0) {
 								const originalPrice = track.licence.track_price;
 								const discountedPrice = Math.round(originalPrice * 0.9 * 100) / 100;
@@ -121,6 +122,12 @@ module.exports = function(config) {
 						}
 					}
 					trolleyTracks.push(track);
+				}
+				const completedGroupsBoundary = Math.floor(discountEligibleCount / 3) * 3;
+				for (const track of trolleyTracks) {
+					if (track.discountEligiblePosition) {
+						track.showDiscountHint = !track.discount_applied && track.discountEligiblePosition > completedGroupsBoundary;
+					}
 				}
 				res.locals.trolleyTracks = trolleyTracks;
 				res.locals.total = Math.round(total*100)/100;

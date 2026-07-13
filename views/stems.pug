@@ -1,24 +1,66 @@
 extends layout.pug
 
+block scripts
+	script.
+		document.addEventListener("DOMContentLoaded", function() {
+			["saved-message", "removed-message"].forEach(function(id) {
+				var el = document.getElementById(id);
+				if (el) {
+					setTimeout(function() { el.style.display = "none"; }, 5000);
+				}
+			});
+			var form = document.querySelector("form[enctype='multipart/form-data']");
+			if (!form) return;
+			var fileInputs = Array.prototype.slice.call(form.querySelectorAll("input[type='file']"));
+			var submitButton = form.querySelector("input[type='submit']");
+			if (fileInputs.length === 0 || !submitButton) return;
+			var hasExistingStem = form.dataset.hasExistingStem === "true";
+			var unsavedBanner = document.getElementById("unsaved-banner");
+			function updateButtonState() {
+				var anySelected = fileInputs.some(function(input) { return input.files.length > 0; });
+				submitButton.disabled = !anySelected && !hasExistingStem;
+				if (unsavedBanner) unsavedBanner.style.display = anySelected ? "block" : "none";
+			}
+			fileInputs.forEach(function(input) {
+				input.addEventListener("change", updateButtonState);
+			});
+			updateButtonState();
+			form.addEventListener("submit", function() {
+				submitButton.disabled = true;
+				submitButton.value = "Saving...";
+				if (unsavedBanner) unsavedBanner.style.display = "none";
+			});
+		});
+
 block content
 	h1 Upload Stems
 	h2 #{track.title}
 		span(style="font-weight:normal; font-size:16px; margin-left:10px; color:gray") by #{track.artist}
 
 	if saved
-		p(style="color:green; font-weight:bold") Stems saved successfully.
+		p#saved-message(style="color:rgb(10,168,168); font-weight:bold") Stems saved successfully.
+	if removed
+		p#removed-message(style="color:rgb(10,168,168); font-weight:bold") Stem removed.
 
-	p(style="color:gray; font-size:14px") Upload stems for this track. Each stem type is optional. Uploading again replaces the existing file.
+	p(style="color:gray; font-size:14px") Upload stems for this track. Each stem type is optional.
 
-	form(action="/account/stems/"+track.id, method="post", enctype="multipart/form-data")
+	- var hasExistingStem = stemTypes.some(function(t) { return !!stemsByType[t]; })
+	form(action="/account/stems/"+track.id, method="post", enctype="multipart/form-data", data-has-existing-stem=hasExistingStem ? "true" : "false")
 		for stemType in stemTypes
 			p
 				label(style="display:inline-block; width:160px; font-weight:bold") #{stemType}
-				if uploadedTypes.includes(stemType)
-					span(style="color:green; font-size:12px; margin-right:10px") ✓ uploaded
-				input(type="file", name=stemType, accept="audio/wav,audio/mpeg")
+				if stemsByType[stemType]
+					span(style="margin-right:10px") #{stemsByType[stemType].file_name}
+					button(type="button", onclick="document.getElementById('remove-form-"+stemType.replace(/[^a-zA-Z0-9]/g,'')+"').submit()") Remove
+				else
+					input(type="file", name=stemType, accept="audio/wav")
+		p#unsaved-banner(style="display:none; color:#a15c00; background:#fff8e6; border:1px solid #ffe0a3; padding:8px 12px; border-radius:4px; font-size:13px") You have unsaved file(s) — click Save Stems below to upload them.
 		p
 			input(type="submit", value="Save Stems")
+
+	for stemType in stemTypes
+		if stemsByType[stemType]
+			form(id="remove-form-"+stemType.replace(/[^a-zA-Z0-9]/g,''), action="/account/stems/"+track.id+"/"+encodeURIComponent(stemType)+"/delete", method="post", style="display:none")
 
 	p
 		a(href="/account/submissions") ← Back to my submissions

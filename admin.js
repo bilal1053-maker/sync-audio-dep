@@ -777,9 +777,19 @@ module.exports = function(config, paypalLogin) {
 			const current = result[0].value === '1' ? '1' : '0';
 			const newVal = current === '1' ? '0' : '1';
 			await db.query("UPDATE settings SET value = ? WHERE key_name = 'submissions_open'", [newVal]);
-			res.redirect("/admin");
+			res.redirect("/admin/submissions/settings");
 		} catch (error) {
 			renderError(res)(error);
+		}
+	});
+
+	router.get("/submissions/settings", paypalLogin.login, adminLogin, async (_req, res) => {
+		try {
+			const result = await db.query("SELECT value FROM settings WHERE key_name = 'submissions_open'");
+			const submissionsOpen = result[0].value === '1';
+			res.render("admin/submissions_settings", { submissionsOpen });
+		} catch (error) {
+			res.render("admin/submissions_settings", { submissionsOpen: true });
 		}
 	});
 
@@ -811,14 +821,8 @@ module.exports = function(config, paypalLogin) {
 	router.get("/", (req,res,next) => {
 		res.locals.redirectUrl = baseURL+req.originalUrl
 		next();
-	}, paypalLogin.login, adminLogin, async (_req, res) => {
-		try {
-			const result = await db.query("SELECT value FROM settings WHERE key_name = 'submissions_open'");
-			const submissionsOpen = result[0].value === '1';
-			res.render("admin/index", { submissionsOpen });
-		} catch (error) {
-			res.render("admin/index", { submissionsOpen: true });
-		}
+	}, paypalLogin.login, adminLogin, (_req, res) => {
+		res.render("admin/index");
 	});
 
 	return router

@@ -19,34 +19,37 @@ block scripts
 append content
 	include ../upload.pug
 	div(style="margin:10px 0")
-		select#bulk-download-format
-			option(value="wav") WAV
-			option(value="mp3") MP3
+		p(style="margin:0 0 6px 0; font-size:13px; color:#555")
+			strong Bulk Download:
+			|  Select tracks below, choose a format, then click Download Selected.
+		select#bulk-download-format(style="width:80px; height:22px; font-size:12px; padding:0 4px; margin-right:12px")
+			option(value="wav", style="font-size:12px") WAV
+			option(value="mp3", style="font-size:12px") MP3
 		button(type="button", onclick="downloadSelectedTracks()") Download Selected
 	if unreviewed.length > 0
 		h1 Awaiting Review
-		ul
+		ul(style="list-style:none; padding-left:0")
 			for track in unreviewed
 				li
-					input.track-select(type="checkbox", value=track.id)
+					input.track-select(type="checkbox", value=track.id, style="margin-right:8px")
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
-							span(style="margin-left:8px; font-size:11px; color:rgb(10,168,168)") Stems: #{track.stemCount}
+							span(style="margin-left:8px; font-size:13px; color:rgb(10,168,168)") Stems: #{track.stemCount}
 	if accepted.length > 0
 		h1 Accepted
-		ul
+		ul(style="list-style:none; padding-left:0")
 			for track in accepted
 				li
-					input.track-select(type="checkbox", value=track.id)
+					input.track-select(type="checkbox", value=track.id, style="margin-right:8px")
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
-							span(style="margin-left:8px; font-size:11px; color:rgb(10,168,168)") Stems: #{track.stemCount}
+							span(style="margin-left:8px; font-size:13px; color:rgb(10,168,168)") Stems: #{track.stemCount}
 	if rejected.length > 0
 		h1 Rejected
-		ul
+		ul(style="list-style:none; padding-left:0")
 			for track in rejected
 				li
-					input.track-select(type="checkbox", value=track.id)
+					input.track-select(type="checkbox", value=track.id, style="margin-right:8px")
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
-							span(style="margin-left:8px; font-size:11px; color:rgb(10,168,168)") Stems: #{track.stemCount}
+							span(style="margin-left:8px; font-size:13px; color:rgb(10,168,168)") Stems: #{track.stemCount}

@@ -505,10 +505,13 @@ module.exports = function(config, paypalLogin) {
             );
             if (tracks.length === 0) { res.sendStatus(403); return; }
             const existingStems = await db.query(
-                "SELECT stem_type FROM stems WHERE track_id = ?", [trackId]
+                "SELECT stem_type, file_name, checksum FROM stems WHERE track_id = ?", [trackId]
             );
-            const uploadedTypes = existingStems.map(s => s.stem_type);
-            res.render("stems", { track: tracks[0], stemTypes: STEM_TYPES, uploadedTypes, saved: !!req.query.saved });
+            const stemsByType = {};
+            for (const stem of existingStems) {
+                stemsByType[stem.stem_type] = stem;
+            }
+            res.render("stems", { track: tracks[0], stemTypes: STEM_TYPES, stemsByType, saved: !!req.query.saved, removed: !!req.query.removed });
         } catch (e) { res.render("error", { error: e }); }
     });
 
@@ -540,6 +543,31 @@ module.exports = function(config, paypalLogin) {
                 );
             }
             res.redirect("/account/stems/" + trackId + "?saved=1");
+        } catch (e) { res.render("error", { error: e }); }
+    });
+
+    router.post("/stems/:trackId/:stemType/delete", paypalLogin.login, async (req, res) => {
+        try {
+            const email = res.locals.paypalUserInfo.email;
+            const trackId = req.params.trackId;
+            const stemType = req.params.stemType;
+            const tracks = await db.query(
+                "SELECT track_id AS id FROM tracks WHERE track_id = ? AND email = ?",
+                [trackId, email]
+            );
+            if (tracks.length === 0) { res.sendStatus(403); return; }
+            const stems = await db.query(
+                "SELECT checksum FROM stems WHERE track_id = ? AND stem_type = ?",
+                [trackId, stemType]
+            );
+            let removedAny = false;
+            if (stems.length > 0) {
+                const stemPath = require("path").resolve(__dirname, "static/stems", stems[0].checksum);
+                fs.promises.unlink(stemPath).catch(err => { if (err.code !== "ENOENT") throw err; });
+                await db.query("DELETE FROM stems WHERE track_id = ? AND stem_type = ?", [trackId, stemType]);
+                removedAny = true;
+            }
+            res.redirect("/account/stems/" + trackId + (removedAny ? "?removed=1" : ""));
         } catch (e) { res.render("error", { error: e }); }
     });
 

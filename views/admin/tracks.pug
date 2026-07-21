@@ -28,10 +28,9 @@ append content
 		button(type="button", onclick="downloadSelectedTracks()") Download Selected
 	if unreviewed.length > 0
 		h1 Awaiting Review
-		ul(style="list-style:none; padding-left:0")
+		ul(style="padding-left:0; list-style-position:inside")
 			for track in unreviewed
 				li
-					input.track-select(type="checkbox", value=track.id, style="margin-right:8px")
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
 							span(style="margin-left:8px; font-size:13px; color:rgb(10,168,168)") Stems: #{track.stemCount}

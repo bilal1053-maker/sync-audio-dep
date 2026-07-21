@@ -340,10 +340,12 @@ if tracks && tracks.length > 0
 						.append($("<span>").addClass("price").text(`£${licence_price}`).css({"font-size": "27px", "padding":"0px"}))
 					)
 				)
-				.append(
-					$("<div>")
-					.append($("<p>").text(`${licence_description}`))
-				);
+			var $descriptionBox = $("<div>")
+				.append($("<p>").text(`${licence_description}`));
+			if ([5, 6, 9].includes(Number(licenceId))) {
+				$descriptionBox.append($("<p>").text("Buy 2 and get third at 10% discount").css({"font-size": "11px", "color": "black", "margin-top": "6px", "text-align": "right"}));
+			}
+			$selectedLicenseBox.append($descriptionBox);
 
 			var $form = $("<form>").attr("id", "addToCartForm").attr("action", "/trolley/add/" + trackId  + "/licence/" + licenceId).attr("method", "POST")
 			.append(

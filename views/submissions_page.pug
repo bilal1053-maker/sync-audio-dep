@@ -1,0 +1,30 @@
+extends layout.pug
+
+block scripts
+	script(src="/js/audio_upload.js")
+	if uploadPermitted
+		script(src="/js/genres.js")
+		script(src="/js/moods.js")
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.0.4/fuse.min.js")
+	script.
+		$(function(){
+			var submitButton = $("a.button.submit");
+			var tncCheckbox = $("input[name='tnc']");
+			tncCheckbox.on("change", function(){
+				submitButton.toggleClass("disabled", !$(this).prop("checked"));
+			});
+			submitButton.on("click", function(){
+				if (!tncCheckbox.prop("checked")) {
+					alert("You must accept the terms and conditions before submitting your tracks.");
+				} else {
+					$("form.upload").submit();
+				}
+			});
+		});
+
+block content
+	include uploads.pug
+	if uploadPermitted
+		include upload.pug
+	p
+		a(href="/account") ← Back to my account

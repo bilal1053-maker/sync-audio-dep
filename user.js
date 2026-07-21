@@ -11,7 +11,27 @@ module.exports = function(config, paypalLogin) {
     const uuid = require("uuid/v4");
     const archiver = require("archiver");
 
-    const multerUpload = multer({"dest":"./tmp/"});
+    const multerUpload = multer({"dest":"./tmp/", limits: { fileSize: 500 * 1024 * 1024 }});
+    const STEM_TYPES = ["Instrumental", "Drums & Bass", "Acapella"];
+
+    async function saveStemFiles(trackId, files) {
+        const stemsDir = require("path").resolve(__dirname, "static/stems");
+        if (!fs.existsSync(stemsDir)) fs.mkdirSync(stemsDir);
+        for (const stemType of STEM_TYPES) {
+            const fileArr = files && files[stemType];
+            if (!fileArr || fileArr.length === 0) continue;
+            const file = fileArr[0];
+            const ext = require("path").extname(file.originalname).toLowerCase() || ".wav";
+            const checksum = require("uuid/v4")();
+            const destPath = require("path").join(stemsDir, checksum + ext);
+            fs.renameSync(file.path, destPath);
+            await db.query("DELETE FROM stems WHERE track_id = ? AND stem_type = ?", [trackId, stemType]);
+            await db.query(
+                "INSERT INTO stems (track_id, stem_type, file_name, checksum) VALUES (?, ?, ?, ?)",
+                [trackId, stemType, file.originalname, checksum + ext]
+            );
+        }
+    }
 
     async function getUserUploadLimit(_req, res, next) {
         if (res.locals.isAdminUser) {
@@ -460,7 +480,7 @@ module.exports = function(config, paypalLogin) {
         getUserTracks(email).then((tracks) => {
             const moods = require("./moods.json");
             const genres = require("./genres.json");
-            res.render("account", {"submissions": tracks, "moods": moods, "genres": genres});
+            res.render("submissions_page", {"submissions": tracks, "moods": moods, "genres": genres});
         }).catch(onError(res));
     });
     router.get("/logout", paypalLogin.logout, (_req, res) => {
@@ -483,17 +503,20 @@ module.exports = function(config, paypalLogin) {
     });
     router.post("/upload", multerUpload.fields([
         { name: 'track', maxCount: 1 },
-        { name: 'image', maxCount: 1 }
+        { name: 'image', maxCount: 1 },
+        ...STEM_TYPES.map(t => ({ name: t, maxCount: 1 }))
       ]), paypalLogin.login, async(req, res, next) => {
         const artistId = await getOrCreateArtist(req.body.artist);
         res.locals.artistId = artistId;
         next();
-    }, upload.uploadArtistImage,  upload.uploadTrack, (_req, res) => {
-        res.render("uploaded", {"tracks":[res.locals.track]});
+    }, upload.uploadArtistImage,  upload.uploadTrack, async (req, res) => {
+        if (res.locals.trackId) {
+            await saveStemFiles(res.locals.trackId, req.files);
+        }
+        res.render("uploaded", {"tracks":[res.locals.track], trackId: res.locals.trackId});
     });
 
     const multerStem = multer({ dest: "./tmp/", limits: { fileSize: 500 * 1024 * 1024 } });
-    const STEM_TYPES = ["Instrumental", "Drums & Bass", "Acapella"];
 
     router.get("/stems/:trackId", paypalLogin.login, async (req, res) => {
         try {
@@ -526,22 +549,7 @@ module.exports = function(config, paypalLogin) {
                 [trackId, email]
             );
             if (tracks.length === 0) { res.sendStatus(403); return; }
-            const stemsDir = require("path").resolve(__dirname, "static/stems");
-            if (!fs.existsSync(stemsDir)) fs.mkdirSync(stemsDir);
-            for (const stemType of STEM_TYPES) {
-                const fileArr = req.files && req.files[stemType];
-                if (!fileArr || fileArr.length === 0) continue;
-                const file = fileArr[0];
-                const ext = require("path").extname(file.originalname).toLowerCase() || ".wav";
-                const checksum = require("uuid/v4")();
-                const destPath = require("path").join(stemsDir, checksum + ext);
-                fs.renameSync(file.path, destPath);
-                await db.query("DELETE FROM stems WHERE track_id = ? AND stem_type = ?", [trackId, stemType]);
-                await db.query(
-                    "INSERT INTO stems (track_id, stem_type, file_name, checksum) VALUES (?, ?, ?, ?)",
-                    [trackId, stemType, file.originalname, checksum + ext]
-                );
-            }
+            await saveStemFiles(trackId, req.files);
             res.redirect("/account/stems/" + trackId + "?saved=1");
         } catch (e) { res.render("error", { error: e }); }
     });

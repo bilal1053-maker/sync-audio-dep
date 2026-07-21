@@ -195,6 +195,7 @@ module.exports = function(config) {
 		/// change here, add db field and chnage here
 		const result = await db.query("INSERT INTO tracks (checksum, title, artist, writer, duration, email, copyright_year, date_added, reviewed, accepted, tempo, style, file_name, cae_number, master_recording_owner, link) VALUES (?, ?, ?, ?, ?, ?, ?, now(), ?, ?, ?, ?, ?, ?, ?, ?)", [track.checksum, track.title, track.artist, track.writer, track.duration, res.locals.paypalUserInfo.email, track.copyrightYear, reviewed, accepted, track.tempo, track.style, downloadName, track.cae_number, track.master_recording_owner, track.link]);
 		res.locals.track = track;
+		res.locals.trackId = result.insertId;
 		if (req.body.mood && req.body.mood.length > 0) {
 			const values = new Array(req.body.mood.length);
 			values.fill("(?,?)");

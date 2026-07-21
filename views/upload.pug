@@ -96,6 +96,14 @@ form.upload(action="/account/upload", method="post", enctype="multipart/form-dat
 					datalist.projectTags
 						for tag in track.genres
 							option(value=tag)
+		.formField
+			div
+				label(for="stems") Stems
+			p(style="color: red; margin-top:0px") We encourage uploading stems now, but you can also add them later from submissions page.
+			for stemType in ["Instrumental", "Drums & Bass", "Acapella"]
+				p
+					label(style="display:inline-block; width:160px; font-weight:bold")= stemType
+					input(type="file", name=stemType, accept="audio/wav")
 		if !isAdminUser
 			p
 				input(type="checkbox", name="tnc")

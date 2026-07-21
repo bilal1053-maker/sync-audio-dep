@@ -33,9 +33,9 @@ block scripts
 		});
 
 block content
-	h1 Upload Stems
-	h2 #{track.title}
-		span(style="font-weight:normal; font-size:16px; margin-left:10px; color:gray") by #{track.artist}
+	h1 Manage Stems
+	h2(style="font-size:20px") #{track.title}
+		span(style="font-weight:normal; font-size:14px; margin-left:10px; color:gray") by #{track.artist}
 
 	if saved
 		p#saved-message(style="color:rgb(10,168,168); font-weight:bold") Stems saved successfully.
@@ -50,17 +50,12 @@ block content
 			p
 				label(style="display:inline-block; width:160px; font-weight:bold") #{stemType}
 				if stemsByType[stemType]
-					span(style="margin-right:10px") #{stemsByType[stemType].file_name}
-					button(type="button", onclick="document.getElementById('remove-form-"+stemType.replace(/[^a-zA-Z0-9]/g,'')+"').submit()") Remove
+					span(style="margin-right:10px; font-size:13px") #{stemsByType[stemType].file_name}
 				else
 					input(type="file", name=stemType, accept="audio/wav")
 		p#unsaved-banner(style="display:none; color:#a15c00; background:#fff8e6; border:1px solid #ffe0a3; padding:8px 12px; border-radius:4px; font-size:13px") You have unsaved file(s) — click Save Stems below to upload them.
 		p
 			input(type="submit", value="Save Stems")
-
-	for stemType in stemTypes
-		if stemsByType[stemType]
-			form(id="remove-form-"+stemType.replace(/[^a-zA-Z0-9]/g,''), action="/account/stems/"+track.id+"/"+encodeURIComponent(stemType)+"/delete", method="post", style="display:none")
 
 	p
 		a(href="/account/submissions") ← Back to my submissions

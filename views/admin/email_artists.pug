@@ -1,10 +1,38 @@
 extends layout.pug
 
+block scripts
+	script.
+		document.addEventListener("DOMContentLoaded", function() {
+			var allCheckbox = document.getElementById("email-all-checkbox");
+			var manualInput = document.getElementById("manual-emails-input");
+			function updateState() {
+				manualInput.disabled = allCheckbox.checked;
+			}
+			allCheckbox.addEventListener("change", updateState);
+			updateState();
+			var sentMessage = document.getElementById("sent-message");
+			if (sentMessage) {
+				setTimeout(function() { sentMessage.style.display = "none"; }, 5000);
+			}
+		});
+
 append content
-	h2 Email All Artists
+	h2 Email Artists
 	if sent
-		p(style="color:green") Email queued for #{sent} artists.
+		p#sent-message(style="color:rgb(10,168,168); font-weight:bold") Email queued for #{sent} #{sent === 1 ? "artist" : "artists"}.
+	if error
+		p(style="color:red") #{error}
 	form(method="post", action="/admin/email_artists")
+		p
+			label
+				input(type="checkbox", name="all", id="email-all-checkbox")
+				|  Email all artists
+		p
+			label
+				| To:
+				span(style="color:gray; font-weight:normal; font-size:12px") &nbsp;(semicolon separated)
+			br
+			input(type="text", name="manual_emails", id="manual-emails-input", style="width:500px; padding:6px", placeholder="artist@example.com;another@example.com")
 		p
 			label Subject
 			br
@@ -14,4 +42,4 @@ append content
 			br
 			textarea(name="message", rows="10", style="width:500px; padding:6px", required)
 		p
-			input(type="submit", value="Send to all artists")
+			input(type="submit", value="Send")

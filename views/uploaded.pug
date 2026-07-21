@@ -2,6 +2,9 @@ extends layout.pug
 
 block content
 	h1 Track uploaded
+	if !isAdminUser && trackId
+		p
+			a(href="/account/stems/"+trackId) Add or manage stems for this track
 	if !isAdminUser
 		a.button(href="/account") OK
 	else

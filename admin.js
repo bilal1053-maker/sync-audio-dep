@@ -533,8 +533,11 @@ module.exports = function(config, paypalLogin) {
 				res.sendStatus(400);
 				return;
 			}
+			const reviewedTracks = await db.query("SELECT track_id FROM tracks WHERE track_id IN (?) AND reviewed = 1", [ids]);
+			const reviewedIds = new Set(reviewedTracks.map(t => String(t.track_id)));
 			const preparedTracks = [];
 			for (const id of ids) {
+				if (!reviewedIds.has(String(id))) continue;
 				const prepared = await prepareTaggedTrack(id, format);
 				if (prepared) {
 					preparedTracks.push(prepared);
@@ -741,35 +744,36 @@ module.exports = function(config, paypalLogin) {
 		}
 	});
 
-	router.get("/commercial_licensees/(*)/delete-license", (req,res,next) => {
-		res.locals.redirectUrl = baseURL+req.originalUrl;
-		next();
-	}, paypalLogin.login, adminLogin, async (req, res) => {
-		try {
-			await db.query("delete from commercial_transaction_tracks where email = ? ", [req.params?.[0]]);
-			res.redirect("/admin/commercial_licensees");
-		} catch (error) {
-			console.log('in er',error)
-			renderError(res)(error)
-		}
-	});
+	// Commercial licensees page removed from admin nav; routes disabled but logic kept for potential future use.
+	// router.get("/commercial_licensees/(*)/delete-license", (req,res,next) => {
+	// 	res.locals.redirectUrl = baseURL+req.originalUrl;
+	// 	next();
+	// }, paypalLogin.login, adminLogin, async (req, res) => {
+	// 	try {
+	// 		await db.query("delete from commercial_transaction_tracks where email = ? ", [req.params?.[0]]);
+	// 		res.redirect("/admin/commercial_licensees");
+	// 	} catch (error) {
+	// 		console.log('in er',error)
+	// 		renderError(res)(error)
+	// 	}
+	// });
 
-	router.get("/commercial_licensees", (req,res,next) => {
-		res.locals.redirectUrl = baseURL+req.originalUrl;
-		next();
-	}, paypalLogin.login, adminLogin, async (req, res) => {
-		try {
-			if (req.query.email && req.query.first_name && req.query.last_name) {
-				const result = await db.query("SELECT DATE_FORMAT(tx.date_created, '%D %M %Y %H:%i:%s') AS `date_created`, tx.paypal_status, t.title, t.artist, ctt.company, ctt.website, ctt.project_title, cl.use, cl.territory, clc.name, clc.description FROM commercial_transaction_tracks AS `ctt` JOIN tracks AS `t` ON (ctt.track_id = t.track_id) JOIN commercial_licences AS `cl` ON (cl.id = ctt.licence_id) JOIN commercial_licence_categories AS `clc` ON (clc.id = cl.category) JOIN transactions AS `tx` ON (tx.transaction_id = ctt.transaction_id) WHERE ctt.first_name = ? AND ctt.last_name = ? AND ctt.email = ? ORDER BY tx.date_created DESC", [req.query.first_name, req.query.last_name, req.query.email]);
-				res.render("admin/licensee_tracks", {"tracks":result, "first_name":req.query.first_name, "last_name":req.query.last_name, "email":req.query.email});
-			} else {
-				const result = await db.query("SELECT DISTINCT first_name, last_name, email FROM commercial_transaction_tracks ORDER BY email");
-				res.render("admin/commercial_licensees", {"licensees":result});
-			}
-		} catch (error) {
-			renderError(res)(error)
-		}
-	});
+	// router.get("/commercial_licensees", (req,res,next) => {
+	// 	res.locals.redirectUrl = baseURL+req.originalUrl;
+	// 	next();
+	// }, paypalLogin.login, adminLogin, async (req, res) => {
+	// 	try {
+	// 		if (req.query.email && req.query.first_name && req.query.last_name) {
+	// 			const result = await db.query("SELECT DATE_FORMAT(tx.date_created, '%D %M %Y %H:%i:%s') AS `date_created`, tx.paypal_status, t.title, t.artist, ctt.company, ctt.website, ctt.project_title, cl.use, cl.territory, clc.name, clc.description FROM commercial_transaction_tracks AS `ctt` JOIN tracks AS `t` ON (ctt.track_id = t.track_id) JOIN commercial_licences AS `cl` ON (cl.id = ctt.licence_id) JOIN commercial_licence_categories AS `clc` ON (clc.id = cl.category) JOIN transactions AS `tx` ON (tx.transaction_id = ctt.transaction_id) WHERE ctt.first_name = ? AND ctt.last_name = ? AND ctt.email = ? ORDER BY tx.date_created DESC", [req.query.first_name, req.query.last_name, req.query.email]);
+	// 			res.render("admin/licensee_tracks", {"tracks":result, "first_name":req.query.first_name, "last_name":req.query.last_name, "email":req.query.email});
+	// 		} else {
+	// 			const result = await db.query("SELECT DISTINCT first_name, last_name, email FROM commercial_transaction_tracks ORDER BY email");
+	// 			res.render("admin/commercial_licensees", {"licensees":result});
+	// 		}
+	// 	} catch (error) {
+	// 		renderError(res)(error)
+	// 	}
+	// });
 
 	router.get("/submissions/toggle", paypalLogin.login, adminLogin, async (_req, res) => {
 		try {
@@ -793,15 +797,23 @@ module.exports = function(config, paypalLogin) {
 		}
 	});
 
-	router.get("/email_artists", paypalLogin.login, adminLogin, (_req, res) => {
-		res.render("admin/email_artists");
+	router.get("/email_artists", paypalLogin.login, adminLogin, (req, res) => {
+		res.render("admin/email_artists", { sent: req.query.sent ? parseInt(req.query.sent) : null });
 	});
 
 	router.post("/email_artists", paypalLogin.login, adminLogin, async (req, res) => {
 		try {
 			const { subject, message } = req.body;
 			if (!subject || !message) { res.sendStatus(400); return; }
-			const emails = await db.query("SELECT DISTINCT email FROM tracks WHERE email IS NOT NULL AND email != ''");
+			const emailAll = req.body.all === "on";
+			const manualEmails = (req.body.manual_emails || "").split(";").map(e => e.trim()).filter(Boolean);
+			if (!emailAll && manualEmails.length === 0) {
+				res.render("admin/email_artists", { error: "Enter at least one email, or check \"Email all artists\"." });
+				return;
+			}
+			const emails = emailAll
+				? await db.query("SELECT DISTINCT email FROM tracks WHERE email IS NOT NULL AND email != ''")
+				: manualEmails.map(email => ({ email }));
 			let sent = 0;
 			for (const row of emails) {
 				mailgun.messages().send({
@@ -812,7 +824,7 @@ module.exports = function(config, paypalLogin) {
 				}).catch(err => console.error("Failed to email " + row.email, err));
 				sent++;
 			}
-			res.render("admin/email_artists", { sent });
+			res.redirect("/admin/email_artists?sent=" + sent);
 		} catch (error) {
 			renderError(res)(error);
 		}

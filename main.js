@@ -291,14 +291,18 @@ module.exports = function(config) {
 	router.get("/copyright", function(_req, res) {
 		res.render("copyright");
 	});
-	router.get("/submissions", async (_req, res) => {
+	router.get("/submissions", async (req, res) => {
 		try {
+			const isKnownAdmin = req.cookies.is_admin_user === "true";
 			const result = await db.query("SELECT value FROM settings WHERE key_name = 'submissions_open'");
-			const submissionsClosed = result.length > 0 && result[0].value !== '1';
+			const submissionsClosed = !isKnownAdmin && result.length > 0 && result[0].value !== '1';
 			res.render("submissions", { submissionsClosed });
 		} catch (e) {
 			res.render("submissions", { submissionsClosed: false });
 		}
+	});
+	router.get("/submissions/closed", (_req, res) => {
+		res.render("submissions_closed");
 	});
 	router.get("/submissions/faq", (_req, res) => {
 		res.render("submissions_faq");

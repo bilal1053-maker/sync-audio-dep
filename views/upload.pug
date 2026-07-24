@@ -44,12 +44,19 @@ form.upload(action="/account/upload", method="post", enctype="multipart/form-dat
 	.processing(style="display:none") Processing audio. Please wait.
 	.uploading(style="display:none") Uploading track. Please wait.
 	.uploadForm
+		p(style="font-weight:bold; color:gray; margin-bottom:4px") Upload Music
 		p
-			span(style="padding-right: 10px;") Upload Music :
+			label(style="display:inline-block; width:160px; font-weight:bold") Full Track
 			input(type="file", name="track", accept="audio/wav")
 			input(type="hidden", name="tempo")
 			input(type="hidden", name="duration")
 			input(type="hidden", name="waveform")
+		for stemType in ["Instrumental", "Acapella"]
+			p
+				label(style="display:inline-block; width:160px; font-weight:bold")
+					= stemType
+					span(style="font-size:12px; color:gray") &nbsp;(optional)
+				input(type="file", name=stemType, accept="audio/wav")
 		p
 			input(type="text", name="title", placeholder="Title")
 		p
@@ -69,7 +76,7 @@ form.upload(action="/account/upload", method="post", enctype="multipart/form-dat
 			input(type="text", name="link", placeholder="Youtube performance (Optional)")
 		.formField
 			div
-				label(for="style") Style
+				label(for="style", style="font-weight:bold") Style
 				.style
 					for t in ['Music with vocals','Instrumental','Acapella','Poetry']
 						div
@@ -78,7 +85,7 @@ form.upload(action="/account/upload", method="post", enctype="multipart/form-dat
 							= t
 		.formField
 			div
-				label(for="mood[]") Mood
+				label(for="mood[]", style="font-weight:bold") Mood
 			.moods
 				for mood in moods
 					div
@@ -87,7 +94,7 @@ form.upload(action="/account/upload", method="post", enctype="multipart/form-dat
 						= mood
 		.formField
 			div
-				label(for="genre") Genres
+				label(for="genre", style="font-weight:bold") Genres
 			div.tags
 				datalist.tags
 					for tag in genres
@@ -96,19 +103,12 @@ form.upload(action="/account/upload", method="post", enctype="multipart/form-dat
 					datalist.projectTags
 						for tag in track.genres
 							option(value=tag)
-		.formField
-			div
-				label(for="stems") Stems
-			p(style="color: red; margin-top:0px") We encourage uploading stems now, but you can also add them later from submissions page.
-			for stemType in ["Instrumental", "Drums & Bass", "Acapella"]
-				p
-					label(style="display:inline-block; width:160px; font-weight:bold")= stemType
-					input(type="file", name=stemType, accept="audio/wav")
+		p(style="color: red; margin-top:16px") We encourage uploading stems now, but you can also add them later from submissions page.
 		if !isAdminUser
 			p
 				input(type="checkbox", name="tnc")
 				| I agree with the Sync-Audio
-				| 
+				|
 				a(href="/pdf/sync-audio_user_agreement_new.pdf", target="_blank") terms and conditions
 			p
 				a.button.disabled.submit(href="javascript:void(0)") Upload

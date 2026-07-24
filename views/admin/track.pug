@@ -181,7 +181,7 @@ append content
 	.formField
 		a(href="/admin/tracks/"+track.id+"/delete") Delete permanently
 	.formField
-		p(style="margin:0 0 8px 0; font-size:18px; font-weight:bold; color:#333") Download Track:
+		p(style="margin:0 0 8px 0; font-size:18px; font-weight:bold; color:#333") Download Track
 		button(type="button", style="margin-right:10px", onclick="window.location='/admin/tracks/"+track.id+"/download/wav'") Download WAV
 		button(type="button", onclick="window.location='/admin/tracks/"+track.id+"/download/mp3'") Download MP3
 	if stems && stems.length > 0

@@ -42,13 +42,13 @@ block content
 	if removed
 		p#removed-message(style="color:rgb(10,168,168); font-weight:bold") Stem removed.
 
-	p(style="color:gray; font-size:14px") Upload stems for this track. Each stem type is optional.
+	p(style="color:red; font-size:14px") You can upload one or two — we encourage uploading both to complete all submission steps.
 
 	- var hasExistingStem = stemTypes.some(function(t) { return !!stemsByType[t]; })
 	form(action="/account/stems/"+track.id, method="post", enctype="multipart/form-data", data-has-existing-stem=hasExistingStem ? "true" : "false")
 		for stemType in stemTypes
 			p
-				label(style="display:inline-block; width:160px; font-weight:bold") #{stemType}
+				label(style="display:inline-block; width:160px; font-weight:bold")= stemType
 				if stemsByType[stemType]
 					span(style="margin-right:10px; font-size:13px") #{stemsByType[stemType].file_name}
 				else

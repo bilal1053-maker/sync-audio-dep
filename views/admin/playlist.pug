@@ -3,32 +3,16 @@ extends layout.pug
 append content
     h1 Playlists
     style.
-        a.copy-title,
-        a.copy-category {
-            margin-left: 8px;
-            color: inherit;
-            text-decoration: none;
+        a.add, a.remove {
             cursor: pointer;
-        }
-        a.copy-title:hover,
-        a.copy-category:hover {
-            color: rgb(10, 168, 168);
-        }
-        h3.playlist-heading {
-            display: flex;
-            align-items: center;
         }
     for playlist in playlists
         h3.playlist-heading
             span= playlist.name
-            a.copy-category(href="javascript:void(0)", title="Copy all tracks in this category", data-playlist-id=playlist.id, aria-label="Copy all tracks in this category")
-                i.bi.bi-clipboard
         ul(id=`playlist-${playlist.id}`, data-playlist-id=playlist.id)
             for track in playlist.tracks
                 li(data-track-title=track.title, data-track-artist=track.artist)
                     a(href=`/admin/tracks/${track.id}`)= track.title + " by " + track.artist
-                    a.copy-title(href="javascript:void(0)", title="Copy title", data-track-title=track.title, aria-label="Copy title")
-                        i.bi.bi-clipboard
                     |
                     | |
                     |
@@ -40,8 +24,6 @@ append content
             for track in tracks
                 li
                     a(href=`/admin/tracks/${track.id}`)= track.title + " by " + track.artist
-                    a.copy-title(href="javascript:void(0)", title="Copy title", data-track-title=track.title, aria-label="Copy title")
-                        i.bi.bi-clipboard
                     |
                     | |
                     |
@@ -187,64 +169,12 @@ block scripts
 
                     const trackItem = $(`<li data-track-title="${trackDetails.title}" data-track-artist="${trackDetails.artist}">
                         <a href="/admin/tracks/${trackId}">${trackDetails.title} by ${trackDetails.artist}</a>
-                        <a class="copy-title" href="javascript:void(0)" title="Copy title" data-track-title="${trackDetails.title}" aria-label="Copy title">
-                            <i class="bi bi-clipboard"></i>
-                        </a>
                         |
                         <a class="remove" style="color:black;font-size:16px" href="javascript:void(0)" data-track-id="${trackId}">Remove</a>
                     </li>`);
 
                     playlist.append(trackItem);
                 }
-
-            async function copyText(text, button) {
-                try {
-                    await navigator.clipboard.writeText(text);
-                } catch (error) {
-                    const textarea = document.createElement('textarea');
-                    textarea.value = text;
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                }
-
-                const icon = button.find('i');
-                icon.removeClass('bi-clipboard').addClass('bi-clipboard-check');
-                setTimeout(function() {
-                    icon.removeClass('bi-clipboard-check').addClass('bi-clipboard');
-                }, 1500);
-            }
-
-            async function copyTrackTitle(title, button) {
-                return copyText(title, button);
-            }
-
-            $(document).on('click', 'a.copy-title', function(event) {
-                event.preventDefault();
-                copyTrackTitle($(this).data('track-title'), $(this));
-            });
-
-            function getTrackLabel(title, artist) {
-                return `${title} by ${artist}`;
-            }
-
-            $(document).on('click', 'a.copy-category', function(event) {
-                event.preventDefault();
-                const playlistId = $(this).data('playlist-id');
-                const tracks = $(`#playlist-${playlistId} > li`).map(function() {
-                    const title = $(this).data('track-title');
-                    const artist = $(this).data('track-artist');
-                    return getTrackLabel(title, artist);
-                }).get();
-
-                if (tracks.length === 0) {
-                    alert('No tracks in this category to copy.');
-                    return;
-                }
-
-                copyText(tracks.join('\n'), $(this));
-            });
 
             $(document).on('click', 'a.remove', function(event) {
                 event.preventDefault();

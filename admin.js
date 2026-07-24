@@ -458,7 +458,9 @@ module.exports = function(config, paypalLogin) {
 			"BPM: " + (track.tempo || ""),
 			"Genre: " + genreStr,
 			"Mood: " + moodStr,
-			"Publisher: Sync-Audio"
+			"Publisher: Sync-Audio",
+			"Affiliate Society: PRS",
+			"Comments: Contact at info@sync-audio.com"
 		].join("\r\n");
 
 		if (format === "mp3") {
@@ -468,7 +470,12 @@ module.exports = function(config, paypalLogin) {
 				composer: track.writer || "",
 				bpm: track.tempo ? String(track.tempo) : "",
 				genre: genreStr,
-				comment: { language: "eng", text: moodStr }
+				publisher: "Sync-Audio",
+				userDefinedText: [
+					{ description: "Mood", value: moodStr },
+					{ description: "Affiliate Society", value: "PRS" },
+					{ description: "Comments", value: "Contact at info@sync-audio.com" }
+				]
 			};
 			const fileBuffer = fs.readFileSync(filePath);
 			const taggedBuffer = NodeID3.write(tags, fileBuffer);
@@ -478,13 +485,21 @@ module.exports = function(config, paypalLogin) {
 		} else {
 			const tmpWav = path.join(os.tmpdir(), track.checksum + "_tagged.wav");
 			const ffmpeg = "ffmpeg";
+			// WAV's RIFF INFO chunk only supports a fixed set of tags (title/artist/genre/comment/album/date/encoder) —
+			// unlike ID3, it has no mechanism for arbitrary custom-named fields, so everything else is packed into comment.
+			const wavComment = [
+				"Writer/Composer: " + (track.writer || ""),
+				"BPM: " + (track.tempo || ""),
+				"Mood: " + moodStr,
+				"Publisher: Sync-Audio",
+				"Affiliate Society: PRS",
+				"Comments: Contact at info@sync-audio.com"
+			].join(" | ");
 			const cmd = `"${ffmpeg}" -i "${filePath}" -y `
 				+ `-metadata title="${(track.title || "").replace(/"/g, '\\"')}" `
 				+ `-metadata artist="${(track.artist || "").replace(/"/g, '\\"')}" `
-				+ `-metadata composer="${(track.writer || "").replace(/"/g, '\\"')}" `
-				+ `-metadata BPM="${track.tempo || ""}" `
 				+ `-metadata genre="${genreStr.replace(/"/g, '\\"')}" `
-				+ `-metadata comment="${moodStr.replace(/"/g, '\\"')}" `
+				+ `-metadata comment="${wavComment.replace(/"/g, '\\"')}" `
 				+ `-codec copy "${tmpWav}"`;
 			return await new Promise((resolve) => {
 				exec(cmd, (err) => {

@@ -12,7 +12,7 @@ module.exports = function(config, paypalLogin) {
     const archiver = require("archiver");
 
     const multerUpload = multer({"dest":"./tmp/", limits: { fileSize: 500 * 1024 * 1024 }});
-    const STEM_TYPES = ["Instrumental", "Drums & Bass", "Acapella"];
+    const STEM_TYPES = ["Instrumental", "Acapella"];
 
     async function saveStemFiles(trackId, files) {
         const stemsDir = require("path").resolve(__dirname, "static/stems");

@@ -9,45 +9,105 @@ block scripts
 		function downloadSelectedTracks() {
 			var ids = Array.prototype.slice.call(document.querySelectorAll(".track-select:checked")).map(function(el) { return el.value; });
 			if (ids.length === 0) {
-				alert("Select at least one track first.");
 				return;
 			}
 			var format = document.getElementById("bulk-download-format").value;
 			window.location = "/admin/tracks/download?ids=" + ids.join(",") + "&format=" + format;
 		}
+		document.addEventListener("DOMContentLoaded", function() {
+			var downloadButton = document.getElementById("download-selected-button");
+			var checkboxes = Array.prototype.slice.call(document.querySelectorAll(".track-select"));
+			if (downloadButton && checkboxes.length > 0) {
+				function updateDownloadButtonState() {
+					var anyChecked = checkboxes.some(function(cb) { return cb.checked; });
+					downloadButton.disabled = !anyChecked;
+				}
+				checkboxes.forEach(function(cb) {
+					cb.addEventListener("change", updateDownloadButtonState);
+				});
+				updateDownloadButtonState();
+			}
+
+			var BATCH_SIZE = 30;
+			var acceptedItems = Array.prototype.slice.call(document.querySelectorAll("#accepted-list .track-item"));
+			var loadMoreButton = document.getElementById("load-more-accepted");
+			var loadedCount = 0;
+
+			function showBatch() {
+				var next = acceptedItems.slice(loadedCount, loadedCount + BATCH_SIZE);
+				next.forEach(function(li) { li.style.display = ""; });
+				loadedCount += next.length;
+				if (loadMoreButton) {
+					loadMoreButton.style.display = loadedCount < acceptedItems.length ? "" : "none";
+				}
+			}
+
+			acceptedItems.forEach(function(li) { li.style.display = "none"; });
+			showBatch();
+
+			if (loadMoreButton) {
+				loadMoreButton.addEventListener("click", showBatch);
+			}
+
+			var searchInput = document.getElementById("track-search");
+			var allItems = Array.prototype.slice.call(document.querySelectorAll(".track-item"));
+			if (searchInput) {
+				searchInput.addEventListener("input", function() {
+					var query = searchInput.value.trim().toLowerCase();
+					if (query === "") {
+						allItems.forEach(function(li) {
+							li.style.display = acceptedItems.indexOf(li) === -1 ? "" : "none";
+						});
+						loadedCount = 0;
+						showBatch();
+						return;
+					}
+					if (loadMoreButton) loadMoreButton.style.display = "none";
+					allItems.forEach(function(li) {
+						var text = (li.dataset.searchText || "").toLowerCase();
+						li.style.display = text.indexOf(query) !== -1 ? "" : "none";
+					});
+				});
+			}
+		});
 
 append content
 	include ../upload.pug
-	div(style="margin:10px 0")
-		p(style="margin:0 0 6px 0; font-size:13px; color:#555")
+	div(style="margin:24px 0 10px 0")
+		p(style="margin:0 0 6px 0; font-size:15px; color:#555")
 			strong Bulk Download:
 			|  Select tracks below, choose a format, then click Download Selected.
 		select#bulk-download-format(style="width:80px; height:22px; font-size:12px; padding:0 4px; margin-right:12px")
 			option(value="wav", style="font-size:12px") WAV
 			option(value="mp3", style="font-size:12px") MP3
-		button(type="button", onclick="downloadSelectedTracks()") Download Selected
+		button#download-selected-button(type="button", onclick="downloadSelectedTracks()", disabled) Download Selected
+	div(style="margin:24px 0 10px 0")
+		p(style="margin:0 0 6px 0; font-size:15px; color:#000")
+			strong Search Tracks
+		input#track-search(type="text", placeholder="Search tracks by Title or Artist", style="width:320px; padding:6px; font-size:14px")
 	if unreviewed.length > 0
 		h1 Awaiting Review
-		ul(style="padding-left:0; list-style-position:inside")
+		ul(style="padding-left:0; list-style-position:inside; column-count:2; column-gap:48px")
 			for track in unreviewed
-				li
+				li.track-item(data-search-text=track.title+" "+track.artist)
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
 							span(style="margin-left:8px; font-size:13px; color:rgb(10,168,168)") Stems: #{track.stemCount}
 	if accepted.length > 0
 		h1 Accepted
-		ul(style="list-style:none; padding-left:0")
+		ul#accepted-list(style="list-style:none; padding-left:0; column-count:2; column-gap:48px")
 			for track in accepted
-				li
+				li.track-item(data-search-text=track.title+" "+track.artist)
 					input.track-select(type="checkbox", value=track.id, style="margin-right:8px")
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
 							span(style="margin-left:8px; font-size:13px; color:rgb(10,168,168)") Stems: #{track.stemCount}
+		button#load-more-accepted(type="button", style="margin-top:10px") Load More
 	if rejected.length > 0
 		h1 Rejected
-		ul(style="list-style:none; padding-left:0")
+		ul(style="list-style:none; padding-left:0; column-count:2; column-gap:48px")
 			for track in rejected
-				li
+				li.track-item(data-search-text=track.title+" "+track.artist)
 					input.track-select(type="checkbox", value=track.id, style="margin-right:8px")
 					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0

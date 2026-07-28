@@ -511,7 +511,7 @@ module.exports = function(config) {
 			if (licences.length == 0) {
 				return res.render(error)
 			}
-			res.locals.licenceName = licences[0].name;
+			res.locals.licenceName = licences[0].name === "Vloggers" ? "Creator" : licences[0].name;
 			next();
 		} catch (error) {
 			res.render(error)
@@ -554,7 +554,7 @@ module.exports = function(config) {
 			if (licences.length == 0) {
 				throw new Error();
 			}
-			res.locals.licenceName = licences[0].name;
+			res.locals.licenceName = licences[0].name === "Vloggers" ? "Creator" : licences[0].name;
 			next()
 		} catch (_error) {
 			res.render("error")

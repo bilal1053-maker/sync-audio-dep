@@ -1,7 +1,7 @@
 extends layout.pug
 
 block content
-    h1= licence.name
+    h1= licence.name === "Vloggers" ? "Creator" : licence.name
     p= licence.description
     form(action="",method="POST")
         p

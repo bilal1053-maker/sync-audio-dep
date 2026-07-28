@@ -17,7 +17,7 @@ block content
 				option
 				|
 				for licence in licences
-					option(value=licence.id)= licence.name
+					option(value=licence.id)= licence.name === "Vloggers" ? "Creator" : licence.name
 		for licence in licences
 			p.licenceDescription(id="licence_"+licence.id, style="display:none")= licence.description
 		a.button.large(href="javascript:history.back()") Cancel

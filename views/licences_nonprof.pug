@@ -30,6 +30,6 @@ block content
                 if licence.id != 10
                     tr
                         td
-                            a(href="/trolley/add/"+trackId+"/licence/"+licence.id)= licence.name
+                            a(href="/trolley/add/"+trackId+"/licence/"+licence.id)= licence.name === "Vloggers" ? "Creator" : licence.name
                         td
                             a(href="/trolley/add/"+trackId+"/licence/"+licence.id) £#{licence.track_price}

@@ -31,7 +31,7 @@ mixin track(commercial, track, licenceName, licenceDescription, licenceUse, lice
 								| 
 								| #{track.master_recording_owner}
 					div
-						h3 Licence: #{licenceName}
+						h3 Licence: #{licenceName === "Vloggers" ? "Creator" : licenceName}
 						div= licenceDescription
 						if licenceUse
 							div

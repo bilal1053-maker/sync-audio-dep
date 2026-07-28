@@ -596,6 +596,36 @@ module.exports = function(config, paypalLogin) {
 		} catch (e) { renderError(res)(e); }
 	});
 
+	router.get("/stems/:stemId/add-to-library", paypalLogin.login, adminLogin, async (req, res) => {
+		try {
+			const stems = await db.query("SELECT s.*, t.title, t.artist, t.writer, t.tempo, t.style, t.master_recording_owner, t.cae_number, t.link, t.track_id AS parent_track_id FROM stems s JOIN tracks t ON s.track_id = t.track_id WHERE s.stem_id = ?", [req.params.stemId]);
+			if (stems.length === 0) { res.sendStatus(404); return; }
+			const stem = stems[0];
+			const moods = await db.query("SELECT mood FROM moods WHERE track_id = ?", [stem.parent_track_id]);
+			const genres = await db.query("SELECT genre FROM genres WHERE track_id = ?", [stem.parent_track_id]);
+			const stemPath = path.resolve(__dirname, "static/stems", stem.checksum);
+			const result = await upload.addTrackFromExistingFile(stemPath, {
+				"title": stem.title + " " + stem.stem_type,
+				"artist": stem.artist,
+				"writer": stem.writer,
+				"tempo": stem.tempo,
+				"style": stem.style,
+				"master_recording_owner": stem.master_recording_owner,
+				"cae_number": stem.cae_number,
+				"link": stem.link,
+				"email": res.locals.paypalUserInfo.email,
+				"moods": moods.map(m => m.mood),
+				"genres": genres.map(g => g.genre),
+				"reviewed": 1,
+				"accepted": 1
+			});
+			res.redirect("/admin/tracks/" + stem.parent_track_id + (result.existed ? "?stemLibraryExists=1" : "?stemAddedToLibrary=1"));
+		} catch (error) {
+			console.error(error);
+			res.render("error", {"error": "Failed to add stem to library"});
+		}
+	});
+
 	router.get("/stems/:stemId/delete", paypalLogin.login, adminLogin, async (req, res) => {
 		try {
 			const stems = await db.query("SELECT s.*, t.track_id FROM stems s JOIN tracks t ON s.track_id = t.track_id WHERE s.stem_id = ?", [req.params.stemId]);
@@ -675,7 +705,7 @@ module.exports = function(config, paypalLogin) {
 			delete track.genre;
 			delete track.mood;
 			const stems = await db.query("SELECT stem_id, stem_type, file_name, checksum, uploaded_at FROM stems WHERE track_id = ?", [id]);
-			res.render("admin/track",{"track":track, "genres": genres, "moods": moods, "stems": stems});
+			res.render("admin/track",{"track":track, "genres": genres, "moods": moods, "stems": stems, "query": req.query});
 		} catch (error) {
 			renderError(res)(error)
 		}

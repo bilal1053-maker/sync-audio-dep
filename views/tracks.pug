@@ -221,13 +221,18 @@ if tracks && tracks.length > 0
 				$("#trackModal .modal-body").empty();
 				var $personalBox = $("<div>").addClass("box personal")
 					.data("track-id", trackId)
+					.css({"max-height": "none"})
 					.append($("<h3>").text("Personal").css("font-size","17px"))
-					.append($("<p>").text("Home / Students, Vlogger").css({ "margin-top":"-12px","font-size":"14px"}));
+					.append(
+						$("<div>").css({"display": "flex", "justify-content": "space-between", "align-items": "center", "margin-top": "-12px"})
+							.append($("<p>").text("Home / Students, Creator, Wedding").css({"font-size":"14px", "margin": "0"}))
+							.append($("<p>").text("Buy 2 and get third at 10% discount").css({"font-size": "12px", "font-weight": "bold", "color": "rgb(10, 168, 168)", "margin": "0"}))
+					);
 
 				var $businessBox = $("<div>").addClass("box business")
 					.data("track-id", trackId)
 					.append($("<h3>").text("Business").css("font-size","17px"))
-					.append($("<p>").text("Promotional 1, 2, 3, Wedding, Indie Film, Indie Trailer, Podcast").css({ "margin-top":"-12px","font-size":"14px"}));
+					.append($("<p>").text("Promotional 1, 2, 3, Indie Film, Indie Trailer, Podcast").css({ "margin-top":"-12px","font-size":"14px"}));
 
 				var $commercialBox = $("<a>").addClass("box commercial")
 					.attr("href", `/trolley/add/${trackId}/commercial`)
@@ -272,19 +277,26 @@ if tracks && tracks.length > 0
 				var licences = !{JSON.stringify(licences)};
 				$("#trackModal .modal-body").empty();
 
-				licences.forEach(function(licence) {
-					if (boxType === "Personal" && (licence.id !== 5 && licence.id !== 9)) {
-						return; 
+				var personalOrder = [9, 5, 6];
+				var filteredLicences = licences.filter(function(licence) {
+					if (boxType === "Personal") {
+						return licence.id === 5 || licence.id === 9 || licence.id === 6;
 					}
-					if (boxType === "Business" && (licence.id === 5 || licence.id === 9 || licence.id === 10)) {
-						return; 
+					if (boxType === "Business") {
+						return !(licence.id === 5 || licence.id === 9 || licence.id === 10 || licence.id === 6);
 					}
+					return true;
+				});
+				if (boxType === "Personal") {
+					filteredLicences.sort(function(a, b) { return personalOrder.indexOf(a.id) - personalOrder.indexOf(b.id); });
+				}
+				filteredLicences.forEach(function(licence) {
 					var $licenseBox = $("<div>").addClass("box new")
 						.data("track-id",trackId)
 						.data("licence-id", licence.id)
 						.data("licence-price",licence.track_price)
 						.data("licence-description", licence.description)
-						.append($("<p>").text(licence.name).css({"font-size":"16px","color":"black","padding-top":"10px","font-weight":"20px"}))
+						.append($("<p>").text(licence.name === "Vloggers" ? "Creator" : licence.name).css({"font-size":"16px","color":"black","padding-top":"10px","font-weight":"20px"}))
 						.append($("<a>").attr("href", `/trolley/add/${trackId}/licence/${licence.id}`))
 
 					$("#trackModal .modal-body").append($licenseBox);
@@ -297,7 +309,7 @@ if tracks && tracks.length > 0
 				var licenceId = $licenseBox.data("licence-id");
 				var trackId = $licenseBox.data("track-id");
 				var licence_price = $licenseBox.data("licence-price");
-				var licence_description = $licenseBox.data("licence-description");
+				var licence_description = ($licenseBox.data("licence-description") || "").replace(/Vlogger \/ Blogger/g, "Creator");
 
 			$("#trackModal .modal-body").empty();
 

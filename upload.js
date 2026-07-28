@@ -245,7 +245,42 @@ module.exports = function(config) {
 		}
 	}
 
+	async function addTrackFromExistingFile(sourceFilePath, meta) {
+		const sha1Hash = crypto.createHash("sha1");
+		const data = await fs.promises.readFile(sourceFilePath);
+		sha1Hash.update(data);
+		const checksum = sha1Hash.digest("hex");
+		const existing = await db.query("SELECT track_id FROM tracks WHERE checksum = ?", [checksum]);
+		if (existing.length > 0) {
+			return { "trackId": existing[0].track_id, "existed": true };
+		}
+		const wavFile = "static/tracks/"+checksum+".wav";
+		await fs.promises.copyFile(sourceFilePath, wavFile);
+		const duration = await getTrackDuration(wavFile);
+		await generateWaveforms(checksum);
+		await convertWavToMp3(checksum);
+		const downloadName = (meta.artist+" "+meta.title).replace(/[/\\?%*:|"<>]/g, ' ').trim();
+		const result = await db.query("INSERT INTO tracks (checksum, title, artist, writer, duration, email, copyright_year, date_added, reviewed, accepted, tempo, style, file_name, cae_number, master_recording_owner, link) VALUES (?, ?, ?, ?, ?, ?, ?, now(), ?, ?, ?, ?, ?, ?, ?, ?)", [checksum, meta.title, meta.artist, meta.writer, duration, meta.email, meta.copyrightYear || null, meta.reviewed, meta.accepted, meta.tempo, meta.style, downloadName, meta.cae_number, meta.master_recording_owner, meta.link]);
+		const trackId = result.insertId;
+		if (meta.moods && meta.moods.length > 0) {
+			const values = new Array(meta.moods.length);
+			values.fill("(?,?)");
+			const args = [];
+			meta.moods.forEach(mood => { args.push(mood); args.push(trackId); });
+			await db.query("INSERT INTO moods (mood, track_id) VALUES "+values.join(", "), args);
+		}
+		if (meta.genres && meta.genres.length > 0) {
+			const values = new Array(meta.genres.length);
+			values.fill("(?,?)");
+			const args = [];
+			meta.genres.forEach(genre => { args.push(genre); args.push(trackId); });
+			await db.query("INSERT INTO genres (genre, track_id) VALUES "+values.join(", "), args);
+		}
+		return { "trackId": trackId, "existed": false };
+	}
+
 	return {
+		"addTrackFromExistingFile": addTrackFromExistingFile,
 		"uploadArtistImage": async(req, res, next) => {
 			if (!res.locals.artistId) {
 				res.sendStatus(500);

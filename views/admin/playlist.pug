@@ -6,12 +6,16 @@ append content
         a.add, a.remove {
             cursor: pointer;
         }
+    div(style="margin:10px 0 20px 0")
+        p(style="margin:0 0 6px 0; font-size:15px; color:#000")
+            strong Search
+        input#playlist-search(type="text", placeholder="Search tracks by Title or Artist", style="width:320px; padding:6px; font-size:14px")
     for playlist in playlists
         h3.playlist-heading
             span= playlist.name
         ul(id=`playlist-${playlist.id}`, data-playlist-id=playlist.id)
             for track in playlist.tracks
-                li(data-track-title=track.title, data-track-artist=track.artist)
+                li.track-item(data-track-title=track.title, data-track-artist=track.artist, data-search-text=track.title+" "+track.artist)
                     a(href=`/admin/tracks/${track.id}`)= track.title + " by " + track.artist
                     |
                     | |
@@ -20,14 +24,18 @@ append content
 
     if tracks.length > 0
         h1 All
-        ul
-            for track in tracks
-                li
-                    a(href=`/admin/tracks/${track.id}`)= track.title + " by " + track.artist
-                    |
-                    | |
-                    |
-                    a.add(data-track-id=track.id, data-track-title=track.title, data-track-artist=track.artist) Add
+        ul#all-tracks-list(style="list-style:none; padding-left:0; column-count:2; column-gap:48px")
+            for track, index in tracks
+                li.track-item(data-search-text=track.title+" "+track.artist, style="display:flex; align-items:flex-start")
+                    span(style="flex-shrink:0; min-width:32px; text-align:right; margin-right:6px; color:#000; font-weight:bold; font-size:15px")= (index + 1) + "."
+                    span
+                        a(href=`/admin/tracks/${track.id}`)= track.title + " by " + track.artist
+                        |
+                        | |
+                        |
+                        a.add(data-track-id=track.id, data-track-title=track.title, data-track-artist=track.artist) Add
+        div#all-pagination-wrapper(style="margin-top:20px; padding:12px 16px; background:#fafafa; border:1px solid #eee; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap")
+            span#all-pagination
 
     #playlist-options(style='display: none; position: absolute; background: white; border: 1px solid #ccc; z-index: 1000;')
         h3 Select a Playlist
@@ -35,146 +43,255 @@ append content
 
 block scripts
     script.
-            $(function() {
-                const playlistOptionsDiv = $('#playlist-options').css({"border-radius":"10px"});
+        document.addEventListener("DOMContentLoaded", function() {
+            var PAGE_SIZE = 50;
+            var allItems = Array.prototype.slice.call(document.querySelectorAll("#all-tracks-list .track-item"));
+            var paginationContainer = document.getElementById("all-pagination");
+            var paginationWrapper = document.getElementById("all-pagination-wrapper");
+            var totalPages = Math.max(1, Math.ceil(allItems.length / PAGE_SIZE));
+            var currentPage = 1;
 
-                async function showPlaylistOptions(trackId, trackDetails, event) {
-                    event.stopPropagation();
-                    playlistOptionsDiv.empty();
-                    playlistOptionsDiv.append("<h3>Select a Playlist</h3>").css({"text-align":"center"});
-
-                    const list = $('<ul></ul>').css({
-                        "list-style": "none",
-                        "padding": "10px",
-                        "margin": "10px 20px",
-                        "margin-top":"-10px"
-                    });
-
-                    var playlists = !{JSON.stringify(playlists)};
-                    playlists.forEach(playlist => {
-                        const listItem = $('<li></li>').css({
-                            "margin": "5px 0",
-                            "padding": "5px 10px",
-                            "background-color": "white",
-                            "border": "1px solid #ddd",
-                            "border-radius": "5px",
-                            "box-shadow": "0px 4px 8px rgba(0, 0, 0, 0.2)",
-                            "cursor": "pointer",
-                            "text-align": "center",
-                            "transition": "transform 0.2s ease, box-shadow 0.2s ease",
-                            "max-width":"500px"
-                        }).on('click', function() {
-                            $(this).addClass('clicked'); 
-                            $.post('/admin/playlist/add', {
-                                track_id: trackId,
-                                playlist_id: playlist.id
-                            }).done(function(response) {
-                                //- console.log(trackId, playlist.id, trackDetails)
-                                alert('This track added to playlist successfully');
-                                updateUI(trackId, playlist.id, trackDetails);
-                                playlistOptionsDiv.hide();
-                            }).fail(function(error) {
-                                console.error('Error adding track to playlist:', error);
-                                const errorCode = (error.responseJSON && error.responseJSON.code) || (error.responseText && JSON.parse(error.responseText).code);
-
-                                if (errorCode === 'ER_DUP_ENTRY') {
-                                    alert('This track is already in the playlist.');
-                                } else {
-                                    alert('This track is already in playlist');
-                                }
-                            });
-                        });
-
-                        const link = $('<a href="javascript:void(0)"></a>')
-                            .text(playlist.name)
-                            .css({
-                                "text-decoration": "none",
-                                "color": "inherit",
-                                "display": "block"
-                            });
-
-                        listItem.append(link);
-                        list.append(listItem);
-                    });
-
-                    playlistOptionsDiv.append(list);
-
-                    playlistOptionsDiv.css({
-                        "background-color": "white",
-                        "color": "black",
-                        "display": "block",
-                        "border": "1px solid #ccc",
-                        "z-index": 1000,
-                        "position": "absolute" // Ensure it's positioned absolutely
-                    });
-
-                    const divWidth = playlistOptionsDiv.outerWidth();
-                    const divHeight = playlistOptionsDiv.outerHeight();
-                    const x = event.pageX;
-                    const y = event.pageY;
-
-                    // Calculate new position to center the div around the mouse click
-                    const left = x - (divWidth / 2) -130;
-                    const top = y - (divHeight / 2)+102;
-
-                    playlistOptionsDiv.css({
-                        "top": top + "px",
-                        "left": left + "px"
-                    });
-
-                    // Add CSS for the click effect
-                    $('<style>').text(`
-                        .clicked {
-                            transform: translateY(4px);
-                            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-                        }
-                    `).appendTo('head');
+            function getPageNumbersToShow() {
+                var pages = [];
+                var windowSize = 2;
+                for (var p = 1; p <= totalPages; p++) {
+                    if (p === 1 || p === totalPages || (p >= currentPage - windowSize && p <= currentPage + windowSize)) {
+                        pages.push(p);
+                    }
                 }
+                var result = [];
+                var last = 0;
+                pages.forEach(function(p) {
+                    if (last && p - last > 1) result.push("...");
+                    result.push(p);
+                    last = p;
+                });
+                return result;
+            }
 
-                $(document).on('mousedown', function(event) {
-                    const x = event.pageX;
-                    const y = event.pageY;
-                    const trackOffset = playlistOptionsDiv.offset();
-                    const trackRect = {
-                        "left": trackOffset.left,
-                        "top": trackOffset.top,
-                        "right": trackOffset.left + playlistOptionsDiv.outerWidth(),
-                        "bottom": trackOffset.top + playlistOptionsDiv.outerHeight()
-                    };
-                    if (x < trackRect.left || x > trackRect.right || y < trackRect.top || y > trackRect.bottom) {
-                        playlistOptionsDiv.hide();
+            function makeNumberLink(page) {
+                var link = document.createElement("a");
+                link.href = "javascript:void(0)";
+                link.textContent = page;
+                link.style.display = "inline-flex";
+                link.style.alignItems = "center";
+                link.style.justifyContent = "center";
+                link.style.minWidth = "30px";
+                link.style.height = "30px";
+                link.style.borderRadius = "6px";
+                link.style.fontSize = "13px";
+                link.style.textDecoration = "none";
+                if (page === currentPage) {
+                    link.style.background = "rgb(10,168,168)";
+                    link.style.color = "white";
+                    link.style.fontWeight = "bold";
+                } else {
+                    link.style.color = "#333";
+                    link.style.background = "#f2f2f2";
+                    link.addEventListener("click", function() { showPage(page); });
+                    link.addEventListener("mouseenter", function() { if (page !== currentPage) link.style.background = "#e6f7f7"; });
+                    link.addEventListener("mouseleave", function() { if (page !== currentPage) link.style.background = "#f2f2f2"; });
+                }
+                return link;
+            }
+
+            function renderPaginationControls() {
+                if (!paginationContainer) return;
+                paginationContainer.innerHTML = "";
+                paginationContainer.style.display = "flex";
+                paginationContainer.style.alignItems = "center";
+                paginationContainer.style.gap = "4px";
+
+                var pageLabel = document.createElement("span");
+                pageLabel.textContent = "Page";
+                pageLabel.style.fontSize = "13px";
+                pageLabel.style.color = "#555";
+                pageLabel.style.fontWeight = "600";
+                pageLabel.style.marginRight = "6px";
+                paginationContainer.appendChild(pageLabel);
+
+                getPageNumbersToShow().forEach(function(p) {
+                    if (p === "...") {
+                        var span = document.createElement("span");
+                        span.textContent = "...";
+                        span.style.padding = "0 4px";
+                        span.style.color = "#999";
+                        paginationContainer.appendChild(span);
+                    } else {
+                        paginationContainer.appendChild(makeNumberLink(p));
                     }
                 });
+            }
 
-                $('a.add').on('click', function(event) {
-                    event.preventDefault();
-                    const trackId = $(this).data('track-id');
-                    const trackDetails = {
-                        title: $(this).data('track-title'),
-                        artist: $(this).data('track-artist')
-                    };
-                    showPlaylistOptions(trackId, trackDetails, event);
+            function showPage(page) {
+                currentPage = page;
+                var start = (page - 1) * PAGE_SIZE;
+                var end = start + PAGE_SIZE;
+                allItems.forEach(function(li, i) {
+                    li.style.display = (i >= start && i < end) ? "" : "none";
                 });
+                renderPaginationControls();
+            }
 
-            function updateUI(trackId, playlistId, trackDetails) {
-                    //- console.log('Updating UI for track:', trackId, 'in playlist:', playlistId, 'with details:', trackDetails);
+            if (allItems.length > 0) {
+                showPage(1);
+            }
 
-                    const playlist = $(`#playlist-${playlistId}`);
-                    //- console.log('Playlist element:', playlist);
-
-                    if (playlist.length === 0) {
-                        console.error('Playlist not found for ID:', playlistId);
+            var searchInput = document.getElementById("playlist-search");
+            var everyItem = Array.prototype.slice.call(document.querySelectorAll(".track-item"));
+            if (searchInput) {
+                searchInput.addEventListener("input", function() {
+                    var query = searchInput.value.trim().toLowerCase();
+                    if (query === "") {
+                        everyItem.forEach(function(li) {
+                            li.style.display = allItems.indexOf(li) === -1 ? "" : "none";
+                        });
+                        if (paginationWrapper) paginationWrapper.style.display = "flex";
+                        showPage(currentPage);
                         return;
                     }
+                    if (paginationWrapper) paginationWrapper.style.display = "none";
+                    everyItem.forEach(function(li) {
+                        var text = (li.dataset.searchText || "").toLowerCase();
+                        li.style.display = text.indexOf(query) !== -1 ? "" : "none";
+                    });
+                });
+            }
 
-                    const trackItem = $(`<li data-track-title="${trackDetails.title}" data-track-artist="${trackDetails.artist}">
-                        <a href="/admin/tracks/${trackId}">${trackDetails.title} by ${trackDetails.artist}</a>
-                        |
-                        <a class="remove" style="color:black;font-size:16px" href="javascript:void(0)" data-track-id="${trackId}">Remove</a>
-                    </li>`);
+            const playlistOptionsDiv = $('#playlist-options').css({"border-radius":"10px"});
 
-                    playlist.append(trackItem);
+            async function showPlaylistOptions(trackId, trackDetails, event) {
+                event.stopPropagation();
+                playlistOptionsDiv.empty();
+                playlistOptionsDiv.append("<h3>Select a Playlist</h3>").css({"text-align":"center"});
+
+                const list = $('<ul></ul>').css({
+                    "list-style": "none",
+                    "padding": "10px",
+                    "margin": "10px 20px",
+                    "margin-top":"-10px"
+                });
+
+                var playlists = !{JSON.stringify(playlists)};
+                playlists.forEach(playlist => {
+                    const listItem = $('<li></li>').css({
+                        "margin": "5px 0",
+                        "padding": "5px 10px",
+                        "background-color": "white",
+                        "border": "1px solid #ddd",
+                        "border-radius": "5px",
+                        "box-shadow": "0px 4px 8px rgba(0, 0, 0, 0.2)",
+                        "cursor": "pointer",
+                        "text-align": "center",
+                        "transition": "transform 0.2s ease, box-shadow 0.2s ease",
+                        "max-width":"500px"
+                    }).on('click', function() {
+                        $(this).addClass('clicked');
+                        $.post('/admin/playlist/add', {
+                            track_id: trackId,
+                            playlist_id: playlist.id
+                        }).done(function(response) {
+                            alert('This track added to playlist successfully');
+                            updateUI(trackId, playlist.id, trackDetails);
+                            playlistOptionsDiv.hide();
+                        }).fail(function(error) {
+                            console.error('Error adding track to playlist:', error);
+                            const errorCode = (error.responseJSON && error.responseJSON.code) || (error.responseText && JSON.parse(error.responseText).code);
+
+                            if (errorCode === 'ER_DUP_ENTRY') {
+                                alert('This track is already in the playlist.');
+                            } else {
+                                alert('This track is already in playlist');
+                            }
+                        });
+                    });
+
+                    const link = $('<a href="javascript:void(0)"></a>')
+                        .text(playlist.name)
+                        .css({
+                            "text-decoration": "none",
+                            "color": "inherit",
+                            "display": "block"
+                        });
+
+                    listItem.append(link);
+                    list.append(listItem);
+                });
+
+                playlistOptionsDiv.append(list);
+
+                playlistOptionsDiv.css({
+                    "background-color": "white",
+                    "color": "black",
+                    "display": "block",
+                    "border": "1px solid #ccc",
+                    "z-index": 1000,
+                    "position": "absolute"
+                });
+
+                const divWidth = playlistOptionsDiv.outerWidth();
+                const divHeight = playlistOptionsDiv.outerHeight();
+                const x = event.pageX;
+                const y = event.pageY;
+
+                const left = x - (divWidth / 2) -130;
+                const top = y - (divHeight / 2)+102;
+
+                playlistOptionsDiv.css({
+                    "top": top + "px",
+                    "left": left + "px"
+                });
+
+                $('<style>').text(`
+                    .clicked {
+                        transform: translateY(4px);
+                        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+                    }
+                `).appendTo('head');
+            }
+
+            $(document).on('mousedown', function(event) {
+                const x = event.pageX;
+                const y = event.pageY;
+                const trackOffset = playlistOptionsDiv.offset();
+                const trackRect = {
+                    "left": trackOffset.left,
+                    "top": trackOffset.top,
+                    "right": trackOffset.left + playlistOptionsDiv.outerWidth(),
+                    "bottom": trackOffset.top + playlistOptionsDiv.outerHeight()
+                };
+                if (x < trackRect.left || x > trackRect.right || y < trackRect.top || y > trackRect.bottom) {
+                    playlistOptionsDiv.hide();
                 }
+            });
+
+            $('a.add').on('click', function(event) {
+                event.preventDefault();
+                const trackId = $(this).data('track-id');
+                const trackDetails = {
+                    title: $(this).data('track-title'),
+                    artist: $(this).data('track-artist')
+                };
+                showPlaylistOptions(trackId, trackDetails, event);
+            });
+
+            function updateUI(trackId, playlistId, trackDetails) {
+                const playlist = $(`#playlist-${playlistId}`);
+
+                if (playlist.length === 0) {
+                    console.error('Playlist not found for ID:', playlistId);
+                    return;
+                }
+
+                const trackItem = $(`<li class="track-item" data-track-title="${trackDetails.title}" data-track-artist="${trackDetails.artist}" data-search-text="${trackDetails.title} ${trackDetails.artist}">
+                    <a href="/admin/tracks/${trackId}">${trackDetails.title} by ${trackDetails.artist}</a>
+                    |
+                    <a class="remove" style="color:black;font-size:16px" href="javascript:void(0)" data-track-id="${trackId}">Remove</a>
+                </li>`);
+
+                playlist.append(trackItem);
+                everyItem.push(trackItem[0]);
+            }
 
             $(document).on('click', 'a.remove', function(event) {
                 event.preventDefault();
@@ -187,7 +304,6 @@ block scripts
                     playlist_id: playlistId
                 }).done(function(response) {
                     alert(response.message);
-                    // Remove the track item from the UI
                     $(`ul[data-playlist-id="${playlistId}"] li:has(a[href*="${trackId}"])`).remove();
                 }).fail(function(error) {
                     console.error('Error removing track from playlist:', error);

@@ -28,25 +28,99 @@ block scripts
 				updateDownloadButtonState();
 			}
 
-			var BATCH_SIZE = 30;
+			var PAGE_SIZE = 50;
 			var acceptedItems = Array.prototype.slice.call(document.querySelectorAll("#accepted-list .track-item"));
-			var loadMoreButton = document.getElementById("load-more-accepted");
-			var loadedCount = 0;
+			var paginationContainer = document.getElementById("accepted-pagination");
+			var paginationWrapper = document.getElementById("accepted-pagination-wrapper");
+			var totalPages = Math.max(1, Math.ceil(acceptedItems.length / PAGE_SIZE));
+			var currentPage = 1;
 
-			function showBatch() {
-				var next = acceptedItems.slice(loadedCount, loadedCount + BATCH_SIZE);
-				next.forEach(function(li) { li.style.display = ""; });
-				loadedCount += next.length;
-				if (loadMoreButton) {
-					loadMoreButton.style.display = loadedCount < acceptedItems.length ? "" : "none";
+			function getPageNumbersToShow() {
+				var pages = [];
+				var windowSize = 2;
+				for (var p = 1; p <= totalPages; p++) {
+					if (p === 1 || p === totalPages || (p >= currentPage - windowSize && p <= currentPage + windowSize)) {
+						pages.push(p);
+					}
 				}
+				var result = [];
+				var last = 0;
+				pages.forEach(function(p) {
+					if (last && p - last > 1) {
+						result.push("...");
+					}
+					result.push(p);
+					last = p;
+				});
+				return result;
 			}
 
-			acceptedItems.forEach(function(li) { li.style.display = "none"; });
-			showBatch();
+			function renderPaginationControls() {
+				if (!paginationContainer) return;
+				paginationContainer.innerHTML = "";
+				paginationContainer.style.display = "flex";
+				paginationContainer.style.alignItems = "center";
+				paginationContainer.style.gap = "4px";
 
-			if (loadMoreButton) {
-				loadMoreButton.addEventListener("click", showBatch);
+				function makeNumberLink(page) {
+					var link = document.createElement("a");
+					link.href = "javascript:void(0)";
+					link.textContent = page;
+					link.style.display = "inline-flex";
+					link.style.alignItems = "center";
+					link.style.justifyContent = "center";
+					link.style.minWidth = "30px";
+					link.style.height = "30px";
+					link.style.borderRadius = "6px";
+					link.style.fontSize = "13px";
+					link.style.textDecoration = "none";
+					if (page === currentPage) {
+						link.style.background = "rgb(10,168,168)";
+						link.style.color = "white";
+						link.style.fontWeight = "bold";
+					} else {
+						link.style.color = "#333";
+						link.style.background = "#f2f2f2";
+						link.addEventListener("click", function() { showPage(page); });
+						link.addEventListener("mouseenter", function() { if (page !== currentPage) link.style.background = "#e6f7f7"; });
+						link.addEventListener("mouseleave", function() { if (page !== currentPage) link.style.background = "#f2f2f2"; });
+					}
+					return link;
+				}
+
+				var pageLabel = document.createElement("span");
+				pageLabel.textContent = "Page";
+				pageLabel.style.fontSize = "13px";
+				pageLabel.style.color = "#555";
+				pageLabel.style.fontWeight = "600";
+				pageLabel.style.marginRight = "6px";
+				paginationContainer.appendChild(pageLabel);
+
+				getPageNumbersToShow().forEach(function(p) {
+					if (p === "...") {
+						var span = document.createElement("span");
+						span.textContent = "...";
+						span.style.padding = "0 4px";
+						span.style.color = "#999";
+						paginationContainer.appendChild(span);
+					} else {
+						paginationContainer.appendChild(makeNumberLink(p));
+					}
+				});
+			}
+
+			function showPage(page) {
+				currentPage = page;
+				var start = (page - 1) * PAGE_SIZE;
+				var end = start + PAGE_SIZE;
+				acceptedItems.forEach(function(li, i) {
+					li.style.display = (i >= start && i < end) ? "" : "none";
+				});
+				renderPaginationControls();
+			}
+
+			if (acceptedItems.length > 0) {
+				showPage(1);
 			}
 
 			var searchInput = document.getElementById("track-search");
@@ -58,11 +132,11 @@ block scripts
 						allItems.forEach(function(li) {
 							li.style.display = acceptedItems.indexOf(li) === -1 ? "" : "none";
 						});
-						loadedCount = 0;
-						showBatch();
+						if (paginationWrapper) paginationWrapper.style.display = "flex";
+						showPage(currentPage);
 						return;
 					}
-					if (loadMoreButton) loadMoreButton.style.display = "none";
+					if (paginationWrapper) paginationWrapper.style.display = "none";
 					allItems.forEach(function(li) {
 						var text = (li.dataset.searchText || "").toLowerCase();
 						li.style.display = text.indexOf(query) !== -1 ? "" : "none";
@@ -96,13 +170,16 @@ append content
 	if accepted.length > 0
 		h1 Accepted
 		ul#accepted-list(style="list-style:none; padding-left:0; column-count:2; column-gap:48px")
-			for track in accepted
-				li.track-item(data-search-text=track.title+" "+track.artist)
-					input.track-select(type="checkbox", value=track.id, style="margin-right:8px")
-					a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
+			for track, index in accepted
+				li.track-item(data-search-text=track.title+" "+track.artist, style="display:flex; align-items:flex-start")
+					span(style="flex-shrink:0; min-width:32px; text-align:right; margin-right:6px; color:#000; font-weight:bold; font-size:15px")= (index + 1) + "."
+					input.track-select(type="checkbox", value=track.id, style="flex-shrink:0; margin-right:8px; margin-top:4px")
+					span
+						a(href="/admin/tracks/"+track.id)= track.title+" by "+track.artist
 						if track.stemCount > 0
 							span(style="margin-left:8px; font-size:13px; color:rgb(10,168,168)") Stems: #{track.stemCount}
-		button#load-more-accepted(type="button", style="margin-top:10px") Load More
+		div#accepted-pagination-wrapper(style="margin-top:20px; padding:12px 16px; background:#fafafa; border:1px solid #eee; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap")
+			span#accepted-pagination
 	if rejected.length > 0
 		h1 Rejected
 		ul(style="list-style:none; padding-left:0; column-count:2; column-gap:48px")

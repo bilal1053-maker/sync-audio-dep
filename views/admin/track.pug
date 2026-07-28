@@ -187,6 +187,10 @@ append content
 	if stems && stems.length > 0
 		.formField
 			h3(style="margin-bottom:10px") Stems
+			if query && query.stemAddedToLibrary
+				p(style="color:rgb(10,168,168); margin-top:1px") Stem added to library.
+			if query && query.stemLibraryExists
+				p(style="color:rgb(10,168,168); margin-top:1px") This stem is already in the library.
 			table(style="border-collapse:collapse; width:100%")
 				thead
 					tr
@@ -201,6 +205,8 @@ append content
 							td(style="padding:6px 12px; font-size:13px; color:gray")= stem.file_name
 							td(style="padding:6px 12px; font-size:13px; color:gray")= stem.uploaded_at
 							td(style="padding:6px 12px")
+								a(href="/admin/stems/"+stem.stem_id+"/add-to-library") Add to library
+								|  |
 								a(href="/admin/stems/"+stem.stem_id+"/download") Download
 								|  |
 								a(href="/admin/stems/"+stem.stem_id+"/delete", onclick="return confirm('Delete this stem?')") Delete

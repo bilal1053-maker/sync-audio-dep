@@ -437,7 +437,7 @@ module.exports = function(config, paypalLogin) {
 		const { exec } = require("child_process");
 		const os = require("os");
 
-		const tracks = await db.query("SELECT checksum, file_name, title, artist, writer, tempo, publisher, comments FROM tracks WHERE track_id = ?", [id]);
+		const tracks = await db.query("SELECT checksum, file_name, title, artist, writer, tempo, publisher, comments, affiliate_society FROM tracks WHERE track_id = ?", [id]);
 		if (tracks.length == 0) {
 			return null;
 		}
@@ -459,7 +459,7 @@ module.exports = function(config, paypalLogin) {
 			"Genre: " + genreStr,
 			"Mood: " + moodStr,
 			"Publisher: " + (track.publisher || ""),
-			"Affiliate Society: PRS",
+			"Affiliate Society: " + (track.affiliate_society || ""),
 			"Comments: " + (track.comments || "")
 		].join("\r\n");
 
@@ -473,7 +473,7 @@ module.exports = function(config, paypalLogin) {
 				publisher: track.publisher || "",
 				userDefinedText: [
 					{ description: "Mood", value: moodStr },
-					{ description: "Affiliate Society", value: "PRS" },
+					{ description: "Affiliate Society", value: track.affiliate_society || "" },
 					{ description: "Comments", value: track.comments || "" }
 				]
 			};
@@ -492,7 +492,7 @@ module.exports = function(config, paypalLogin) {
 				"BPM: " + (track.tempo || ""),
 				"Mood: " + moodStr,
 				"Publisher: " + (track.publisher || ""),
-				"Affiliate Society: PRS",
+				"Affiliate Society: " + (track.affiliate_society || ""),
 				"Comments: " + (track.comments || "")
 			].join(" | ");
 			const cmd = `"${ffmpeg}" -i "${filePath}" -y `
@@ -684,7 +684,7 @@ module.exports = function(config, paypalLogin) {
 	router.get("/tracks/(*)", paypalLogin.login, adminLogin, async function(req, res) {
 		try {
 			const id = req.params[0];
-			const tracks = await db.query("SELECT tracks.track_id AS `id`,link, checksum, title, artist, genres.genre, moods.mood, writer, duration, tempo, accepted, reviewed, cae_number, master_recording_owner, publisher, comments, tracks.date_added, tracks.date_reviewed FROM tracks LEFT OUTER JOIN genres ON tracks.track_id = genres.track_id LEFT OUTER JOIN moods ON moods.track_id = tracks.track_id WHERE tracks.track_id = ?", [id]);
+			const tracks = await db.query("SELECT tracks.track_id AS `id`,link, checksum, title, artist, genres.genre, moods.mood, writer, duration, tempo, accepted, reviewed, cae_number, master_recording_owner, publisher, comments, affiliate_society, tracks.date_added, tracks.date_reviewed FROM tracks LEFT OUTER JOIN genres ON tracks.track_id = genres.track_id LEFT OUTER JOIN moods ON moods.track_id = tracks.track_id WHERE tracks.track_id = ?", [id]);
 			if (tracks.length == 0) {
 				res.sendStatus(404);
 				return;
@@ -726,7 +726,7 @@ module.exports = function(config, paypalLogin) {
 				return
 			}
 			existingTrack = existingTrack[0]
-			await db.query("UPDATE tracks SET title = ?, artist = ?, writer = ?, tempo = ?, accepted = ?, reviewed = ?, style = ?, publisher = ?, comments = ? WHERE track_id = ?", [track.title, track.artist, track.writer, track.tempo, track.accepted, track.reviewed, track.style, track.publisher, track.comments, id]);
+			await db.query("UPDATE tracks SET title = ?, artist = ?, writer = ?, tempo = ?, accepted = ?, reviewed = ?, style = ?, publisher = ?, comments = ?, affiliate_society = ? WHERE track_id = ?", [track.title, track.artist, track.writer, track.tempo, track.accepted, track.reviewed, track.style, track.publisher, track.comments, track.affiliate_society, id]);
 			await db.query("DELETE FROM moods WHERE track_id = ?", [id]);
 			if (track.mood && track.mood.length > 0) {
 				const values = new Array(track.mood.length);

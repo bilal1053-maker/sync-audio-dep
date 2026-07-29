@@ -118,6 +118,7 @@ append content
 		+formField('Master recording owner','master_recording_owner','text',track.master_recording_owner,'Full Name')
 		+formField('Link','link','text',track.link, 'link (Optional)')
 		+formField('Publisher','publisher','text',track.publisher)
+		+formField('Affiliate Society','affiliate_society','text',track.affiliate_society)
 		+formField('Comments','comments','text',track.comments)
 		.formField
 			+fieldLabel('Style', 'style', 'Style')
@@ -196,10 +197,10 @@ append content
 			table(style="border-collapse:collapse; width:100%")
 				thead
 					tr
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd") Type
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd") File
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd") Uploaded
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd") Actions
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Type
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") File
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Uploaded
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Actions
 				tbody
 					for stem in stems
 						tr

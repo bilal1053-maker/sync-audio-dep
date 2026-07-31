@@ -103,7 +103,7 @@ form.upload(action="/account/upload", method="post", enctype="multipart/form-dat
 					datalist.projectTags
 						for tag in track.genres
 							option(value=tag)
-		p(style="color: red; margin-top:16px") We encourage uploading stems now, but you can also add them later from submissions page.
+		p(style="color: red; margin-top:16px") We encourage uploading stems now, but you can also add them later from your submission.
 		if !isAdminUser
 			p
 				input(type="checkbox", name="tnc")

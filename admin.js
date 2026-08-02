@@ -8,6 +8,7 @@ module.exports = function(config, paypalLogin) {
 	const multerUpload = multer({"dest":"./tmp/"});
 	require('dotenv').config();
 	const mailgun = require('mailgun-js')({"apiKey": config.mailgun.api_key, "domain": "sync-audio.com"});
+	const withSignature = require('./email_signature.js');
 	const url = require("url")
 	const baseURL = "https://"+url.parse(config.paypal_sdk.return_url).host
 	const path = require("path");
@@ -865,7 +866,7 @@ module.exports = function(config, paypalLogin) {
 					"from": "Sync-Audio <no-reply@sync-audio.com>",
 					"to": row.email,
 					"subject": subject,
-					"text": message
+					"text": withSignature(message)
 				}).catch(err => console.error("Failed to email " + row.email, err));
 				sent++;
 			}

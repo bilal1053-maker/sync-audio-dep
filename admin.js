@@ -452,18 +452,6 @@ module.exports = function(config, paypalLogin) {
 		const genreStr = genres.map(g => g.genre).join(", ");
 		const moodStr = moods.map(m => m.mood).join(", ");
 
-		const metadataTxt = [
-			"Title: " + (track.title || ""),
-			"Artist: " + (track.artist || ""),
-			"Writer/Composer: " + (track.writer || ""),
-			"BPM: " + (track.tempo || ""),
-			"Genre: " + genreStr,
-			"Mood: " + moodStr,
-			"Publisher: " + (track.publisher || ""),
-			"Affiliate Society: " + (track.affiliate_society || ""),
-			"Comments: " + (track.comments || "")
-		].join("\r\n");
-
 		if (format === "mp3") {
 			const tags = {
 				title: track.title || "",
@@ -482,7 +470,7 @@ module.exports = function(config, paypalLogin) {
 			const taggedBuffer = NodeID3.write(tags, fileBuffer);
 			const tmpMp3 = path.join(os.tmpdir(), track.checksum + "_tagged.mp3");
 			fs.writeFileSync(tmpMp3, taggedBuffer);
-			return { audioFilePath: tmpMp3, audioFileName, baseName, metadataTxt, cleanup: true };
+			return { audioFilePath: tmpMp3, audioFileName, baseName, cleanup: true };
 		} else {
 			const tmpWav = path.join(os.tmpdir(), track.checksum + "_tagged.wav");
 			const ffmpeg = "ffmpeg";
@@ -506,9 +494,9 @@ module.exports = function(config, paypalLogin) {
 				exec(cmd, (err) => {
 					if (err) {
 						console.error("FFmpeg metadata error:", err);
-						resolve({ audioFilePath: filePath, audioFileName, baseName, metadataTxt, cleanup: false });
+						resolve({ audioFilePath: filePath, audioFileName, baseName, cleanup: false });
 					} else {
-						resolve({ audioFilePath: tmpWav, audioFileName, baseName, metadataTxt, cleanup: true });
+						resolve({ audioFilePath: tmpWav, audioFileName, baseName, cleanup: true });
 					}
 				});
 			});
@@ -517,22 +505,14 @@ module.exports = function(config, paypalLogin) {
 
 	async function downloadTrack(req, res, format) {
 		try {
-			const archiver = require("archiver");
 			const id = req.params[0];
 			const prepared = await prepareTaggedTrack(id, format);
 			if (!prepared) {
 				res.sendStatus(404);
 				return;
 			}
-			const zipName = prepared.baseName + "." + format + ".zip";
-			res.setHeader("Content-Disposition", `attachment; filename="${zipName}"`);
-			res.setHeader("Content-Type", "application/zip");
-			const archive = archiver("zip", { zlib: { level: 0 } });
-			archive.on("error", (err) => { console.error("Archiver error:", err); });
-			archive.pipe(res);
-			archive.file(prepared.audioFilePath, { name: prepared.audioFileName });
-			archive.append(Buffer.from(prepared.metadataTxt, "utf8"), { name: "metadata.txt" });
-			archive.finalize().then(() => {
+			res.download(prepared.audioFilePath, prepared.audioFileName, (err) => {
+				if (err) console.error("Download error:", err);
 				if (prepared.cleanup) fs.unlink(prepared.audioFilePath, () => {});
 			});
 		} catch (error) {
@@ -570,7 +550,6 @@ module.exports = function(config, paypalLogin) {
 			archive.pipe(res);
 			for (const prepared of preparedTracks) {
 				archive.file(prepared.audioFilePath, { name: prepared.audioFileName });
-				archive.append(Buffer.from(prepared.metadataTxt, "utf8"), { name: prepared.baseName + "_metadata.txt" });
 			}
 			archive.finalize().then(() => {
 				for (const prepared of preparedTracks) {

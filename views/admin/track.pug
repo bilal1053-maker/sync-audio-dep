@@ -199,6 +199,7 @@ append content
 					tr
 						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Type
 						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") File
+						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Preview
 						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Uploaded
 						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Actions
 				tbody
@@ -206,6 +207,8 @@ append content
 						tr
 							td(style="padding:6px 12px")= stem.stem_type
 							td(style="padding:6px 12px; font-size:13px; color:gray")= stem.file_name
+							td(style="padding:6px 12px")
+								audio(src="/stems/"+stem.checksum, controls, style="height:32px; max-width:220px")
 							td(style="padding:6px 12px; font-size:13px; color:gray")= stem.uploaded_at
 							td(style="padding:6px 12px")
 								a(href="/admin/stems/"+stem.stem_id+"/add-to-library") Add to library

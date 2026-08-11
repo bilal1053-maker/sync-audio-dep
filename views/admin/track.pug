@@ -194,28 +194,20 @@ append content
 				p(style="color:rgb(10,168,168); margin-top:1px") Stem added to library.
 			if query && query.stemLibraryExists
 				p(style="color:rgb(10,168,168); margin-top:1px") This stem is already in the library.
-			table(style="border-collapse:collapse; width:100%")
-				thead
-					tr
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Type
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") File
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Preview
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Uploaded
-						td(style="padding:6px 12px; font-weight:bold; border-bottom:1px solid #ddd; color:rgb(10,168,168)") Actions
-				tbody
-					for stem in stems
-						tr
-							td(style="padding:6px 12px")= stem.stem_type
-							td(style="padding:6px 12px; font-size:13px; color:gray")= stem.file_name
-							td(style="padding:6px 12px")
-								audio(src="/stems/"+stem.checksum, controls, style="height:32px; max-width:220px")
-							td(style="padding:6px 12px; font-size:13px; color:gray")= stem.uploaded_at
-							td(style="padding:6px 12px")
-								a(href="/admin/stems/"+stem.stem_id+"/add-to-library") Add to library
-								|  |
-								a(href="/admin/stems/"+stem.stem_id+"/download") Download
-								|  |
-								a(href="/admin/stems/"+stem.stem_id+"/delete", onclick="return confirm('Delete this stem?')") Delete
+			div(style="display:flex; flex-direction:column; gap:16px")
+				for stem in stems
+					div(style="width:100%; box-sizing:border-box; border:1px solid #e2e2e2; border-radius:8px; padding:16px; background:#fafafa")
+						div(style="font-weight:bold; color:rgb(10,168,168); font-size:15px; margin-bottom:4px")= stem.stem_type
+						div(style="font-size:13px; color:gray; margin-bottom:12px; word-break:break-word")= stem.file_name
+						audio(src="/stems/"+stem.checksum, controls, style="width:100%; max-width:340px")
+						div(style="margin-top:10px; font-size:14px; color:#444")
+							strong Date added
+							br
+							= stem.uploaded_at
+						div(style="margin-top:14px; display:flex; gap:10px")
+							button(type="button", onclick="window.location='/admin/stems/"+stem.stem_id+"/add-to-library'") Add to library
+							button(type="button", onclick="window.location='/admin/stems/"+stem.stem_id+"/download'") Download
+							button(type="button", onclick="if(confirm('Delete this stem?')) window.location='/admin/stems/"+stem.stem_id+"/delete'") Delete
 	else
 		.formField
 			p(style="color:gray; font-size:13px") No stems uploaded for this track.

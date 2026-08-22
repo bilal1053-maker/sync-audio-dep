@@ -438,7 +438,7 @@ module.exports = function(config, paypalLogin) {
 		const { exec } = require("child_process");
 		const os = require("os");
 
-		const tracks = await db.query("SELECT checksum, file_name, title, artist, writer, tempo, publisher, comments, affiliate_society FROM tracks WHERE track_id = ?", [id]);
+		const tracks = await db.query("SELECT checksum, file_name, title, artist, writer, tempo, publisher, comments, affiliate_society, duration, cae_number, master_recording_owner FROM tracks WHERE track_id = ?", [id]);
 		if (tracks.length == 0) {
 			return null;
 		}
@@ -451,6 +451,9 @@ module.exports = function(config, paypalLogin) {
 		const filePath = path.resolve(__dirname, "static/tracks", track.checksum + "." + format);
 		const genreStr = genres.map(g => g.genre).join(", ");
 		const moodStr = moods.map(m => m.mood).join(", ");
+		const durationStr = track.duration
+			? Math.floor(track.duration / 60) + ":" + String(Math.round(track.duration % 60)).padStart(2, "0")
+			: "";
 
 		if (format === "mp3") {
 			const tags = {
@@ -461,6 +464,9 @@ module.exports = function(config, paypalLogin) {
 				genre: genreStr,
 				publisher: track.publisher || "",
 				userDefinedText: [
+					{ description: "Duration", value: durationStr },
+					{ description: "CAE Number", value: track.cae_number || "" },
+					{ description: "Master Recording Owner", value: track.master_recording_owner || "" },
 					{ description: "Mood", value: moodStr },
 					{ description: "Affiliate Society", value: track.affiliate_society || "" },
 					{ description: "Comments", value: track.comments || "" }
@@ -477,7 +483,10 @@ module.exports = function(config, paypalLogin) {
 			// WAV's RIFF INFO chunk only supports a fixed set of tags (title/artist/genre/comment/album/date/encoder) —
 			// unlike ID3, it has no mechanism for arbitrary custom-named fields, so everything else is packed into comment.
 			const wavComment = [
+				"Duration: " + durationStr,
 				"Writer/Composer: " + (track.writer || ""),
+				"CAE Number: " + (track.cae_number || ""),
+				"Master Recording Owner: " + (track.master_recording_owner || ""),
 				"BPM: " + (track.tempo || ""),
 				"Mood: " + moodStr,
 				"Publisher: " + (track.publisher || ""),
@@ -706,7 +715,7 @@ module.exports = function(config, paypalLogin) {
 				return
 			}
 			existingTrack = existingTrack[0]
-			await db.query("UPDATE tracks SET title = ?, artist = ?, writer = ?, tempo = ?, accepted = ?, reviewed = ?, style = ?, publisher = ?, comments = ?, affiliate_society = ? WHERE track_id = ?", [track.title, track.artist, track.writer, track.tempo, track.accepted, track.reviewed, track.style, track.publisher, track.comments, track.affiliate_society, id]);
+			await db.query("UPDATE tracks SET title = ?, artist = ?, writer = ?, tempo = ?, accepted = ?, reviewed = ?, style = ?, publisher = ?, comments = ?, affiliate_society = ?, cae_number = ?, master_recording_owner = ?, link = ? WHERE track_id = ?", [track.title, track.artist, track.writer, track.tempo, track.accepted, track.reviewed, track.style, track.publisher, track.comments, track.affiliate_society, track.cae_number, track.master_recording_owner, track.link, id]);
 			await db.query("DELETE FROM moods WHERE track_id = ?", [id]);
 			if (track.mood && track.mood.length > 0) {
 				const values = new Array(track.mood.length);

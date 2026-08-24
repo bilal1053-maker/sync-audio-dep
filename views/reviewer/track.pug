@@ -1,0 +1,26 @@
+extends ../layout.pug
+
+append content
+	style.
+		.track-audio-row {
+			margin-bottom: 16px;
+		}
+	div(style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px")
+		h1 Track Review
+		a(href="/reviewer/tracks", style="font-size:14px; color:rgb(10,168,168); white-space:nowrap; margin-left:12px") ← Back to Track Review
+	p(style="font-size:18px; font-weight:bold; color:#333; margin:0 0 16px 0")= track.title + " by " + track.artist
+	.track-audio-row
+		audio(src="/tracks/"+track.checksum+".mp3", controls)
+	.formField
+		p(style="margin:0 0 8px 0; font-size:18px; font-weight:bold; color:#333") Download Track
+		button(type="button", style="margin-right:10px", onclick="window.location='/reviewer/tracks/"+track.id+"/download/wav'") Download WAV
+		button(type="button", onclick="window.location='/reviewer/tracks/"+track.id+"/download/mp3'") Download MP3
+	if stems && stems.length > 0
+		.formField
+			h3(style="margin-bottom:10px; color:rgb(10,168,168)") Stems
+			div(style="display:flex; flex-direction:column; gap:16px")
+				for stem in stems
+					div(style="width:100%; box-sizing:border-box; border:1px solid #e2e2e2; border-radius:8px; padding:16px; background:#fafafa")
+						div(style="font-weight:bold; color:rgb(10,168,168); font-size:15px; margin-bottom:12px")= stem.stem_type
+						audio(src="/stems/"+stem.checksum, controls, style="width:100%; max-width:340px; display:block; margin-bottom:12px")
+						button(type="button", onclick="window.location='/reviewer/stems/"+stem.stem_id+"/download'") Download

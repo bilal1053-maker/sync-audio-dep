@@ -91,11 +91,13 @@ const main = require('./main.js')(config);
 const trolley = require("./trolley.js")(config);
 const user = require("./user.js")(config, paypalLogin);
 const shortlist = require("./shortlist.js")(config, paypalLogin);
+const reviewer = require("./reviewer.js")(config, admin.handlers);
 app.use("/", main);
 app.use("/trolley", trolley);
-app.use("/admin", admin);
+app.use("/admin", admin.router);
 app.use("/account", user);
 app.use("/shortlist", shortlist);
+app.use("/reviewer", reviewer);
 
 try {
 	app.listen(config.port, () => {

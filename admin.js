@@ -12,6 +12,7 @@ module.exports = function(config, paypalLogin) {
 	const url = require("url")
 	const baseURL = "https://"+url.parse(config.paypal_sdk.return_url).host
 	const path = require("path");
+	const bcrypt = require('bcryptjs');
 
 	function adminLogin(_req, res, next) {
 		if (res.locals.isAdminUser) {
@@ -574,7 +575,7 @@ module.exports = function(config, paypalLogin) {
 	router.get("/tracks/(*)/download/wav", paypalLogin.login, adminLogin, (req, res) => downloadTrack(req, res, "wav"));
 	router.get("/tracks/(*)/download/mp3", paypalLogin.login, adminLogin, (req, res) => downloadTrack(req, res, "mp3"));
 
-	router.get("/stems/:stemId/download", paypalLogin.login, adminLogin, async (req, res) => {
+	async function downloadStem(req, res) {
 		try {
 			const stems = await db.query("SELECT s.*, t.title, t.artist FROM stems s JOIN tracks t ON s.track_id = t.track_id WHERE s.stem_id = ?", [req.params.stemId]);
 			if (stems.length === 0) { res.sendStatus(404); return; }
@@ -583,7 +584,9 @@ module.exports = function(config, paypalLogin) {
 			const downloadName = stem.stem_type + " - " + stem.title + " - " + stem.artist + path.extname(stem.checksum);
 			res.download(stemPath, downloadName);
 		} catch (e) { renderError(res)(e); }
-	});
+	}
+
+	router.get("/stems/:stemId/download", paypalLogin.login, adminLogin, downloadStem);
 
 	router.get("/stems/:stemId/add-to-library", paypalLogin.login, adminLogin, async (req, res) => {
 		try {
@@ -864,6 +867,58 @@ module.exports = function(config, paypalLogin) {
 		}
 	});
 
+	router.get("/reviewer-settings", paypalLogin.login, adminLogin, async (_req, res) => {
+		try {
+			const existing = await db.query("SELECT id, username, password_plain FROM reviewer_users LIMIT 1");
+			const reviewer = existing[0] || null;
+			res.render("admin/reviewer_settings", { reviewer: reviewer, saved: false, error: null, savedPassword: reviewer ? reviewer.password_plain : null, baseURL: baseURL });
+		} catch (error) {
+			renderError(res)(error);
+		}
+	});
+
+	router.post("/reviewer-settings", paypalLogin.login, adminLogin, async (req, res) => {
+		try {
+			const username = (req.body.username || "").trim();
+			const password = req.body.password || "";
+			const existing = await db.query("SELECT id, username, password_plain FROM reviewer_users LIMIT 1");
+
+			if (!username) {
+				res.render("admin/reviewer_settings", { reviewer: existing[0] || null, saved: false, error: "Username is required.", savedPassword: existing[0] ? existing[0].password_plain : null, baseURL: baseURL });
+				return;
+			}
+			if (existing.length === 0 && !password) {
+				res.render("admin/reviewer_settings", { reviewer: null, saved: false, error: "Password is required when creating the reviewer account.", savedPassword: null, baseURL: baseURL });
+				return;
+			}
+
+			if (existing.length > 0) {
+				const reviewerId = existing[0].id;
+				if (password) {
+					const hash = await bcrypt.hash(password, 10);
+					await db.query("UPDATE reviewer_users SET username = ?, password_hash = ?, password_plain = ? WHERE id = ?", [username, hash, password, reviewerId]);
+					// Changing the password invalidates any currently logged-in session immediately.
+					await db.query("DELETE FROM reviewer_sessions WHERE reviewer_id = ?", [reviewerId]);
+				} else {
+					await db.query("UPDATE reviewer_users SET username = ? WHERE id = ?", [username, reviewerId]);
+				}
+			} else {
+				const hash = await bcrypt.hash(password, 10);
+				await db.query("INSERT INTO reviewer_users (username, password_hash, password_plain) VALUES (?, ?, ?)", [username, hash, password]);
+			}
+
+			const updated = await db.query("SELECT id, username, password_plain FROM reviewer_users LIMIT 1");
+			res.render("admin/reviewer_settings", { reviewer: updated[0] || null, saved: true, error: null, savedPassword: updated[0] ? updated[0].password_plain : null, baseURL: baseURL });
+		} catch (error) {
+			if (error && error.code === "ER_DUP_ENTRY") {
+				const existing = await db.query("SELECT id, username, password_plain FROM reviewer_users LIMIT 1");
+				res.render("admin/reviewer_settings", { reviewer: existing[0] || null, saved: false, error: "That username is already taken.", savedPassword: existing[0] ? existing[0].password_plain : null, baseURL: baseURL });
+				return;
+			}
+			renderError(res)(error);
+		}
+	});
+
 	router.get("/", (req,res,next) => {
 		res.locals.redirectUrl = baseURL+req.originalUrl
 		next();
@@ -871,5 +926,10 @@ module.exports = function(config, paypalLogin) {
 		res.render("admin/index");
 	});
 
-	return router
+	return {
+		router,
+		// Exposed so reviewer.js can reuse the same download/tagging logic
+		// under its own auth gate, without duplicating it.
+		handlers: { bulkDownloadTracks, downloadTrack, downloadStem }
+	};
 }

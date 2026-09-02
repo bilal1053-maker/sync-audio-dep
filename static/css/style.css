@@ -1631,6 +1631,7 @@ div.filters ul li {
   pointer-events: none;
   padding: 0 40px;
   box-sizing: border-box;
+  transform: translateY(120px);
 }
 
 .video-caption-overlay .video-caption-headline {
@@ -1662,8 +1663,10 @@ div.filters ul li {
     max-width: 100%;
     padding: 16px 24px 0 24px;
     /* Video gets short on phones; anchor the caption to the top so it
-       can never compete with .learn_more_text, which is bottom-right. */
+       can never compete with .learn_more_text, which is bottom-right.
+       The desktop translateY nudge is cancelled here on purpose. */
     justify-content: flex-start;
+    transform: none;
   }
   .video-caption-overlay .video-caption-headline {
     font-size: 22px;

@@ -7,7 +7,6 @@ html(lang="en")
 		meta(name="theme-color", content="#53B7EA")
 		title Sync-Audio | Music licensing for the digital age
 		link(rel="stylesheet", type="text/css", href="/css/style.css")
-		script(src="https://player.vimeo.com/api/player.js")
 		link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css")
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
 		include jquery.pug
@@ -28,26 +27,6 @@ html(lang="en")
 		block scripts
 		script.
 			document.addEventListener('DOMContentLoaded', () => {
-			const iframe = document.getElementsByTagName('iframe')?.[0]
-			const player = new Vimeo.Player(iframe);
-			const muteToggle = document.getElementById('muteToggle');
-			muteToggle.style.display = "none";
-
-			// Show when video is loaded
-			player.on('play', () => {
-				muteToggle.style.display = "block";
-			});
-			let isMuted = true;
-			muteToggle.addEventListener('click', async () => {
-				if (isMuted) {
-				await player.setVolume(1);
-				muteToggle.textContent = '🔊';
-				} else {
-				await player.setVolume(0);
-				muteToggle.textContent = '🔇';
-				}
-				isMuted = !isMuted;
-			});
 			const openModalButton = document.querySelector('.open-modal1');
 			const modalOverlay = document.querySelector('.modal-overlay1');
 			const closeModalBtn = document.querySelector('#closeModal1');

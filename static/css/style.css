@@ -1615,6 +1615,79 @@ div.filters ul li {
   border-radius: 8px;
 }
 
+.video-caption-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  z-index: 2;
+  pointer-events: none;
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+
+.video-caption-overlay .video-caption-brand {
+  color: white;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin: 0 0 16px 0;
+  text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
+}
+
+.video-caption-overlay .video-caption-line {
+  color: white;
+  font-family: sans-serif;
+  font-size: 20px;
+  line-height: 1.5;
+  margin: 0;
+  text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 600px) {
+  .video-caption-overlay {
+    max-width: 100%;
+    padding: 16px 24px 0 24px;
+    /* Video gets short on phones; anchor the caption to the top so it
+       can never compete with .learn_more_text, which is bottom-right. */
+    justify-content: flex-start;
+  }
+  .video-caption-overlay .video-caption-brand {
+    font-size: 14px;
+    margin: 0 0 10px 0;
+  }
+  .video-caption-overlay .video-caption-line {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+  .learn_more_text {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 426px) {
+  .video-caption-overlay {
+    padding: 10px 16px 0 16px;
+  }
+  .video-caption-overlay .video-caption-brand {
+    font-size: 12px;
+    margin: 0 0 6px 0;
+  }
+  .video-caption-overlay .video-caption-line {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+}
+
 /* put the button on top of iframe (on a separate layer) */
 .mute-toggle {
   position: absolute;

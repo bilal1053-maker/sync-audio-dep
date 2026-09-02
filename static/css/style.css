@@ -1620,7 +1620,7 @@ div.filters ul li {
   top: 0;
   left: 0;
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -1633,20 +1633,25 @@ div.filters ul li {
   box-sizing: border-box;
 }
 
-.video-caption-overlay .video-caption-brand {
+.video-caption-overlay .video-caption-headline {
   color: white;
   font-family: sans-serif;
   font-weight: bold;
-  font-size: 18px;
-  letter-spacing: 2px;
-  margin: 0 0 16px 0;
+  font-style: italic;
+  font-size: 34px;
+  line-height: 1.2;
+  margin: 0;
   text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
+}
+
+.video-caption-overlay .video-caption-headline + .video-caption-line {
+  margin-top: 20px;
 }
 
 .video-caption-overlay .video-caption-line {
   color: white;
   font-family: sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.5;
   margin: 0;
   text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
@@ -1660,12 +1665,14 @@ div.filters ul li {
        can never compete with .learn_more_text, which is bottom-right. */
     justify-content: flex-start;
   }
-  .video-caption-overlay .video-caption-brand {
-    font-size: 14px;
-    margin: 0 0 10px 0;
+  .video-caption-overlay .video-caption-headline {
+    font-size: 22px;
+  }
+  .video-caption-overlay .video-caption-headline + .video-caption-line {
+    margin-top: 12px;
   }
   .video-caption-overlay .video-caption-line {
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.35;
   }
   .learn_more_text {
@@ -1678,12 +1685,14 @@ div.filters ul li {
   .video-caption-overlay {
     padding: 10px 16px 0 16px;
   }
-  .video-caption-overlay .video-caption-brand {
-    font-size: 12px;
-    margin: 0 0 6px 0;
+  .video-caption-overlay .video-caption-headline {
+    font-size: 18px;
+  }
+  .video-caption-overlay .video-caption-headline + .video-caption-line {
+    margin-top: 8px;
   }
   .video-caption-overlay .video-caption-line {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.3;
   }
 }

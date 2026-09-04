@@ -1685,11 +1685,12 @@ div.filters ul li {
 
 @media (max-width: 600px) {
   .video-caption-overlay {
-    padding: 16px 24px 0 24px;
-    /* Video gets short on phones; anchor the caption to the top, and
-       center everything (text + button) instead of the desktop's
-       left-aligned layout. */
-    justify-content: flex-start;
+    padding: 0 24px 16px 24px;
+    /* The button now flows below the text as one unit (no longer
+       independently bottom-right), so there's nothing left for the
+       caption to collide with - anchor the whole group to the
+       bottom of the video instead of the top, and center it. */
+    justify-content: flex-end;
     align-items: center;
     text-align: center;
   }
@@ -1720,7 +1721,7 @@ div.filters ul li {
 
 @media (max-width: 426px) {
   .video-caption-overlay {
-    padding: 10px 16px 0 16px;
+    padding: 0 16px 10px 16px;
   }
   .video-caption-overlay .video-caption-headline {
     font-size: 18px;

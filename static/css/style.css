@@ -556,6 +556,10 @@ hr.w-full {
 	 bottom:100px;
 	  right: 40px;
 	  z-index:99999;
+	  /* Nested inside .video-caption-overlay, which has pointer-events:none
+	     so it never blocks the video; this opts the link back into being
+	     clickable. */
+	  pointer-events: auto;
 }
 .learn_more_text:visited {
 	color:white;
@@ -1620,7 +1624,6 @@ div.filters ul li {
   top: 0;
   left: 0;
   width: 100%;
-  max-width: 480px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -1631,7 +1634,29 @@ div.filters ul li {
   pointer-events: none;
   padding: 0 40px;
   box-sizing: border-box;
-  transform: translateY(120px);
+  /* No transform here on purpose: a transform on this element would
+     create a new containing block for .learn_more_text (its sibling
+     child, position:absolute), shifting the box its bottom/right
+     offsets measure from and pushing it past the video's real edge
+     (clipped by .video-wrapper's overflow:hidden). The vertical nudge
+     lives on .video-caption-text below instead, which only affects
+     the text, not the button's positioning math. */
+}
+
+.video-caption-overlay .video-caption-text {
+  /* Kept separate from .video-caption-overlay's own box so that
+     .learn_more_text (a sibling, position:absolute) still measures its
+     right/bottom offsets against the full-width overlay, not against
+     this narrower text column. */
+  max-width: 480px;
+  width: 100%;
+  /* vw instead of a fixed px so the nudge scales down with the video's
+     own width/height on narrower "desktop-treated" screens like iPads,
+     instead of staying a fixed 120px regardless of how short the video
+     itself has gotten. ~120px at a common ~1440px desktop width, capped
+     both ends so it doesn't vanish near 600px or balloon on ultrawide
+     monitors. */
+  transform: translateY(clamp(60px, 8.3vw, 140px));
 }
 
 .video-caption-overlay .video-caption-headline {
@@ -1660,12 +1685,16 @@ div.filters ul li {
 
 @media (max-width: 600px) {
   .video-caption-overlay {
-    max-width: 100%;
     padding: 16px 24px 0 24px;
-    /* Video gets short on phones; anchor the caption to the top so it
-       can never compete with .learn_more_text, which is bottom-right.
-       The desktop translateY nudge is cancelled here on purpose. */
+    /* Video gets short on phones; anchor the caption to the top, and
+       center everything (text + button) instead of the desktop's
+       left-aligned layout. */
     justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+  }
+  .video-caption-overlay .video-caption-text {
+    /* Desktop's translateY nudge is cancelled here on purpose. */
     transform: none;
   }
   .video-caption-overlay .video-caption-headline {
@@ -1679,6 +1708,11 @@ div.filters ul li {
     line-height: 1.35;
   }
   .learn_more_text {
+    /* Take it out of absolute positioning so it flows in the caption
+       column, centered, directly below the last caption line. */
+    position: static;
+    display: inline-block;
+    margin-top: 16px;
     font-size: 13px;
     padding: 6px 12px;
   }
@@ -1697,6 +1731,13 @@ div.filters ul li {
   .video-caption-overlay .video-caption-line {
     font-size: 12px;
     line-height: 1.3;
+  }
+  .learn_more_text {
+    /* Slightly larger padding than the font alone implies, so the
+       actual tap target stays closer to a comfortable touch size
+       instead of shrinking in lockstep with the visible text. */
+    font-size: 13px;
+    padding: 8px 14px;
   }
 }
 

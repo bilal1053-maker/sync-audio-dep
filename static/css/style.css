@@ -1685,27 +1685,37 @@ div.filters ul li {
 
 @media (max-width: 600px) {
   .video-caption-overlay {
-    padding: 0 24px 16px 24px;
-    /* The button now flows below the text as one unit (no longer
-       independently bottom-right), so there's nothing left for the
-       caption to collide with - anchor the whole group to the
-       bottom of the video instead of the top, and center it. */
+    /* Bottom padding is the actual lever for how close the button
+       (last item in this flex-end column) sits to the video's true
+       bottom edge - kept small on purpose so the button lands near it. */
+    padding: 0 24px 6px 24px;
     justify-content: flex-end;
     align-items: center;
     text-align: center;
   }
   .video-caption-overlay .video-caption-text {
-    /* Desktop's translateY nudge is cancelled here on purpose. */
-    transform: none;
+    /* Desktop's translateY nudge is cancelled here - a vertical push
+       on the FIRST item of a flex-end column doesn't visibly move it
+       anyway (the group's bottom stays pinned regardless), and it was
+       also what caused the overlap with .learn_more_text below.
+       translateX is fine to keep as a transform since nothing else
+       depends on this column's horizontal flow. Left-align just the
+       text (overrides the group's centered align-items);
+       .learn_more_text stays centered below it since it doesn't set
+       its own align-self. The group being flex-end-anchored already
+       keeps this text low in the frame, right above the button. */
+    transform: translateX(-5px);
+    align-self: flex-start;
+    text-align: left;
   }
   .video-caption-overlay .video-caption-headline {
-    font-size: 22px;
+    font-size: 18px;
   }
   .video-caption-overlay .video-caption-headline + .video-caption-line {
     margin-top: 12px;
   }
   .video-caption-overlay .video-caption-line {
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.35;
   }
   .learn_more_text {
@@ -1713,32 +1723,29 @@ div.filters ul li {
        column, centered, directly below the last caption line. */
     position: static;
     display: inline-block;
-    margin-top: 16px;
-    font-size: 13px;
-    padding: 6px 12px;
+    margin-top: 12px;
+    font-size: 10px;
+    padding: 2px 8px;
   }
 }
 
 @media (max-width: 426px) {
   .video-caption-overlay {
-    padding: 0 16px 10px 16px;
+    padding: 0 16px 6px 16px;
   }
   .video-caption-overlay .video-caption-headline {
-    font-size: 18px;
+    font-size: 15px;
   }
   .video-caption-overlay .video-caption-headline + .video-caption-line {
     margin-top: 8px;
   }
   .video-caption-overlay .video-caption-line {
-    font-size: 12px;
+    font-size: 11px;
     line-height: 1.3;
   }
   .learn_more_text {
-    /* Slightly larger padding than the font alone implies, so the
-       actual tap target stays closer to a comfortable touch size
-       instead of shrinking in lockstep with the visible text. */
-    font-size: 13px;
-    padding: 8px 14px;
+    font-size: 10px;
+    padding: 2px 8px;
   }
 }
 

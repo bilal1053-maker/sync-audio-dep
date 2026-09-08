@@ -211,22 +211,23 @@ module.exports = function(config) {
 			}
 	
 			const result = await db.query(`
-					SELECT 
-						tracks.track_id AS id, 
-						checksum, 
-						title, 
-						genres.genre, 
-						moods.mood, 
-						duration, 
-						style, 
+					SELECT
+						tracks.track_id AS id,
+						checksum,
+						title,
+						genres.genre,
+						moods.mood,
+						duration,
+						style,
 						artist,
 						tempo
-					FROM tracks 
-					LEFT OUTER JOIN genres ON genres.track_id = tracks.track_id 
-					LEFT OUTER JOIN moods ON moods.track_id = tracks.track_id 
-					WHERE tracks.track_id IN (?) AND accepted = 1 
-					ORDER BY title
-				`, [trackIds]);
+					FROM tracks
+					LEFT OUTER JOIN genres ON genres.track_id = tracks.track_id
+					LEFT OUTER JOIN moods ON moods.track_id = tracks.track_id
+					JOIN playlisttracks ON playlisttracks.track_id = tracks.track_id AND playlisttracks.playlist_id = ?
+					WHERE tracks.track_id IN (?) AND accepted = 1
+					ORDER BY playlisttracks.priority
+				`, [playlistId, trackIds]);
 	
 			const tracks = [];
 			result.forEach(element => {

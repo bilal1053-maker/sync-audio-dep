@@ -306,7 +306,7 @@ module.exports = function(config, paypalLogin) {
 		  
 		  const playlists = await db.query("SELECT playlist_id AS `id`, name FROM playlists");
 	  
-		  const playlistTracks = await db.query("SELECT playlist_id, track_id FROM playlisttracks");
+		  const playlistTracks = await db.query("SELECT playlist_id, track_id FROM playlisttracks ORDER BY playlist_id, priority");
 	  
 		  const playlistMap = {};
 		  playlists.forEach(playlist => {
@@ -367,7 +367,9 @@ module.exports = function(config, paypalLogin) {
     }
 
     try {
-        await db.query('INSERT INTO playlisttracks (playlist_id, track_id) VALUES (?, ?)', [playlist_id, track_id]);
+        const maxResult = await db.query('SELECT COALESCE(MAX(priority), 0) AS maxPriority FROM playlisttracks WHERE playlist_id = ?', [playlist_id]);
+        const nextPriority = maxResult[0].maxPriority + 1;
+        await db.query('INSERT INTO playlisttracks (playlist_id, track_id, priority) VALUES (?, ?, ?)', [playlist_id, track_id, nextPriority]);
         res.json({ message: 'Track added to playlist successfully' });
     } catch (error) {
         console.error('Error adding track to playlist:', error);
@@ -376,18 +378,36 @@ module.exports = function(config, paypalLogin) {
 	});
 
 	router.post('/playlist/remove', async (req, res) => {
-		const { track_id, playlist_id } = req.body; 
-	
+		const { track_id, playlist_id } = req.body;
+
 		if (!track_id || !playlist_id) {
 			return res.status(400).json({ error: 'Missing track_id or playlist_id' });
 		}
-	
+
 		try {
 			await db.query('DELETE FROM playlisttracks WHERE playlist_id = ? AND track_id = ?', [playlist_id, track_id]);
-	
+
 			res.json({ message: 'Track removed from playlist successfully' });
 		} catch (error) {
 			console.error('Error removing track from playlist:', error);
+			res.status(500).json({ error: 'Internal server error' });
+		}
+	});
+
+	router.post('/playlist/reorder', paypalLogin.login, adminLogin, async (req, res) => {
+		const { playlist_id, track_ids } = req.body;
+
+		if (!playlist_id || !Array.isArray(track_ids)) {
+			return res.status(400).json({ error: 'Missing playlist_id or track_ids' });
+		}
+
+		try {
+			await Promise.all(track_ids.map((trackId, index) =>
+				db.query('UPDATE playlisttracks SET priority = ? WHERE playlist_id = ? AND track_id = ?', [index + 1, playlist_id, trackId])
+			));
+			res.json({ message: 'Playlist order updated successfully' });
+		} catch (error) {
+			console.error('Error reordering playlist:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	});

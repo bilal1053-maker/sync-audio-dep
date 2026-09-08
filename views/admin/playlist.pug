@@ -13,9 +13,10 @@ append content
     for playlist in playlists
         h3.playlist-heading
             span= playlist.name
+            span(style="font-weight:normal; font-size:13px; color:gray; margin-left:10px") (drag tracks to reorder)
         ul(id=`playlist-${playlist.id}`, data-playlist-id=playlist.id)
             for track in playlist.tracks
-                li.track-item(data-track-title=track.title, data-track-artist=track.artist, data-search-text=track.title+" "+track.artist)
+                li.track-item(data-track-id=track.id, data-track-title=track.title, data-track-artist=track.artist, data-search-text=track.title+" "+track.artist)
                     a(href=`/admin/tracks/${track.id}`)= track.title + " by " + track.artist
                     |
                     | |
@@ -42,8 +43,24 @@ append content
         ul
 
 block scripts
+    include ../jquery_ui.pug
     script.
         document.addEventListener("DOMContentLoaded", function() {
+            $("ul[data-playlist-id]").sortable({
+                "update": function() {
+                    var list = $(this);
+                    var trackIds = list.find("> li").map(function() {
+                        return $(this).data("track-id");
+                    }).get();
+                    $.post("/admin/playlist/reorder", {
+                        playlist_id: list.data("playlist-id"),
+                        track_ids: trackIds
+                    }).fail(function() {
+                        alert("Failed to save the new order. Please refresh and try again.");
+                    });
+                }
+            }).disableSelection();
+
             var PAGE_SIZE = 50;
             var allItems = Array.prototype.slice.call(document.querySelectorAll("#all-tracks-list .track-item"));
             var paginationContainer = document.getElementById("all-pagination");
@@ -283,7 +300,7 @@ block scripts
                     return;
                 }
 
-                const trackItem = $(`<li class="track-item" data-track-title="${trackDetails.title}" data-track-artist="${trackDetails.artist}" data-search-text="${trackDetails.title} ${trackDetails.artist}">
+                const trackItem = $(`<li class="track-item" data-track-id="${trackId}" data-track-title="${trackDetails.title}" data-track-artist="${trackDetails.artist}" data-search-text="${trackDetails.title} ${trackDetails.artist}">
                     <a href="/admin/tracks/${trackId}">${trackDetails.title} by ${trackDetails.artist}</a>
                     |
                     <a class="remove" style="color:black;font-size:16px" href="javascript:void(0)" data-track-id="${trackId}">Remove</a>

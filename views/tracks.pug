@@ -241,14 +241,11 @@ if tracks && tracks.length > 0
 
 				$("#trackModal .modal-body").append($personalBox, $businessBox, $commercialBox);
 
-				//- Change here
-				//- const isFormFilled =  document.cookie.includes("form_submitted");
-				const isFormFilled = sessionStorage.getItem("form_submitted") ? sessionStorage.getItem("form_submitted") === "true" : false;
-				if(!isFormFilled){
-					$("#categoryFormModal").show();
-				} else {
-					$("#trackModal").show();
-				}
+				//- Licensing click no longer triggers the lead-capture popup -
+				//- that now only appears automatically via the listen-count
+				//- threshold in playback.js. Clicking to licence a track just
+				//- goes straight to the licence options.
+				$("#trackModal").show();
 
 			});
 
@@ -647,14 +644,16 @@ if tracks && tracks.length > 0
 		 		}),
 				success: function(response) {
 					console.log("Cookie set successfully:", response);
-					sessionStorage.setItem("form_submitted", "true");
+					localStorage.setItem("form_submitted", "true");
 				},
 				error: function(xhr, status, error) {
 					console.error("Error setting cookie:", error);
 				}
 				});
-				$("#categoryFormModal").hide();
-				$("#trackModal").show();
+				//- This popup now only opens from the listen-count threshold
+				//- (playback.js), so just close it on submit - nothing to
+				//- chain into afterward.
+				$("#categoryFormModal").removeData("triggeredBy").hide();
 			});
 
 			$("input[name='licenceCategory']").on("click", function() {
@@ -689,11 +688,18 @@ if tracks && tracks.length > 0
 			});
 
 			$(".modal .close").on("click", function() {
+				//- Used to fall back to re-showing #trackModal if
+				//- .box.personal existed, for the old flow where the lead
+				//- form opened *from* a licensing click and closing it early
+				//- should snap back to the licence options. That flow is
+				//- gone (the lead popup only opens from the listen-count
+				//- threshold now), and the fallback was also firing on
+				//- #trackModal's own close button - since its own content
+				//- *is* .box.personal, closing it would immediately reopen
+				//- it. Just close on click here now.
+				$("#categoryFormModal").removeData("triggeredBy");
 				$(".modal").hide();
 				initialCheck(); // Revalidate form when modal closes
-				if($(".box.personal").length !== 0){
-					$("#trackModal").show();
-				}
 			});
 
 			$(window).on("click", function(event) {

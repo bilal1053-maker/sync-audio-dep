@@ -73,11 +73,43 @@
 				audio.pause();
 				transport = $(this);
 		});
+		// Lead-capture popup: after a visitor has listened to a handful of
+		// distinct tracks (not just clicked play/skip), prompt them for their
+		// name/email using the same modal the licensing flow already shows.
+		var LISTEN_THRESHOLD = 5; // distinct tracks
+		var MIN_LISTEN_SECONDS = 15; // per track, before it counts as "listened"
+		var listenPromptShown = false; // guards against repeat modal.show() calls this page load
+		var currentTrackCounted = false; // guards repeated localStorage writes for the same play
+		function isLeadFormAlreadySubmitted() {
+			return localStorage.getItem("form_submitted") === "true";
+		}
+		function getListenedTrackIds() {
+			try {
+				return JSON.parse(localStorage.getItem("syncaudio_listened_tracks") || "[]");
+			} catch (e) {
+				return [];
+			}
+		}
+		function recordTrackListened(trackId) {
+			var listened = getListenedTrackIds();
+			if (listened.indexOf(trackId) === -1) {
+				listened.push(trackId);
+				localStorage.setItem("syncaudio_listened_tracks", JSON.stringify(listened));
+			}
+			if (!listenPromptShown && !isLeadFormAlreadySubmitted() && listened.length >= LISTEN_THRESHOLD) {
+				var modal = $("#categoryFormModal");
+				if (modal.length > 0) {
+					listenPromptShown = true;
+					modal.data("triggeredBy", "listen").show();
+				}
+			}
+		}
 		var currentTrackId;
 		audio.onplay = function() {
 			playButton.find("img").attr(srcSet.pause);
 			$("div.track a.play img").attr(srcSet.play);
 			currentTrackId = $(audio).data("track_id");
+			currentTrackCounted = false;
 			$("#"+currentTrackId+" a.play img").attr(srcSet.pause);
 			trackInfoPlayedLeftTitle.text($("#"+currentTrackId).attr("data-title"))
 			trackInfoPlayedLeftArtist.text($("#"+currentTrackId).attr("data-artist"))
@@ -92,6 +124,11 @@
 			trackInfoPlayed.text(formatDuration(audio.currentTime));
 			trackInfoPlayedLeft.text(formatDuration(audio.currentTime));
 			setPercentPlayed(percentPlayed);
+
+			if (!currentTrackCounted && currentTrackId && audio.currentTime >= MIN_LISTEN_SECONDS && !isLeadFormAlreadySubmitted()) {
+				currentTrackCounted = true;
+				recordTrackListened(currentTrackId);
+			}
 		}
 		function setPercentPlayed(percentPlayed) {
 			percentPlayed = Math.max(Math.min(percentPlayed, 100), 0);
